@@ -20,28 +20,35 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="My blog">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="嵌套虚拟化原理介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nested virtualization">
+<meta property="og:url" content="http://example.com/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/index.html">
 <meta property="og:site_name" content="My blog">
+<meta property="og:description" content="嵌套虚拟化原理介绍">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210812100834355.png">
+<meta property="article:published_time" content="2021-08-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-17T12:16:24.575Z">
 <meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="-Intel feature -virtualization">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210812100834355.png">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>My blog</title>
+  <title>Nested virtualization | My blog</title>
   
 
 
@@ -179,9 +186,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -197,10 +205,9 @@
       <meta itemprop="name" content="My blog">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/" class="post-title-link" itemprop="url">Nested virtualization</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          Nested virtualization
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -222,7 +229,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="far fa-file-word"></i>
@@ -237,6 +251,7 @@
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
               <span>1 分钟</span>
             </span>
+            <div class="post-description">嵌套虚拟化原理介绍</div>
 
         </div>
       </header>
@@ -247,119 +262,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>嵌套虚拟化原理介绍</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
+        <h1 id="Nested-Virtualization"><a href="#Nested-Virtualization" class="headerlink" title="Nested Virtualization"></a>Nested Virtualization</h1><p>在<code>Intel processor</code>已经支持来了<code>VMX</code> 特性，用以运行虚拟机。但是在guest中如果想嵌套地再运行一层<code>hypervisor</code> 是不被允许的，因为<code>VMRun</code>，<code>VMResume</code> 是两个特权指令，不能在<code>guest mode</code>下被运行，由此提出了嵌套虚拟化技术。</p>
+<h2 id="CPU-perspective"><a href="#CPU-perspective" class="headerlink" title="CPU perspective"></a>CPU perspective</h2><p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210812100834355.png" alt="image-20210812100834355"></p>
+<h2 id="define"><a href="#define" class="headerlink" title="define"></a>define</h2><ul>
+<li>如图所示，当只有两层的时候，为了说明方便，把硬件之上的hypervisor定义为L0，把L0运行的虚拟机定义为L1，把L1guest套娃运行的虚拟机成为L2。同时相应的，在x86架构下（<code>Intel AMD</code>），从L0到L1有VMCS<del>0-&gt;1</del> ,从L1到L2有VMCS<del>1-&gt;2</del> 。但是为了更好地管理L1与L2,L0的hypervisor中还有VMCS<del>0-&gt;2</del> .</li>
+</ul>
+<h2 id="exception-trap-and-emulate"><a href="#exception-trap-and-emulate" class="headerlink" title="exception, trap and emulate"></a>exception, trap and emulate</h2><ul>
+<li><p>CPU在正常情况会由于运行特权指令或者异常指令而导致exception和trap。</p>
+</li>
+<li><p>相应的，在VMX硬件扩展下，CPU支持root和non-root两种模式。当CPU在non-root模式下执行一些root模式的指令（VMRun,VMResume）等等，就会发生一次VMexit从non-root模式退出到root模式运行。而从软件视角来看就是当虚拟机正在跑自己的代码的时候（指令），突然运行了一条异常或者特权指令就需要切换到root模式去执行，而guest运行时候的状态都会被保存的VMCS结构中。然后加载VMCS结构中的host状态，从而发生一次切换，让CPU运行host的hypervisor处理异常。</p>
+</li>
+</ul>
+<h3 id="嵌套情况下的VMRun"><a href="#嵌套情况下的VMRun" class="headerlink" title="嵌套情况下的VMRun"></a>嵌套情况下的VMRun</h3><p>L<del>0</del>为了运行L<del>1</del>需要为L<del>1</del>准备VMCS<del>0-&gt;1</del>结构，从硬件角度来说运行L<del>0</del>是CPU处于root-mode，运行L<del>1</del>时，CPU处于non-root-mode，L<del>1</del>并不能感知自己处于guest-mode。在L<del>1</del>中为了运行L<del>2</del>，需要为L<del>2</del>准备VMCS<del>1-&gt;2</del> ,该结构从L<del>1</del>的视角保存了L<del>2</del>的上下文环境。</p>
+
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/Intel-feature-virtualization/" rel="tag"># -Intel feature -virtualization</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/17/spp/spp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/portrait.gif">
-      <meta itemprop="name" content="Zhuzhuzai">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="My blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/17/spp/spp/" class="post-title-link" itemprop="url">SPP(Sub-page protection)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-08-17 00:00:00 / 修改时间：20:13:58" itemprop="dateCreated datePublished" datetime="2021-08-17T00:00:00+08:00">2021-08-17</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Intel-%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">-Intel -笔记</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Intel SPP特性介绍</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/17/spp/spp/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/17/spp/spp/" rel="prev" title="SPP(Sub-page protection)">
+      <i class="fa fa-chevron-left"></i> SPP(Sub-page protection)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -412,6 +354,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Nested-Virtualization"><span class="nav-number">1.</span> <span class="nav-text">Nested Virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU-perspective"><span class="nav-number">1.1.</span> <span class="nav-text">CPU perspective</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#define"><span class="nav-number">1.2.</span> <span class="nav-text">define</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exception-trap-and-emulate"><span class="nav-number">1.3.</span> <span class="nav-text">exception, trap and emulate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84VMRun"><span class="nav-number">1.3.1.</span> <span class="nav-text">嵌套情况下的VMRun</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
