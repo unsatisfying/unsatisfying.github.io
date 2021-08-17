@@ -17,10 +17,12 @@
 <h3 id="嵌套情况下的VMRun"><a href="#嵌套情况下的VMRun" class="headerlink" title="嵌套情况下的VMRun"></a>嵌套情况下的VMRun</h3><p>L<del>0</del>为了运行L<del>1</del>需要为L<del>1</del>准备VMCS<del>0-&gt;1</del>结构，从硬件角度来说运行L<del>0</del>是CPU处于root-mode，运行L<del>1</del>时，CPU处于non-root-mode，L<del>1</del>并不能感知自己处于guest-mode。在L<del>1</del>中为了运行L<del>2</del>，需要为L<del>2</del>准备VMCS<del>1-&gt;2</del> ,该结构从L<del>1</del>的视角保存了L<del>2</del>的上下文环境。</p>
 ]]></content>
       <categories>
-        <category>-knowledge -theory</category>
+        <category>knowledge</category>
+        <category>theory</category>
       </categories>
       <tags>
-        <tag>-Intel feature -virtualization</tag>
+        <tag>Intel feature</tag>
+        <tag>virtualization</tag>
       </tags>
   </entry>
   <entry>
@@ -68,10 +70,13 @@
 <h2 id="3-KVM-support"><a href="#3-KVM-support" class="headerlink" title="3.KVM  support"></a>3.KVM  support</h2><p><a href="https://lwn.net/ml/linux-kernel/cover.1543481993.git.yi.z.zhang@linux.intel.com/">https://lwn.net/ml/linux-kernel/cover.1543481993.git.yi.z.zhang@linux.intel.com/</a></p>
 ]]></content>
       <categories>
-        <category>-Intel -笔记</category>
+        <category>Intel</category>
+        <category>笔记</category>
       </categories>
       <tags>
-        <tag>-Intel feature -virtualization -EPT</tag>
+        <tag>Intel feature</tag>
+        <tag>virtualization</tag>
+        <tag>EPT</tag>
       </tags>
   </entry>
 </search>
