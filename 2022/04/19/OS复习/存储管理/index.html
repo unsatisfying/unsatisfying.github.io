@@ -20,25 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="嵌套虚拟化原理介绍">
+  <meta name="description" content="操作系统存储管理相关">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Nested virtualization">
-<meta property="og:url" content="http://example.com/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/index.html">
+<meta property="og:title" content="存储管理">
+<meta property="og:url" content="http://example.com/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/index.html">
 <meta property="og:site_name" content="My blog">
-<meta property="og:description" content="嵌套虚拟化原理介绍">
+<meta property="og:description" content="操作系统存储管理相关">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210812100834355.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210818191252056.png">
-<meta property="article:published_time" content="2021-08-16T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-20T05:51:04.975Z">
+<meta property="article:published_time" content="2022-04-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-04-18T16:06:34.006Z">
 <meta property="article:author" content="Zhuzhuzai">
-<meta property="article:tag" content="Intel feature">
-<meta property="article:tag" content="Virtualization">
-<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="OS base knowledge">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210812100834355.png">
 
-<link rel="canonical" href="http://example.com/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/">
+<link rel="canonical" href="http://example.com/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -51,7 +46,7 @@
   };
 </script>
 
-  <title>Nested virtualization | My blog</title>
+  <title>存储管理 | My blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-205242856-1"></script>
     <script>
@@ -214,7 +209,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/portrait.gif">
@@ -227,7 +222,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Nested virtualization
+          存储管理
         </h1>
 
         <div class="post-meta">
@@ -236,16 +231,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-08-17 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-17T00:00:00+08:00">2021-08-17</time>
+              <time title="创建时间：2022-04-19 00:00:00 / 修改时间：00:06:34" itemprop="dateCreated datePublished" datetime="2022-04-19T00:00:00+08:00">2022-04-19</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-08-20 13:51:04" itemprop="dateModified" datetime="2021-08-20T13:51:04+08:00">2021-08-20</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -269,16 +258,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.6k</span>
+              <span>1.5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>1 分钟</span>
             </span>
-            <div class="post-description">嵌套虚拟化原理介绍</div>
+            <div class="post-description">操作系统存储管理相关</div>
 
         </div>
       </header>
@@ -289,84 +278,42 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Nested-Virtualization"><a href="#Nested-Virtualization" class="headerlink" title="Nested Virtualization"></a>Nested Virtualization</h1><p>在<code>Intel processor</code>已经支持来了<code>VMX</code> 特性，用以运行虚拟机。但是在guest中如果想嵌套地再运行一层<code>hypervisor</code> 是不被允许的，因为<code>VMRun</code>，<code>VMResume</code> 是两个特权指令，不能在<code>guest mode</code>下被运行，由此提出了嵌套虚拟化技术。</p>
-<span id="more"></span>
-
-<h2 id="CPU-perspective"><a href="#CPU-perspective" class="headerlink" title="CPU perspective"></a>CPU perspective</h2><p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210812100834355.png" alt="image-20210812100834355"></p>
-<h2 id="define"><a href="#define" class="headerlink" title="define"></a>define</h2><ul>
-<li>如图所示，当只有两层的时候，为了说明方便，把硬件之上的hypervisor定义为L0，把L0运行的虚拟机定义为L1，把L1guest套娃运行的虚拟机成为L2。同时相应的，在x86架构下（<code>Intel AMD</code>），从L0到L1有VMCS<sub>0-&gt;1</sub> ,从L1到L2有VMCS<sub>1-&gt;2</sub> 。但是为了更好地管理L1与L2,L0的hypervisor中还有VMCS<sub>0-&gt;2</sub> .</li>
+        <h1 id="存储管理"><a href="#存储管理" class="headerlink" title="存储管理"></a>存储管理</h1><h2 id="存储介质"><a href="#存储介质" class="headerlink" title="存储介质"></a>存储介质</h2><p>​    存储介质可以分为磁盘(hard disk)、固态磁盘(Solid-State Disk)、磁带(magnetic tape)。</p>
+<h2 id="磁盘调度"><a href="#磁盘调度" class="headerlink" title="磁盘调度"></a>磁盘调度</h2><ul>
+<li>寻道时间：磁臂移动磁头到包含目标扇区的柱面的时间。</li>
+<li>旋转延迟时间：磁盘旋转目标扇区到磁头下的时间。</li>
+<li>磁盘带宽：传输字节的总数除以服务时间。</li>
 </ul>
-<h2 id="exception-trap-and-emulate"><a href="#exception-trap-and-emulate" class="headerlink" title="exception, trap and emulate"></a>exception, trap and emulate</h2><ul>
-<li><p>CPU在正常情况会由于运行特权指令或者异常指令而导致exception和trap。</p>
-</li>
-<li><p>相应的，在VMX硬件扩展下，CPU支持root和non-root两种模式。当CPU在non-root模式下执行一些root模式的指令（VMRun,VMResume）等等，就会发生一次VMexit从non-root模式退出到root模式运行。而从软件视角来看就是当虚拟机正在跑自己的代码的时候（指令），突然运行了一条异常或者特权指令就需要切换到root模式去执行，而guest运行时候的状态都会被保存的VMCS结构中。然后加载VMCS结构中的host状态，从而发生一次切换，让CPU运行host的hypervisor处理异常。</p>
-</li>
+<h3 id="先来先服务调度（First-come-first-served，FCFS）"><a href="#先来先服务调度（First-come-first-served，FCFS）" class="headerlink" title="先来先服务调度（First come first served，FCFS）"></a>先来先服务调度（First come first served，FCFS）</h3><p>​    顾名思义</p>
+<h3 id="最短寻道时间优先（shortest-seek-time-first，SSTF）"><a href="#最短寻道时间优先（shortest-seek-time-first，SSTF）" class="headerlink" title="最短寻道时间优先（shortest seek time first，SSTF）"></a>最短寻道时间优先（shortest seek time first，SSTF）</h3><p>​    优先选择离当前磁头近的请求，本质上是一种最短作业优先调度，会导致请求饥饿。</p>
+<h3 id="扫描算法（SCAN-algorithm）"><a href="#扫描算法（SCAN-algorithm）" class="headerlink" title="扫描算法（SCAN algorithm）"></a>扫描算法（SCAN algorithm）</h3><p>​    磁臂从磁盘的一端开始向另一端移动，到达一端后磁头反转。有时候也被称为<strong>电梯算法（elevator algorithm）</strong></p>
+<h3 id="循环扫描算法（circular-SCAN，-C-SCAN）"><a href="#循环扫描算法（circular-SCAN，-C-SCAN）" class="headerlink" title="循环扫描算法（circular SCAN， C-SCAN）"></a>循环扫描算法（circular SCAN， C-SCAN）</h3><p>​    如果请求是均匀的，SCAN在扫描的时候，当前所在位置的处理因为刚扫过，所以附近的请求数较少，而相反另一端请求数肯定较多。于是就衍生出了C-SCAN。即扫到一端后立即返回，但是不处理任何请求，然后又重新开始扫。</p>
+<h3 id="LOOK调度与C-LOOK调度"><a href="#LOOK调度与C-LOOK调度" class="headerlink" title="LOOK调度与C-LOOK调度"></a>LOOK调度与C-LOOK调度</h3><p>​    类似于SCAN和C-SCAN，但是它不移动整个磁盘宽度，而是移动到最远的一个请求为止。</p>
+<h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><h3 id="磁盘格式化"><a href="#磁盘格式化" class="headerlink" title="磁盘格式化"></a>磁盘格式化</h3><ul>
+<li>低级格式化/物理格式化：将空白磁盘分成扇区，并使用特殊数据结构填充（其中包括ECC（纠错码），用以校对和修复错误字节）</li>
+<li>分区：将磁盘分为由柱面组成的分区，不同分区上可以装不同的操作系统。</li>
+<li>逻辑格式化：即创建文件系统。</li>
 </ul>
-<h2 id="嵌套情况下的CPU虚拟化"><a href="#嵌套情况下的CPU虚拟化" class="headerlink" title="嵌套情况下的CPU虚拟化"></a>嵌套情况下的CPU虚拟化</h2><ul>
-<li>L<sub>0</sub>为了运行L<sub>1</sub>需要为L<sub>1</sub>准备VMCS<sub>0-&gt;1</sub>结构，从硬件角度来说运行L<sub>0</sub>时CPU处于root-mode，运行L<sub>1</sub>时，CPU处于non-root-mode，L<sub>1</sub>并不能感知自己处于guest-mode。</li>
-<li>在L<sub>1</sub>中为了运行L<sub>2</sub>，需要为L<sub>2</sub>准备VMCS<sub>1-&gt;2</sub> ,该结构从L<sub>1</sub>的视角保存了L<sub>2</sub>的上下文环境。</li>
-<li>而VMCS<sub>0-&gt;1</sub>和VMCS<sub>1-&gt;2</sub> 结合成VMCS<sub>0-&gt;2</sub>，具体结合规则如下：<ul>
-<li>host state区域：VMCS<sub>0-&gt;2</sub>的host region=VMCS<sub>0-&gt;1</sub>的host region，VMCS<sub>1-&gt;2</sub>的host region=VMCS<sub>0-&gt;1</sub> 的guest region</li>
-<li>guest state区域：VMCS<sub>0-&gt;2</sub>的guest region=VMCS<sub>1-&gt;2</sub>的guest region，VMCS<sub>0-&gt;1</sub>的guest region=VMCS<sub>1-&gt;2</sub> 的host region</li>
-<li>control data区域：分几种情况，具体怎么合并的看源码。（情况2还没仔细去看源码）<ul>
-<li>1：VMCS<sub>1-&gt;2</sub>会退出而VMCS<sub>0-&gt;1</sub>不会退出，即L<sub>1</sub>定义了某个特定事件会发生VMexit，但是L<sub>0</sub>定义该事件不会退出。由于不论是L<sub>1</sub>还是L<sub>2</sub>发生VMexit都是到L<sub>0</sub>，所以这种情况下，L<sub>2</sub>因为执行了特殊代码，必须要导致退出，所以在VMCS<sub>0-&gt;2</sub>的control data中必须记录所有这种情况的事件。</li>
-<li>2：VMCS<sub>1-&gt;2</sub>不会退出而VMCS<sub>0-&gt;1</sub>会退出。（猜测就不退出了呗，反正1-&gt;2不退出，那接着运行不就好了，运行的毕竟是L2的代码，管L1啥事）</li>
-<li>3：都会退出的情况。（参考1）</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="嵌套情况下的VMExit"><a href="#嵌套情况下的VMExit" class="headerlink" title="嵌套情况下的VMExit"></a>嵌套情况下的VMExit</h3><p>因为VMrun，VMresume是特权指令，所以在嵌套虚拟化的情况下，L1和L2运行这些指令都会导致VMexit到L0 ，而L0需要对这些指令进行模拟。这里只讲L2情况下的VMExit。</p>
-<p>L2的VMExit有两种可能的原因，</p>
+<h3 id="引导块"><a href="#引导块" class="headerlink" title="引导块"></a>引导块</h3><p>​    bootstrap程序（处于ROM中）找到磁盘上的引导块，将其加载入内存，然后该引导块的代码找到操作系统所在分区，并将操作系统加载入内存。</p>
+<h3 id="坏块"><a href="#坏块" class="headerlink" title="坏块"></a>坏块</h3><p>​    磁盘上一般有备用块作为坏块的备份，当某些块损坏时候，磁盘可以利用这些备用块进行补充。</p>
+<h2 id="交换空间管理"><a href="#交换空间管理" class="headerlink" title="交换空间管理"></a>交换空间管理</h2><p>交换空间可分为文件或者交换分区。</p>
 <ul>
-<li>一种是外部中断，非屏蔽中断（NMI），还有在VMCS<sub>0-&gt;2</sub>中记录的，但是在VMCS<sub>1-&gt;2</sub>中没有记录的会导致VMExit的事件，这些事件只需要由L0来处理完成之后直接恢复L2即可。</li>
-<li>另一种是由于在VMCS<sub>1-&gt;2</sub>中记录的会导致VMExit的事件。这种情况下退出到L0，L0再将退出的原因写入到VMCS<sub>1-&gt;2</sub>中，然后恢复运行L1，这样L1恢复之后就会认为是L2退出导致的事件，然后在L1中处理完了之后要恢复运行L2，会执行VMrun或者VMresume指令，这是特权指令，所以又会导致VMexit进入到L0，L0利用VMCS<sub>0-&gt;2</sub>帮忙模拟，直接运行L2。</li>
+<li>文件：位于普通文件系统之上，但是效率低，因为需要访问磁盘目录等结构，需要额外的时间，同时可能需要遍历文件系统。</li>
+<li>交换分区：在单独的原始分区上创建交换空间，不存在文件系统，但是可能会增加内部碎片。</li>
 </ul>
-<h2 id="嵌套情况下的内存虚拟化"><a href="#嵌套情况下的内存虚拟化" class="headerlink" title="嵌套情况下的内存虚拟化"></a>嵌套情况下的内存虚拟化</h2><p>但是对于嵌套情况下的内存虚拟化，由于硬件最多只支持两段page walk，即stage1和stage2，嵌套的情况下可能有三段，甚至更多段的page walk，所以需要对除了stage1以外的page walk压缩成一段。</p>
-<p><strong>影子页表</strong>：当处理器不支持虚拟化硬件特性的时候，最早是用影子页表。我们都知道，intel是用cr3寄存器来记录地址翻译的时候的页表的物理地址的，但是在虚拟化的环境下，如果只用原本的页表去做地址翻译，只能讲GVA翻译成GPA，但是这并不是真实的物理地址，所以影子页表就此诞生了，它旨在把所有虚拟机内部对于页表的操作（包括缺页中断，INVLPG指令和上下文切换等等），都被VMM拦截，并在VMM生成一个相应的影子页表，对影子页表进行修改，然后把影子页表的基址替换CR3寄存器的页表基址，这样虚拟机恢复运行的时候，就能正确把GVA翻译成HPA了。</p>
-<p>在讲压缩过程之前，需要了解intel EPT的特性可以在L0和L1的hypervisor中选择开启或者不开启，所以就有四种选择，这主要是由于L1的vcpu是由L0虚拟化出来的，他可以在里面决定vcpu的特性是否支持VMX.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>情况1</th>
-<th>情况2</th>
-<th>情况3</th>
-<th>情况4</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>L1</td>
-<td>影子页表</td>
-<td>影子页表</td>
-<td>EPT</td>
-<td>EPT</td>
-</tr>
-<tr>
-<td>L0</td>
-<td>影子页表</td>
-<td>EPT</td>
-<td>EPT</td>
-<td>影子页表</td>
-</tr>
-</tbody></table>
-<p>第四种情况比较笨比，有EPT了非要整个影子页表增加overhead，正常情况下肯定没人用啊，就不讲了，讲前面三种，分别对应下图中的1,2,3.</p>
-<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210818191252056.png" alt="image-20210818191252056"></p>
-<p>如图所示，SPT（shadow page table），GPT（guest page table），EPT（extend page table）。</p>
+<p>Linux 的交换空间仅用于匿名内存（即堆，栈，进程未初始化数据等区域），而代码等本来是从磁盘上读的，可以直接丢弃。而别的部分通过交换映射进行交换。交换映射为一个数组，数组中内容表示该对应的交换页由多少进程使用（可能有共享内存，导致数组值大于1，为0则表明空闲）</p>
+<h2 id="磁盘冗余阵列（Redundant-Arrays-of-Independent-Disk，RAID）"><a href="#磁盘冗余阵列（Redundant-Arrays-of-Independent-Disk，RAID）" class="headerlink" title="磁盘冗余阵列（Redundant Arrays of Independent Disk，RAID）"></a>磁盘冗余阵列（Redundant Arrays of Independent Disk，RAID）</h2><p>磁盘的并行可以加速文件的读取，比如同时有8个盘，可以同时读取，每个盘上读取一位则形成了一个字。</p>
 <ul>
-<li>1.影子页表+影子页表的形式：L0为了运行L1创建了SPT01，L1为了运行L2创建了SPT12，但是L0同时要为L2的运行，需要为L2准备SPT02。这样就能将L2的GVA通过SPT02的基址替换CR3，就能直接将GVA翻译成HVA了。</li>
-<li>2.影子页表+EPT：L1为运行L2准备了SPT12，通过CR3将L2的GVA直接翻译成L1的GPA，然后L1的GPA经过EPT翻译成L0的HPA。</li>
-<li>3.EPT+EPT：L0把两个EPT压缩成一个EPT，第一阶段为用L2自身的页表将L2的GVA转换成L2的GPA，然后第二阶段将L2的GPA直接转换成L0的HPA。</li>
+<li>RAID0：有多个磁盘，但是没有冗余数据。</li>
+<li>RAID1：镜像磁盘，即每个磁盘有一个一模一样的镜像磁盘，需要两倍大小存储空间。</li>
+<li>RAID2：内存方式的差错纠正组织。用多个额外的位用于奇偶校验位，当奇偶校验位出错时候，可以由内存系统检测。由此在一定程度上可以修复单个位出错（奇变偶，偶变奇）。如第一个磁盘存储第一个字节，第二个磁盘存储第二个字节。。。然后剩下几个磁盘存储奇偶校验位。比RAID1稍微节约了空间。</li>
+<li>RAID3：位交错奇偶校验位结构。只有一个额外的磁盘作为校验位，类似于RAID2，但是磁盘控制器来检测扇区读取是否正确。</li>
+<li>RAID4：块交错奇偶校验位结构。</li>
+<li>RAID5：块交错分布奇偶校验结构。将数据和奇偶校验分散在每一个磁盘上，而RAID4和3是用一个单独的磁盘存储奇偶校验。（最为常见）</li>
+<li>RAID6：P+Q冗余方案。类似RAID5，但是保存了额外的冗余信息，可以容忍两个磁盘故障。</li>
+<li>RAID0+1：0和1组合，先分条，再镜像。</li>
+<li>RAID1+0：先镜像，再分条。</li>
 </ul>
-<p><strong>缺页中断</strong>：当L2发生缺页中断之后，根据如上三种情况形成三种不同的解决路径。</p>
-<ul>
-<li>影子页表+影子页表：所有的L2中修改页表的操作都需要被L0拦截，然后生成和修改相应的SPT02，再恢复运行。</li>
-<li>影子页表+EPT：所有L2的修改页表操作，都要发生VMexit到L0，但是由于该事件需要由L1处理，所以L0需要把修复页表这个事件注入到L1，L1处理完成之后再恢复运行L2（此时又会发生VMexit，到L0，然后L0运行L2）。所以它甚至比影子页表+影子页表的形式更慢。</li>
-<li>EPT+EPT：L2缺页首先由自己kernel修复，当GPT修复完成之后再执行访存，会导致EPT缺页，发生VMexit到L0，由于EPT需要由EPT12和EPT01合并形成，所以首先检查EPT12是否有缺失，如果有则L0将EPT缺失事件注入到L1，然后运行L1处理（这里有一个问题，就是所有的EPT12修改，都要导致EPT02的修改，所以L0为了拦截EPT12的修改，将L0中的存储EPT12的内存区域的EPT01设置为只读（设置的是EPT01，设置的区域存储了EPT12），这样L1在运行的时候就会导致内存访问错误，然后L0来帮忙修改），L1当然处理不了，因为是只读权限，所以又发生写内存时间，陷入到L0，L0处理帮忙写了之后恢复到L1，L1处理完了运行vmresume，又退出到L0，然后L0直接运行L2，L2又运行之前出错指令，发现又EPT出错退出到L0，L0继续检查发现是EPT01没有配置，所以他又配置EPT01，然后恢复L2运行。（很绕，但是没得办法。。。）</li>
-</ul>
-<p><strong>TLB问题</strong>：硬件上有VPID机制，但是在嵌套虚拟化的情况下，需要把L1使用的VPID，映射进L0使用的VPID中，保证没有冲突（paper就简单提了一下，具体需要看源码，回头再来改这里，先这么写着。）</p>
-<h2 id="嵌套情况下的IO虚拟化"><a href="#嵌套情况下的IO虚拟化" class="headerlink" title="嵌套情况下的IO虚拟化"></a>嵌套情况下的IO虚拟化</h2><p>comming soon</p>
 
     </div>
 
@@ -376,9 +323,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Intel-feature/" rel="tag"># Intel feature</a>
-              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
-              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/OS-base-knowledge/" rel="tag"># OS base knowledge</a>
           </div>
 
         
@@ -386,10 +331,13 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2021/08/17/spp/spp/" rel="next" title="SPP(Sub-page protection)">
-      SPP(Sub-page protection) <i class="fa fa-chevron-right"></i>
+    <a href="/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E6%AD%BB%E9%94%81/" rel="prev" title="死锁">
+      <i class="fa fa-chevron-left"></i> 死锁
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="next" title="内存管理">
+      内存管理 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -449,7 +397,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Nested-Virtualization"><span class="nav-number">1.</span> <span class="nav-text">Nested Virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU-perspective"><span class="nav-number">1.1.</span> <span class="nav-text">CPU perspective</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#define"><span class="nav-number">1.2.</span> <span class="nav-text">define</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exception-trap-and-emulate"><span class="nav-number">1.3.</span> <span class="nav-text">exception, trap and emulate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84CPU%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="nav-number">1.4.</span> <span class="nav-text">嵌套情况下的CPU虚拟化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84VMExit"><span class="nav-number">1.4.1.</span> <span class="nav-text">嵌套情况下的VMExit</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84%E5%86%85%E5%AD%98%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="nav-number">1.5.</span> <span class="nav-text">嵌套情况下的内存虚拟化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84IO%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="nav-number">1.6.</span> <span class="nav-text">嵌套情况下的IO虚拟化</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">存储管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8"><span class="nav-number">1.1.</span> <span class="nav-text">存储介质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6"><span class="nav-number">1.2.</span> <span class="nav-text">磁盘调度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%88%E6%9D%A5%E5%85%88%E6%9C%8D%E5%8A%A1%E8%B0%83%E5%BA%A6%EF%BC%88First-come-first-served%EF%BC%8CFCFS%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">先来先服务调度（First come first served，FCFS）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E7%9F%AD%E5%AF%BB%E9%81%93%E6%97%B6%E9%97%B4%E4%BC%98%E5%85%88%EF%BC%88shortest-seek-time-first%EF%BC%8CSSTF%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">最短寻道时间优先（shortest seek time first，SSTF）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95%EF%BC%88SCAN-algorithm%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">扫描算法（SCAN algorithm）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95%EF%BC%88circular-SCAN%EF%BC%8C-C-SCAN%EF%BC%89"><span class="nav-number">1.2.4.</span> <span class="nav-text">循环扫描算法（circular SCAN， C-SCAN）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LOOK%E8%B0%83%E5%BA%A6%E4%B8%8EC-LOOK%E8%B0%83%E5%BA%A6"><span class="nav-number">1.2.5.</span> <span class="nav-text">LOOK调度与C-LOOK调度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">磁盘管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E6%A0%BC%E5%BC%8F%E5%8C%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">磁盘格式化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E5%AF%BC%E5%9D%97"><span class="nav-number">1.3.2.</span> <span class="nav-text">引导块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%8F%E5%9D%97"><span class="nav-number">1.3.3.</span> <span class="nav-text">坏块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E6%8D%A2%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">交换空间管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E5%86%97%E4%BD%99%E9%98%B5%E5%88%97%EF%BC%88Redundant-Arrays-of-Independent-Disk%EF%BC%8CRAID%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">磁盘冗余阵列（Redundant Arrays of Independent Disk，RAID）</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
