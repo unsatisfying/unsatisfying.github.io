@@ -364,7 +364,7 @@
 <p>​    图为分段机制的程序员视角。</p>
 <p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-%E5%88%86%E6%AE%B5%E7%A8%8B%E5%BA%8F%E5%91%98%E8%A7%86%E8%A7%92.png" alt="image-20220417232909018"></p>
 <h4 id="分段的硬件支持"><a href="#分段的硬件支持" class="headerlink" title="分段的硬件支持"></a>分段的硬件支持</h4><h5 id="16位"><a href="#16位" class="headerlink" title="16位"></a>16位</h5><p>​    硬件上<code>x86</code>在实模式和保护模式中有所不同。在实模式中寄存器都是16位的，而CPU提供四个段寄存器CS,DS,SS,ES，于是寻址方式为，可以最多访问2^20^大小内存：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">物理地址 = （段寄存器 &lt;&lt; 4） + （ip寄存器(偏移量））</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">物理地址 &#x3D; （段寄存器 &lt;&lt; 4） + （ip寄存器(偏移量））<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h5 id="32位"><a href="#32位" class="headerlink" title="32位"></a>32位</h5><p>​    但是到了32位保护模式，CPU变成了32位，同时变成了6个段寄存器，多了FS和GS，可是为了兼容16位程序，其寄存器大小还是16位，于是之前的模式无法满足32位的寻址了。于是Intel增加了两个寄存器：GDTR（全局描述符表），LDTR（局部描述符表）寄存器，新增的寄存器为32位，记录了表的基址。表中每个表项占8个字节（寄存器只有2个字节，所以只能将表放在内存中），其中记录了段的基址和段界限，而相应的CS,DS,SS,ES中存放的是段描述符的索引值。</p>
 <p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6.png" alt="image-20220417232229951"></p>
@@ -402,7 +402,10 @@
     <a href="/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/" rel="prev" title="存储管理">
       <i class="fa fa-chevron-left"></i> 存储管理
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/04/27/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/" rel="next" title="中断">
+      中断 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
