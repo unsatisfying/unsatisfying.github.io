@@ -1255,4 +1255,135 @@ SYM_CODE_END(entry_SYSCALL_64)<span aria-hidden="true" class="line-numbers-rows"
         <tag>Linux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Securing DMA through Virtualization</title>
+    <url>/2022/05/08/DMA/Securing%20DMA%20through%20Virtualization/</url>
+    <content><![CDATA[<h1 id="Securing-DMA-through-Virtualization"><a href="#Securing-DMA-through-Virtualization" class="headerlink" title="Securing DMA through Virtualization"></a>Securing DMA through Virtualization</h1><h2 id="problems"><a href="#problems" class="headerlink" title="problems:"></a>problems:</h2><p>这篇paper发于2012年，当时很多嵌入式设备并没有支持IOMMU，且ARM架构的版本较老，没有支持硬件虚拟化，而很多DMA相关的work并没有关注于DMA攻击，于是本文利用DMA虚拟化方式来保证隔离，防止DMA attack。</p>
+<h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution:"></a>contribution:</h2><ul>
+<li>描述了如何使用虚拟化在ARMv5上来保护DMA</li>
+<li>展示了不需要额外硬件支持的DMA虚拟化</li>
+<li>对方案进行安全性和性能分析</li>
+<li>形式化验证*</li>
+</ul>
+<h2 id="Related-work："><a href="#Related-work：" class="headerlink" title="Related work："></a>Related work：</h2><p>过去的工作都是在嵌入式系统中使用虚拟化，并关注于移植虚拟化层面和性能分析层面。<br>有人提出了在没有IOMMU时候监控存在的恶意设备驱动程序，但是没有支持多guest，也没有调度相关功能。</p>
+<h2 id="Assumptions："><a href="#Assumptions：" class="headerlink" title="Assumptions："></a>Assumptions：</h2><ul>
+<li>DMAC是一个通用的DMAC，并且需要CPU对其进行编程，且DMAC接口暴露给hypervisor。</li>
+<li>MMU支持对ARM domains的管理。外设是内存映射的，通过MMU可以控制对它们的访问。</li>
+<li>MMU和DMAC等硬件都是正常工作的，没有恶意。</li>
+<li>Hypervisor和boot loader/BIOS都是可信的。</li>
+</ul>
+<h2 id="Threat-model"><a href="#Threat-model" class="headerlink" title="Threat model"></a>Threat model</h2><p>攻击者假设拥有Guest完全的控制权，包括运行代码和获取正常权限的数据，Guest目的是攻击其他guest，修改或者读取code和data，或者阻止其运行code。假设其无法决定DMA是否被其他部分使用，（即无法通过测信道攻击通过延迟时间判断。）</p>
+<h2 id="Requirements"><a href="#Requirements" class="headerlink" title="Requirements"></a>Requirements</h2><ul>
+<li>每次访问DMAC都会陷入hypervisor。</li>
+<li>DMAC只执行符合访问策略的操作。即MMU支持权限的读写。</li>
+<li>guest不能代表其他guest发送DMA请求。</li>
+<li>调度不会影响安全性。</li>
+<li>hypervisor不能被guest修改。</li>
+<li>DMAC任务要么由DMAC处理，要么进入队列。</li>
+<li>每个DMA请求都会被处理，处理了之后从DMAC删除。</li>
+</ul>
+<p>1-5保证了隔离性，6-7保证了可用性（Availability）。</p>
+<h2 id="Design："><a href="#Design：" class="headerlink" title="Design："></a>Design：</h2><p>设备被映射进内存，于是受MMU控制，于是可以控制拦截与DMAC相关的操作。<br>DMAC是OVP模拟的，hypervisor是一个别人实现轻量级的。核心就是DMA虚拟化，即模拟DMAC，就是在使用真是DMAC之前，会陷入hypervisor，在模拟DMAC处进行管理转发。</p>
+<ul>
+<li>Shadow Copies and Scheduling：为每个客户模式设置一个DMAC副本，从而防止DMAC设置期间的干扰，当guest需要写入DMAC寄存器时，被hypervisor拦截，然后将其写入shadow DMAC，物理DMAC只接受hypervisor发送过来的数据。然后用一个队列去调度所有的DMA tasks，相应的shadow DMAC中的任务被设置为waiting状态和active状态。</li>
+<li>Trapping with the Data Abort Handler：陷入hypervisor后，data abort handler会对虚拟的DMA请求进行翻译，载入真实的物理DMAC。</li>
+<li>Trapping with the Data Abort Handler：？？直接用MMU相关的权限。</li>
+<li>Handling DMA Interrupts：用以通知DMA已经完成，hypervisor会收到这些interrupts，然后发送给guest。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>paper</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>DMA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy</title>
+    <url>/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/</url>
+    <content><![CDATA[<p>some paper of DMA:</p>
+<p>ISCA’10 IOMMU: Strategies for Mitigating the IOTLB Bottleneck</p>
+<p>ATC’11 vIOMMU: Efficient IOMMU Emulation</p>
+<p>ATC’15 Utilizing the IOMMU Scalably</p>
+<p>ASPLOS’15 rIOMMU: Efficient IOMMU for I/O Devices that Employ Ring Buffers</p>
+<p>ASPLOS’16 True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy</p>
+<p>ASPLOS’18 DAMN: Overhead-free IOMMU Protection for Networking</p>
+<p>ATC’20 coIOMMU: A Virtual IOMMU with Cooperative DMA Buffer Tracking for Efficient Memory Management in Direct I/O</p>
+<p>Security’21 Static Detection of Unsafe DMA Accesses in Device Drivers</p>
+<p>EuroSys’21 Characterizing, exploiting, and detecting DMA code injection vulnerabilities in the presence of an IOMMU</p>
+<p><a href="https://zhuanlan.zhihu.com/p/20393380">https://zhuanlan.zhihu.com/p/20393380</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/20383904">https://zhuanlan.zhihu.com/p/20383904</a></p>
+<p><a href="https://hardenedlinux.github.io/system-security/2020/01/18/peripheral-based_attack_memory.html">https://hardenedlinux.github.io/system-security/2020/01/18/peripheral-based_attack_memory.html</a></p>
+<h1 id="ASPLOS-’16-True-IOMMU-Protection-from-DMA-Attacks-When-Copy-is-Faster-than-Zero-Copy"><a href="#ASPLOS-’16-True-IOMMU-Protection-from-DMA-Attacks-When-Copy-is-Faster-than-Zero-Copy" class="headerlink" title="ASPLOS ’16:True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy"></a>ASPLOS ’16:True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy</h1><h2 id="problems"><a href="#problems" class="headerlink" title="problems:"></a>problems:</h2><ul>
+<li> (1) it provides protection at page granularity only, whereas DMA buffers can reside on the same page as other data: maps other data in an iommu-mapped page.</li>
+<li> (2) it delays DMA buffer unmaps due to performance considerations, creating a vulnerability window in which devices can access in-use memory: because of IOTLB, unmapping is expensive. For the sake of performance, OSes implement deferred protection.</li>
+</ul>
+<h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution:"></a>contribution:</h2><ul>
+<li>(1) observing that copying DMA buffers is preferable to IOTLB invalidation; </li>
+<li>(2) providing a truly secure, fast, and scalable intra-OS protection scheme with strict sub-page safety; </li>
+<li>(3) implementing the new scheme in Linux and evaluating it with networking workloads at 40 Gb/s.</li>
+</ul>
+<h2 id="Assumptions"><a href="#Assumptions" class="headerlink" title="Assumptions:"></a>Assumptions:</h2><p>1.protecting the OS from unauthorized DMAs to targets not mapped with the DMA API;</p>
+<p>2.IOMMU trustworthy，secure boot-stage.</p>
+<p>3.only focus on no-mapping DMA accesses.</p>
+<h2 id="Attacker-Model"><a href="#Attacker-Model" class="headerlink" title="Attacker Model:"></a>Attacker Model:</h2><p>The attacker controls a set of DMA-capable hardware devices but cannot otherwise access the OS.<br>However, shadow copy design can support untrusted drivers.</p>
+<h2 id="Intra-OS-Protection-via-DMA-Shadowing-Key-design"><a href="#Intra-OS-Protection-via-DMA-Shadowing-Key-design" class="headerlink" title="Intra-OS Protection via DMA Shadowing(Key design)"></a>Intra-OS Protection via DMA Shadowing(Key design)</h2><p>The basic idea is simple: we restrict a device’s DMAs to a set of shadow DMA buffers that are permanently mapped in the IOMMU, and copy data to (or from) these buffers from (or to) the OS-allocated DMA buffers.</p>
+<h2 id="Goals"><a href="#Goals" class="headerlink" title="Goals"></a>Goals</h2><p>1.Transparency: without modifying DMA API, it can intergrate into any OSes. describe in $5.2, extend in $5.4.</p>
+<p>2.Scalability: to reduce overhead, it must minimize synchronization. (locks that are for multiple cores is global)describe in $5.3</p>
+<p>3.Generality:support all workloads, including huge DMA buffers. describe in $5.5</p>
+<h2 id="5-2-DMA-Shadowing-Implementation-of-the-DMA-API"><a href="#5-2-DMA-Shadowing-Implementation-of-the-DMA-API" class="headerlink" title="$5.2 DMA Shadowing Implementation of the DMA API"></a>$5.2 DMA Shadowing Implementation of the DMA API</h2><h3 id="primitive-DMA-API"><a href="#primitive-DMA-API" class="headerlink" title="primitive DMA API:"></a>primitive DMA API:</h3><ul>
+<li>dma_map: <ul>
+<li>input: buf addr, size, device rights.</li>
+<li>functionality:alloc a IOVA region from device’s IOVA space. create IOMMU page table.</li>
+<li>return value: starting of IOVA region.</li>
+<li>misc: after do this, devices can access this region while OS/driver cannot.</li>
+</ul>
+</li>
+<li>dma_unmap:<ul>
+<li>input:IOVA</li>
+<li>functonality: remove the mapping in IOMMU, delete the device’s IOMMU page table.</li>
+<li>return value: </li>
+<li>misc: after do this, devices cannot access this region while OS/driver can again.</li>
+</ul>
+</li>
+<li>dma_alloc_coherent of shared buffer:<ul>
+<li>input:</li>
+<li>functonality:</li>
+<li>return value: </li>
+<li>misc: alloc a region that drivers and devices can access it simultaneously. In page grained. use dma free coherent to free. </li>
+</ul>
+</li>
+</ul>
+<h3 id="shadowing-Implementation-DMA-API"><a href="#shadowing-Implementation-DMA-API" class="headerlink" title="shadowing Implementation DMA API:"></a>shadowing Implementation DMA API:</h3><ul>
+<li>dma_map: acquires a shadow buffer of the appropriate size<br>and access rights from the pool, then associated it with mapped OS buffer. return shadow buffer’s IOVA.</li>
+<li>dma_unmap: finds the shadow buffer associated with the OS<br>buffer. copy the contents of shadow buffer into OS buffer, then releases the shadow buffer and return.</li>
+<li>dma_alloc_coherent and dma_free_coherent: infrequent operations, implement equally with the primitive DMA API.</li>
+</ul>
+<h3 id="security"><a href="#security" class="headerlink" title="security:"></a>security:</h3><p>although the devices could always access all the shadow buffers, the OS only read value from OS buffer on the time of invoking dma_map and write at dma_unmap time.</p>
+<h2 id="5-3-Shadow-Buffer-Pool"><a href="#5-3-Shadow-Buffer-Pool" class="headerlink" title="$5.3 Shadow Buffer Pool"></a>$5.3 Shadow Buffer Pool</h2><ul>
+<li>Each device is associated with a unique shadow buffer pool.</li>
+<li>API of shadow buffer pool:<ul>
+<li>iova t acquire_shadow(buf, size, rights): Acquires a shadow buffer and associates it with the OS buffer buf.</li>
+<li>void* find_shadow(iova):Looks up the shadow buffer whose IOVA is iova and returns the OS buffer associated with it.</li>
+<li>void release_shadow(shbuf):Releases the shadow buffer shbuf back to the pool, disassociating it from its OS buffer.</li>
+</ul>
+</li>
+</ul>
+<h3 id="pool-design"><a href="#pool-design" class="headerlink" title="pool design"></a>pool design</h3><p>A pool maintains a unique set of free lists. Each list holds free shadow buffers of a particular size and device access rights. </p>
+<p>each size = 3 lisss: read, write, both. </p>
+<p>each core = own free lists -&gt; concurrent operations,</p>
+<p>inter-numa-node access -&gt; quickly access</p>
+<p>free page to the list where it was allocated -&gt; never change its rights of mapping -&gt; no flush IOTLB</p>
+<h3 id="shadow-buffer-metadata"><a href="#shadow-buffer-metadata" class="headerlink" title="shadow buffer metadata:"></a>shadow buffer metadata:</h3><p>each numa domain = a array of Shadow buffer metadata structures for each size class.</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/![]().png"></p>
+]]></content>
+      <categories>
+        <category>paper</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>DMA</tag>
+      </tags>
+  </entry>
 </search>

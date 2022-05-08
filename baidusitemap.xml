@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://example.com/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/</loc>
+    <lastmod>2022-05-08</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2022/05/08/DMA/Securing%20DMA%20through%20Virtualization/</loc>
+    <lastmod>2022-05-08</lastmod>
+  </url>
+  <url>
     <loc>http://example.com/2022/04/27/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/</loc>
     <lastmod>2022-04-27</lastmod>
   </url>

@@ -20,25 +20,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Intel SPP特性介绍">
+  <meta name="description" content="True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy 论文笔记。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SPP(Sub-page protection)">
-<meta property="og:url" content="http://example.com/2021/08/17/spp/spp/index.html">
+<meta property="og:title" content="True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy">
+<meta property="og:url" content="http://example.com/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/index.html">
 <meta property="og:site_name" content="My blog">
-<meta property="og:description" content="Intel SPP特性介绍">
+<meta property="og:description" content="True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy 论文笔记。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210714170006047.png">
-<meta property="article:published_time" content="2021-08-16T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-20T05:53:41.020Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/![]().png">
+<meta property="article:published_time" content="2022-04-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-05-08T10:56:00.283Z">
 <meta property="article:author" content="Zhuzhuzai">
-<meta property="article:tag" content="Intel feature">
-<meta property="article:tag" content="Virtualization">
-<meta property="article:tag" content="EPT">
 <meta property="article:tag" content="Linux">
+<meta property="article:tag" content="DMA">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210714170006047.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/![]().png">
 
-<link rel="canonical" href="http://example.com/2021/08/17/spp/spp/">
+<link rel="canonical" href="http://example.com/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/">
 
 
 <script id="page-configurations">
@@ -51,7 +49,7 @@
   };
 </script>
 
-  <title>SPP(Sub-page protection) | My blog</title>
+  <title>True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy | My blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-205242856-1"></script>
     <script>
@@ -214,7 +212,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/17/spp/spp/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/portrait.gif">
@@ -227,7 +225,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          SPP(Sub-page protection)
+          True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy
         </h1>
 
         <div class="post-meta">
@@ -237,14 +235,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-08-17 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-17T00:00:00+08:00">2021-08-17</time>
+              <time title="创建时间：2022-04-19 00:00:00" itemprop="dateCreated datePublished" datetime="2022-04-19T00:00:00+08:00">2022-04-19</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-08-20 13:53:41" itemprop="dateModified" datetime="2021-08-20T13:53:41+08:00">2021-08-20</time>
+                <time title="修改时间：2022-05-08 18:56:00" itemprop="dateModified" datetime="2022-05-08T18:56:00+08:00">2022-05-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,7 +250,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">笔记</span></a>
+                  <a href="/categories/paper/" itemprop="url" rel="index"><span itemprop="name">paper</span></a>
                 </span>
             </span>
 
@@ -269,16 +267,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.4k</span>
+              <span>4.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>4 分钟</span>
             </span>
-            <div class="post-description">Intel SPP特性介绍</div>
+            <div class="post-description">True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy 论文笔记。</div>
 
         </div>
       </header>
@@ -289,49 +287,81 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="SPP-Sub-page-protection"><a href="#SPP-Sub-page-protection" class="headerlink" title="SPP(Sub-page protection)"></a>SPP(Sub-page protection)</h1><h2 id="1-SPP-in-manual（28-2-4-翻译）"><a href="#1-SPP-in-manual（28-2-4-翻译）" class="headerlink" title="1. SPP in manual（28.2.4 翻译）"></a>1. SPP in manual（28.2.4 翻译）</h2><ul>
-<li>在Intel中用 <strong>Sub-Page Write Permissions</strong> 来形容<strong>SPP</strong>。 它允许了对于GPA上更细粒度的划分，划分成128字节对齐的子页。</li>
+        <p>some paper of DMA:</p>
+<p>ISCA’10 IOMMU: Strategies for Mitigating the IOTLB Bottleneck</p>
+<p>ATC’11 vIOMMU: Efficient IOMMU Emulation</p>
+<p>ATC’15 Utilizing the IOMMU Scalably</p>
+<p>ASPLOS’15 rIOMMU: Efficient IOMMU for I/O Devices that Employ Ring Buffers</p>
+<p>ASPLOS’16 True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy</p>
+<p>ASPLOS’18 DAMN: Overhead-free IOMMU Protection for Networking</p>
+<p>ATC’20 coIOMMU: A Virtual IOMMU with Cooperative DMA Buffer Tracking for Efficient Memory Management in Direct I/O</p>
+<p>Security’21 Static Detection of Unsafe DMA Accesses in Device Drivers</p>
+<p>EuroSys’21 Characterizing, exploiting, and detecting DMA code injection vulnerabilities in the presence of an IOMMU</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/20393380">https://zhuanlan.zhihu.com/p/20393380</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/20383904">https://zhuanlan.zhihu.com/p/20383904</a></p>
+<p><a target="_blank" rel="noopener" href="https://hardenedlinux.github.io/system-security/2020/01/18/peripheral-based_attack_memory.html">https://hardenedlinux.github.io/system-security/2020/01/18/peripheral-based_attack_memory.html</a></p>
+<h1 id="ASPLOS-’16-True-IOMMU-Protection-from-DMA-Attacks-When-Copy-is-Faster-than-Zero-Copy"><a href="#ASPLOS-’16-True-IOMMU-Protection-from-DMA-Attacks-When-Copy-is-Faster-than-Zero-Copy" class="headerlink" title="ASPLOS ’16:True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy"></a>ASPLOS ’16:True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy</h1><h2 id="problems"><a href="#problems" class="headerlink" title="problems:"></a>problems:</h2><ul>
+<li> (1) it provides protection at page granularity only, whereas DMA buffers can reside on the same page as other data: maps other data in an iommu-mapped page.</li>
+<li> (2) it delays DMA buffer unmaps due to performance considerations, creating a vulnerability window in which devices can access in-use memory: because of IOTLB, unmapping is expensive. For the sake of performance, OSes implement deferred protection.</li>
 </ul>
-<span id="more"></span>
-
-<ul>
-<li><p>一些不适用的情况：</p>
-<p>* </p>
-</li>
-<li><p>具体过程：</p>
-<ul>
-<li><p>GPA的[11:7] bit 决定了子页的idx，用以标识子页面</p>
-</li>
-<li><p>对于每一个enable了SPP的GPA页面，都有一个64bit的SPP vector来控制每个子页的权限，假设页面idx为S（GPA[11:7]），如果SPP vector中2S处的bit位为1时，才能往该子页写，（2S+1）处还没使用，必须为0.</p>
-</li>
-<li><p>SPP vector处于内存中，获取SPP vector过程如下（SPPTP - root SPP table - SPPL3 table - SPPL2 table - SPPL1 table - 查看对应页(GPA[20:12]) 指向偏移，查看该 64 位向量的偏移(子页号 GPA[11:7])）：</p>
-<ul>
-<li>SPPTP(子页面权限表指针) VM-execution control 包含 4KB 大小的 root SPP table，GPA[47:39] 标识了该表中的一个 64 位项，称为 SPPL4E。</li>
-<li>4KB 的 SPPL3 table 位于 SPPL4E 所保存的物理地址中。GPA[38:30] 标识了该表中的一个 64 位项，称为 SPPL3E。</li>
-<li>4KB 的 SPPL2 table 位于 SPPL3E 所保存的物理地址中。GPA[29:21]标识该表中的一个 64 位项，称为 SPPL2E。</li>
-<li>SPPL2E 保存了 4KB 大小的 SPPL1 table 的物理地址。GPA[20:12] 标识了该地址的 64 位 SPP 向量。子页许可向量的位 2S 决定了地址是否可以被写入，其中 S 是地址位 11:7 的值。</li>
+<h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution:"></a>contribution:</h2><ul>
+<li>(1) observing that copying DMA buffers is preferable to IOTLB invalidation; </li>
+<li>(2) providing a truly secure, fast, and scalable intra-OS protection scheme with strict sub-page safety; </li>
+<li>(3) implementing the new scheme in Linux and evaluating it with networking workloads at 40 Gb/s.</li>
 </ul>
-<p>（用于访问这些表的内存类型在 IA32_VMX_BASIC MSR 的位 53:50 中指出，Appendix A.1）</p>
-</li>
-<li><p>仅当页面的 SPP 向量中的指示位针对每个子页面时，才允许对单个 4KB 页面上的多个 128B 子页面进行写访问。以下项目适用于访问写入两个 4KB 页面的情况：</p>
-<ul>
-<li>如果根据 Section 28.2.3.2，不允许对任何一页面进行写入，则即使该页面的 GPA 符合子页面写入权限，也可能不允许访问。</li>
-<li>只有在以下情况下才允许访问：要么对于每一页，Section 28.2.3.2 允许对该页写入；要么 GPA 有资格获得子页面写许可并且页面的子页面向量允许写入。</li>
-</ul>
-</li>
-<li><p>每个项（SPPL4E、SPPL3E、SPPL2E）的位 0 为该项的有效位。如果在映射过程中，发现位 0 为 0，那么映射过程终止，逻辑处理器发生 SPP 未命中（<strong>SPP miss</strong>）。</p>
-</li>
-<li><p>每个项（SPPL4E、SPPL3E、SPPL2E）中，保留位 11:1，以及 63:N，其中 N 是处理器的物理地址宽度。如果对保留位置位，则映射过程终止，并且逻辑处理器触发 SPP misconfiguration。</p>
-</li>
-<li><p>奇数位置的 SPP 向量中的位也被保留；SPP misconfiguration 也会发生在当这些向量中的保留位被置位时。</p>
-</li>
-<li><p>SPP misses 和 SPP misconfigurations 被称为 SPP-related events，二者均会导致 VM exits。</p>
-</li>
+<h2 id="Assumptions"><a href="#Assumptions" class="headerlink" title="Assumptions:"></a>Assumptions:</h2><p>1.protecting the OS from unauthorized DMAs to targets not mapped with the DMA API;</p>
+<p>2.IOMMU trustworthy，secure boot-stage.</p>
+<p>3.only focus on no-mapping DMA accesses.</p>
+<h2 id="Attacker-Model"><a href="#Attacker-Model" class="headerlink" title="Attacker Model:"></a>Attacker Model:</h2><p>The attacker controls a set of DMA-capable hardware devices but cannot otherwise access the OS.<br>However, shadow copy design can support untrusted drivers.</p>
+<h2 id="Intra-OS-Protection-via-DMA-Shadowing-Key-design"><a href="#Intra-OS-Protection-via-DMA-Shadowing-Key-design" class="headerlink" title="Intra-OS Protection via DMA Shadowing(Key design)"></a>Intra-OS Protection via DMA Shadowing(Key design)</h2><p>The basic idea is simple: we restrict a device’s DMAs to a set of shadow DMA buffers that are permanently mapped in the IOMMU, and copy data to (or from) these buffers from (or to) the OS-allocated DMA buffers.</p>
+<h2 id="Goals"><a href="#Goals" class="headerlink" title="Goals"></a>Goals</h2><p>1.Transparency: without modifying DMA API, it can intergrate into any OSes. describe in $5.2, extend in $5.4.</p>
+<p>2.Scalability: to reduce overhead, it must minimize synchronization. (locks that are for multiple cores is global)describe in $5.3</p>
+<p>3.Generality:support all workloads, including huge DMA buffers. describe in $5.5</p>
+<h2 id="5-2-DMA-Shadowing-Implementation-of-the-DMA-API"><a href="#5-2-DMA-Shadowing-Implementation-of-the-DMA-API" class="headerlink" title="$5.2 DMA Shadowing Implementation of the DMA API"></a>$5.2 DMA Shadowing Implementation of the DMA API</h2><h3 id="primitive-DMA-API"><a href="#primitive-DMA-API" class="headerlink" title="primitive DMA API:"></a>primitive DMA API:</h3><ul>
+<li>dma_map: <ul>
+<li>input: buf addr, size, device rights.</li>
+<li>functionality:alloc a IOVA region from device’s IOVA space. create IOMMU page table.</li>
+<li>return value: starting of IOVA region.</li>
+<li>misc: after do this, devices can access this region while OS/driver cannot.</li>
 </ul>
 </li>
+<li>dma_unmap:<ul>
+<li>input:IOVA</li>
+<li>functonality: remove the mapping in IOMMU, delete the device’s IOMMU page table.</li>
+<li>return value: </li>
+<li>misc: after do this, devices cannot access this region while OS/driver can again.</li>
 </ul>
-<h2 id="2-overview"><a href="#2-overview" class="headerlink" title="2. overview"></a>2. overview</h2><p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210714170006047.png" alt="image-20210714170006047"></p>
-<h2 id="3-KVM-support"><a href="#3-KVM-support" class="headerlink" title="3.KVM  support"></a>3.KVM  support</h2><p><a target="_blank" rel="noopener" href="https://lwn.net/ml/linux-kernel/cover.1543481993.git.yi.z.zhang@linux.intel.com/">https://lwn.net/ml/linux-kernel/cover.1543481993.git.yi.z.zhang@linux.intel.com/</a></p>
+</li>
+<li>dma_alloc_coherent of shared buffer:<ul>
+<li>input:</li>
+<li>functonality:</li>
+<li>return value: </li>
+<li>misc: alloc a region that drivers and devices can access it simultaneously. In page grained. use dma free coherent to free. </li>
+</ul>
+</li>
+</ul>
+<h3 id="shadowing-Implementation-DMA-API"><a href="#shadowing-Implementation-DMA-API" class="headerlink" title="shadowing Implementation DMA API:"></a>shadowing Implementation DMA API:</h3><ul>
+<li>dma_map: acquires a shadow buffer of the appropriate size<br>and access rights from the pool, then associated it with mapped OS buffer. return shadow buffer’s IOVA.</li>
+<li>dma_unmap: finds the shadow buffer associated with the OS<br>buffer. copy the contents of shadow buffer into OS buffer, then releases the shadow buffer and return.</li>
+<li>dma_alloc_coherent and dma_free_coherent: infrequent operations, implement equally with the primitive DMA API.</li>
+</ul>
+<h3 id="security"><a href="#security" class="headerlink" title="security:"></a>security:</h3><p>although the devices could always access all the shadow buffers, the OS only read value from OS buffer on the time of invoking dma_map and write at dma_unmap time.</p>
+<h2 id="5-3-Shadow-Buffer-Pool"><a href="#5-3-Shadow-Buffer-Pool" class="headerlink" title="$5.3 Shadow Buffer Pool"></a>$5.3 Shadow Buffer Pool</h2><ul>
+<li>Each device is associated with a unique shadow buffer pool.</li>
+<li>API of shadow buffer pool:<ul>
+<li>iova t acquire_shadow(buf, size, rights): Acquires a shadow buffer and associates it with the OS buffer buf.</li>
+<li>void* find_shadow(iova):Looks up the shadow buffer whose IOVA is iova and returns the OS buffer associated with it.</li>
+<li>void release_shadow(shbuf):Releases the shadow buffer shbuf back to the pool, disassociating it from its OS buffer.</li>
+</ul>
+</li>
+</ul>
+<h3 id="pool-design"><a href="#pool-design" class="headerlink" title="pool design"></a>pool design</h3><p>A pool maintains a unique set of free lists. Each list holds free shadow buffers of a particular size and device access rights. </p>
+<p>each size = 3 lisss: read, write, both. </p>
+<p>each core = own free lists -&gt; concurrent operations,</p>
+<p>inter-numa-node access -&gt; quickly access</p>
+<p>free page to the list where it was allocated -&gt; never change its rights of mapping -&gt; no flush IOTLB</p>
+<h3 id="shadow-buffer-metadata"><a href="#shadow-buffer-metadata" class="headerlink" title="shadow buffer metadata:"></a>shadow buffer metadata:</h3><p>each numa domain = a array of Shadow buffer metadata structures for each size class.</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/![]().png"></p>
 
     </div>
 
@@ -341,10 +371,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Intel-feature/" rel="tag"># Intel feature</a>
-              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
-              <a href="/tags/EPT/" rel="tag"># EPT</a>
               <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/DMA/" rel="tag"># DMA</a>
           </div>
 
         
@@ -353,12 +381,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/08/17/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/" rel="prev" title="Nested virtualization">
-      <i class="fa fa-chevron-left"></i> Nested virtualization
+    <a href="/2021/08/17/spp/spp/" rel="prev" title="SPP(Sub-page protection)">
+      <i class="fa fa-chevron-left"></i> SPP(Sub-page protection)
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/" rel="next" title="True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy">
-      True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy <i class="fa fa-chevron-right"></i>
+    <a href="/2022/04/19/OS%E5%A4%8D%E4%B9%A0/%E6%AD%BB%E9%94%81/" rel="next" title="死锁">
+      死锁 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -418,7 +446,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SPP-Sub-page-protection"><span class="nav-number">1.</span> <span class="nav-text">SPP(Sub-page protection)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-SPP-in-manual%EF%BC%8828-2-4-%E7%BF%BB%E8%AF%91%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1. SPP in manual（28.2.4 翻译）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-overview"><span class="nav-number">1.2.</span> <span class="nav-text">2. overview</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-KVM-support"><span class="nav-number">1.3.</span> <span class="nav-text">3.KVM  support</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ASPLOS-%E2%80%9916-True-IOMMU-Protection-from-DMA-Attacks-When-Copy-is-Faster-than-Zero-Copy"><span class="nav-number">1.</span> <span class="nav-text">ASPLOS ’16:True IOMMU Protection from DMA Attacks: When Copy is Faster than Zero Copy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#problems"><span class="nav-number">1.1.</span> <span class="nav-text">problems:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#contribution"><span class="nav-number">1.2.</span> <span class="nav-text">contribution:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Assumptions"><span class="nav-number">1.3.</span> <span class="nav-text">Assumptions:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Attacker-Model"><span class="nav-number">1.4.</span> <span class="nav-text">Attacker Model:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Intra-OS-Protection-via-DMA-Shadowing-Key-design"><span class="nav-number">1.5.</span> <span class="nav-text">Intra-OS Protection via DMA Shadowing(Key design)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Goals"><span class="nav-number">1.6.</span> <span class="nav-text">Goals</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-DMA-Shadowing-Implementation-of-the-DMA-API"><span class="nav-number">1.7.</span> <span class="nav-text">$5.2 DMA Shadowing Implementation of the DMA API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#primitive-DMA-API"><span class="nav-number">1.7.1.</span> <span class="nav-text">primitive DMA API:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shadowing-Implementation-DMA-API"><span class="nav-number">1.7.2.</span> <span class="nav-text">shadowing Implementation DMA API:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#security"><span class="nav-number">1.7.3.</span> <span class="nav-text">security:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-3-Shadow-Buffer-Pool"><span class="nav-number">1.8.</span> <span class="nav-text">$5.3 Shadow Buffer Pool</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pool-design"><span class="nav-number">1.8.1.</span> <span class="nav-text">pool design</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shadow-buffer-metadata"><span class="nav-number">1.8.2.</span> <span class="nav-text">shadow buffer metadata:</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
