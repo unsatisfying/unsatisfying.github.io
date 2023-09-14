@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"unsatisfying.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="操作系统中断相关知识，从异常，中断和系统调用三个方面来讲述">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中断">
+<meta property="og:url" content="https://unsatisfying.github.io/2022/04/27/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/index.html">
+<meta property="og:site_name" content="My blog">
+<meta property="og:description" content="操作系统中断相关知识，从异常，中断和系统调用三个方面来讲述">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgimage-20220426205810991.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgx86%20%E4%B8%AD%E6%96%AD%E9%97%A8%E6%8F%8F%E8%BF%B0%E7%AC%A6.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgx86-interrupt%20call.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgimage-20220426212350991.png">
+<meta property="article:published_time" content="2022-04-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-04-27T09:41:26.433Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="OS base knowledge">
+<meta property="article:tag" content="operating system concepts">
+<meta property="article:tag" content="code analysis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgimage-20220426205810991.png">
+
+
+<link rel="canonical" href="https://unsatisfying.github.io/2022/04/27/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://unsatisfying.github.io/2022/04/27/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/","path":"2022/04/27/OS复习/中断/","title":"中断"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>中断 | My blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">My blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD"><span class="nav-number">1.</span> <span class="nav-text">中断</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#misc"><span class="nav-number">1.1.</span> <span class="nav-text">misc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">异常处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%90%91%E9%87%8F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">异常向量初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%90%91%E9%87%8F%E5%A4%84%E7%90%86%E5%87%BD%E6%95%B0"><span class="nav-number">1.2.2.</span> <span class="nav-text">异常向量处理函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9C%9F%E6%AD%A3%E7%9A%84%E4%BB%8E%E7%94%A8%E6%88%B7%E6%80%81%E9%99%B7%E5%85%A5%E5%86%85%E6%A0%B8%E6%80%81%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="nav-number">1.2.3.</span> <span class="nav-text">真正的从用户态陷入内核态执行的代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%A7%8B%E6%9C%89%E7%BB%88"><span class="nav-number">1.2.4.</span> <span class="nav-text">有始有终</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">中断处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E5%90%91%E9%87%8F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">中断向量初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E5%87%BD%E6%95%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">中断处理函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9C%9F%E6%AD%A3%E9%99%B7%E5%85%A5%E5%86%85%E6%A0%B8%E6%80%81%E6%89%A7%E8%A1%8C%E7%9A%84%E5%9C%B0%E6%96%B9"><span class="nav-number">1.3.3.</span> <span class="nav-text">真正陷入内核态执行的地方</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#int-0x80"><span class="nav-number">1.4.1.</span> <span class="nav-text">int 0x80</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SYSCALL-SYSENTER%E6%8C%87%E4%BB%A4%E6%96%B9%E5%BC%8F"><span class="nav-number">1.4.2.</span> <span class="nav-text">SYSCALL&#x2F;SYSENTER指令方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">寄存器初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8SYSCALL%E6%8C%87%E4%BB%A4%E5%89%8D%E5%90%8E"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">调用SYSCALL指令前后</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#do-syscall-64%E8%BF%9B%E8%A1%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%A4%84%E7%90%86"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">do_syscall_64进行系统调用处理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">1.5.</span> <span class="nav-text">Reference</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://unsatisfying.github.io/2022/04/27/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="My blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="中断 | My blog">
+      <meta itemprop="description" content="操作系统中断相关知识，从异常，中断和系统调用三个方面来讲述">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          中断
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-04-27 00:00:00 / 修改时间：17:41:26" itemprop="dateCreated datePublished" datetime="2022-04-27T00:00:00+08:00">2022-04-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">操作系统中断相关知识，从异常，中断和系统调用三个方面来讲述</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="中断"><a href="#中断" class="headerlink" title="中断"></a>中断</h1><p>​	说到中断离不开处理器架构，在x86架构下同步的称为异常，异步的称为中断，其区别为：</p>
+<ul>
+<li>中断：中断分为可屏蔽中断和不可屏蔽中断，其可以发生在指令执行的任何时间，其中可屏蔽中断是由外部设备发出的中断，不可屏蔽中断通过NMI引脚接入CPU。</li>
+<li>异常：指的是CPU执行指令的同时发现执行该指令出错，可以分为处理器检测异常和编程异常，其中处理器检测异常包括故障，陷阱，终止；编程异常包括程序调用int等指令时发出的异常（这种异常有时候也被成为软中断，命名问题，本文称其为异常）</li>
+</ul>
+<h2 id="misc"><a href="#misc" class="headerlink" title="misc"></a>misc</h2><p>本文基于Linux-5.15。主要涉及中断处理，异常处理，系统调用三个方面的函数调用以及Linux处理逻辑，防止混淆。硬件上的内容就不说了，都耳熟能详了。</p>
+<p>在<code>arch/x86/include/asm/irq_vectors.h</code>中列了一些宏，用以表示<code>IDT</code>表的一些布局情况，其中可以知道</p>
+<ul>
+<li>Vectors   0 …  31 	: system traps and exceptions - hardcoded events</li>
+<li>Vectors  32 … 127   : device interrupts</li>
+<li>Vector  128              : legacy int80 syscall interface</li>
+<li>Vectors 129 … LOCAL_TIMER_VECTOR-1</li>
+<li>Vectors LOCAL_TIMER_VECTOR … 255 : special interrupts</li>
+</ul>
+<p>其中0 ~ 31号为CPU保留的异常，32 ~ 127号为外部设备中断，128号为系统调用。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>先从异常处理开始吧，因为异常是在表中是0~31号向量。</p>
+<p>在文件<code>arch/x86/include/asm/trapnr.h</code>中保存了异常向量的定义：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_DE</span>		 <span class="token expression"><span class="token number">0</span>	</span><span class="token comment">/* Divide-by-zero */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_DB</span>		 <span class="token expression"><span class="token number">1</span>	</span><span class="token comment">/* Debug */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_NMI</span>		 <span class="token expression"><span class="token number">2</span>	</span><span class="token comment">/* Non-maskable Interrupt */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_BP</span>		 <span class="token expression"><span class="token number">3</span>	</span><span class="token comment">/* Breakpoint */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_OF</span>		 <span class="token expression"><span class="token number">4</span>	</span><span class="token comment">/* Overflow */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_BR</span>		 <span class="token expression"><span class="token number">5</span>	</span><span class="token comment">/* Bound Range Exceeded */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_UD</span>		 <span class="token expression"><span class="token number">6</span>	</span><span class="token comment">/* Invalid Opcode */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_NM</span>		 <span class="token expression"><span class="token number">7</span>	</span><span class="token comment">/* Device Not Available */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_DF</span>		 <span class="token expression"><span class="token number">8</span>	</span><span class="token comment">/* Double Fault */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_OLD_MF</span>		 <span class="token expression"><span class="token number">9</span>	</span><span class="token comment">/* Coprocessor Segment Overrun */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_TS</span>		<span class="token expression"><span class="token number">10</span>	</span><span class="token comment">/* Invalid TSS */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_NP</span>		<span class="token expression"><span class="token number">11</span>	</span><span class="token comment">/* Segment Not Present */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_SS</span>		<span class="token expression"><span class="token number">12</span>	</span><span class="token comment">/* Stack Segment Fault */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_GP</span>		<span class="token expression"><span class="token number">13</span>	</span><span class="token comment">/* General Protection Fault */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_PF</span>		<span class="token expression"><span class="token number">14</span>	</span><span class="token comment">/* Page Fault */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_SPURIOUS</span>	<span class="token expression"><span class="token number">15</span>	</span><span class="token comment">/* Spurious Interrupt */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_MF</span>		<span class="token expression"><span class="token number">16</span>	</span><span class="token comment">/* x87 Floating-Point Exception */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_AC</span>		<span class="token expression"><span class="token number">17</span>	</span><span class="token comment">/* Alignment Check */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_MC</span>		<span class="token expression"><span class="token number">18</span>	</span><span class="token comment">/* Machine Check */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_XF</span>		<span class="token expression"><span class="token number">19</span>	</span><span class="token comment">/* SIMD Floating-Point Exception */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_VE</span>		<span class="token expression"><span class="token number">20</span>	</span><span class="token comment">/* Virtualization Exception */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_CP</span>		<span class="token expression"><span class="token number">21</span>	</span><span class="token comment">/* Control Protection Exception */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_VC</span>		<span class="token expression"><span class="token number">29</span>	</span><span class="token comment">/* VMM Communication Exception */</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">X86_TRAP_IRET</span>		<span class="token expression"><span class="token number">32</span>	</span><span class="token comment">/* IRET Exception */</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h3 id="异常向量初始化"><a href="#异常向量初始化" class="headerlink" title="异常向量初始化"></a>异常向量初始化</h3><p>首先启动内核时候，需要初始化异常向量表。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">start_kernel</span><span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment">//init/main.c</span>
+ <span class="token operator">-></span><span class="token function">trap_init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> 	<span class="token comment">//arch/x86/kernel/traps.c</span>
+  <span class="token operator">-></span><span class="token function">idt_setup_traps</span><span class="token punctuation">(</span><span class="token punctuation">)</span>	<span class="token comment">//arch/x86/kernel/idt.c</span>
+   <span class="token operator">-></span><span class="token function">idt_setup_from_table</span><span class="token punctuation">(</span>idt_table<span class="token punctuation">,</span> def_idts<span class="token punctuation">,</span> <span class="token function">ARRAY_SIZE</span><span class="token punctuation">(</span>def_idts<span class="token punctuation">)</span><span class="token punctuation">,</span> true<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>上面最后调用在函数<code>idt_setup_from_table</code>中，我们看看这个函数的几个参数定义。在<code>arch/x86/kernel/idt.c</code>中定义了idt表和描述符。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">static</span> gate_desc idt_table<span class="token punctuation">[</span>IDT_ENTRIES<span class="token punctuation">]</span> __page_aligned_bss<span class="token punctuation">;</span>
+
+<span class="token keyword">static</span> <span class="token keyword">struct</span> <span class="token class-name">desc_ptr</span> idt_descr __ro_after_init <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+	<span class="token punctuation">.</span>size		<span class="token operator">=</span> IDT_TABLE_SIZE <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">,</span>
+	<span class="token punctuation">.</span>address	<span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">long</span><span class="token punctuation">)</span> idt_table<span class="token punctuation">,</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">static</span> <span class="token keyword">const</span> __initconst <span class="token keyword">struct</span> <span class="token class-name">idt_data</span> def_idts<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_DE<span class="token punctuation">,</span>		asm_exc_divide_error<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">ISTG</span><span class="token punctuation">(</span>X86_TRAP_NMI<span class="token punctuation">,</span>		asm_exc_nmi<span class="token punctuation">,</span> IST_INDEX_NMI<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_BR<span class="token punctuation">,</span>		asm_exc_bounds<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_UD<span class="token punctuation">,</span>		asm_exc_invalid_op<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_NM<span class="token punctuation">,</span>		asm_exc_device_not_available<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_OLD_MF<span class="token punctuation">,</span>		asm_exc_coproc_segment_overrun<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_TS<span class="token punctuation">,</span>		asm_exc_invalid_tss<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_NP<span class="token punctuation">,</span>		asm_exc_segment_not_present<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_SS<span class="token punctuation">,</span>		asm_exc_stack_segment<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_GP<span class="token punctuation">,</span>		asm_exc_general_protection<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_SPURIOUS<span class="token punctuation">,</span>		asm_exc_spurious_interrupt_bug<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_MF<span class="token punctuation">,</span>		asm_exc_coprocessor_error<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_AC<span class="token punctuation">,</span>		asm_exc_alignment_check<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_TRAP_XF<span class="token punctuation">,</span>		asm_exc_simd_coprocessor_error<span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_32</span></span>
+	<span class="token function">TSKG</span><span class="token punctuation">(</span>X86_TRAP_DF<span class="token punctuation">,</span>		GDT_ENTRY_DOUBLEFAULT_TSS<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">else</span></span>
+	<span class="token function">ISTG</span><span class="token punctuation">(</span>X86_TRAP_DF<span class="token punctuation">,</span>		asm_exc_double_fault<span class="token punctuation">,</span> IST_INDEX_DF<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+	<span class="token function">ISTG</span><span class="token punctuation">(</span>X86_TRAP_DB<span class="token punctuation">,</span>		asm_exc_debug<span class="token punctuation">,</span> IST_INDEX_DB<span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_MCE</span></span>
+	<span class="token function">ISTG</span><span class="token punctuation">(</span>X86_TRAP_MC<span class="token punctuation">,</span>		asm_exc_machine_check<span class="token punctuation">,</span> IST_INDEX_MCE<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_AMD_MEM_ENCRYPT</span></span>
+	<span class="token function">ISTG</span><span class="token punctuation">(</span>X86_TRAP_VC<span class="token punctuation">,</span>		asm_exc_vmm_communication<span class="token punctuation">,</span> IST_INDEX_VC<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+	<span class="token function">SYSG</span><span class="token punctuation">(</span>X86_TRAP_OF<span class="token punctuation">,</span>		asm_exc_overflow<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">if</span> <span class="token expression"><span class="token function">defined</span><span class="token punctuation">(</span>CONFIG_IA32_EMULATION<span class="token punctuation">)</span></span></span>
+	<span class="token function">SYSG</span><span class="token punctuation">(</span>IA32_SYSCALL_VECTOR<span class="token punctuation">,</span>	entry_INT80_compat<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">elif</span> <span class="token expression"><span class="token function">defined</span><span class="token punctuation">(</span>CONFIG_X86_32<span class="token punctuation">)</span></span></span>
+	<span class="token function">SYSG</span><span class="token punctuation">(</span>IA32_SYSCALL_VECTOR<span class="token punctuation">,</span>	entry_INT80_32<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p><code>idt_setup_from_table</code>函数本质就是将<code>def_idts</code>内容赋给<code>idt_table</code>。</p>
+<p>我们一个个分析，在分析<code>def_idts</code>之前首先得看几个宏，如下所示。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name function">G</span><span class="token expression"><span class="token punctuation">(</span>_vector<span class="token punctuation">,</span> _addr<span class="token punctuation">,</span> _ist<span class="token punctuation">,</span> _type<span class="token punctuation">,</span> _dpl<span class="token punctuation">,</span> _segment<span class="token punctuation">)</span>	</span><span class="token punctuation">\</span>
+	<span class="token expression"><span class="token punctuation">&#123;</span>						</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>vector		<span class="token operator">=</span> _vector<span class="token punctuation">,</span>		</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>bits<span class="token punctuation">.</span>ist	<span class="token operator">=</span> _ist<span class="token punctuation">,</span>			</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>bits<span class="token punctuation">.</span>type	<span class="token operator">=</span> _type<span class="token punctuation">,</span>		</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>bits<span class="token punctuation">.</span>dpl	<span class="token operator">=</span> _dpl<span class="token punctuation">,</span>			</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>bits<span class="token punctuation">.</span>p		<span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>			</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>addr		<span class="token operator">=</span> _addr<span class="token punctuation">,</span>		</span><span class="token punctuation">\</span>
+		<span class="token expression"><span class="token punctuation">.</span>segment	<span class="token operator">=</span> _segment<span class="token punctuation">,</span>		</span><span class="token punctuation">\</span>
+	<span class="token expression"><span class="token punctuation">&#125;</span></span></span>
+
+<span class="token comment">/* Interrupt gate */</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name function">INTG</span><span class="token expression"><span class="token punctuation">(</span>_vector<span class="token punctuation">,</span> _addr<span class="token punctuation">)</span>				</span><span class="token punctuation">\</span>
+	<span class="token expression"><span class="token function">G</span><span class="token punctuation">(</span>_vector<span class="token punctuation">,</span> _addr<span class="token punctuation">,</span> DEFAULT_STACK<span class="token punctuation">,</span> GATE_INTERRUPT<span class="token punctuation">,</span> DPL0<span class="token punctuation">,</span> __KERNEL_CS<span class="token punctuation">)</span></span></span>
+<span class="token comment">/* System interrupt gate */</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name function">SYSG</span><span class="token expression"><span class="token punctuation">(</span>_vector<span class="token punctuation">,</span> _addr<span class="token punctuation">)</span>				</span><span class="token punctuation">\</span>
+	<span class="token expression"><span class="token function">G</span><span class="token punctuation">(</span>_vector<span class="token punctuation">,</span> _addr<span class="token punctuation">,</span> DEFAULT_STACK<span class="token punctuation">,</span> GATE_INTERRUPT<span class="token punctuation">,</span> DPL3<span class="token punctuation">,</span> __KERNEL_CS<span class="token punctuation">)</span></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>于是便可知道其内容为x86架构下中断门描述符，其格式如下，其实IDT（INTERRUPT DESCRIPTOR TABLE）表中的表项，该表由IDTR寄存器指向，其格式如下图所示。</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgimage-20220426205810991.png" alt="image-20220426205810991"></p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgx86%20%E4%B8%AD%E6%96%AD%E9%97%A8%E6%8F%8F%E8%BF%B0%E7%AC%A6.png" alt="image-20220426171754324"></p>
+<p>最后再来看手册里一张图，这张图大有门道，首先可以看到Linux中用<code>__KERNEL_CS</code>作为其段描述符，也就是图中的GDT表中的索引，而我们知道Linux使用的是平坦内存模型，所以段基址为0，也就导致offset就是异常处理函数的地址。</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgx86-interrupt%20call.png" alt="image-20220426173926048"></p>
+<p>​	上述过程将IDT表设置好之后，在后面会通过调用<code>load_idt(&amp;idt_descr);</code>将描述符写入IDTR寄存器，至此就完成了IDT的初始化。</p>
+<h3 id="异常向量处理函数"><a href="#异常向量处理函数" class="headerlink" title="异常向量处理函数"></a>异常向量处理函数</h3><p>前面我们说到把IDT的内容填充完，使得CPU硬件能够找到异常向量处理函数的入口地址，接下来我们来看这些函数内部是如何处理的。</p>
+<p>在文件<code>arch/x86/kernel/traps.c</code>中有类似如下的定义，可以看到这些定义大部分最后都会调用的<code>do_error_trap</code>来进行处理。也有一部分是自己实现的函数，自己调用。只不过这部分的C代码定义有点难看懂，知道异常处理后面到这来了就行。(老的kernel版本是通过汇编中定义的DO_ERROR函数来作为统一的入口，新的kernel现在改了，下一节我们会讲。这也是因此网上和很多书上都讲解的是DO_ERROR和do_sym那一套)。实际上下面的代码显示的code并不是在IDT表中填充的地址，硬件上虽然设计了可以让进程在触发异常时跳转到异常处理函数的硬件逻辑，但是Linux不是那么做的，Linux将所有IDT表项中call的异常处理函数地址是一个统一的入口，该入口会在下一节讲解。 </p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name function">DEFINE_IDTENTRY</span><span class="token expression"><span class="token punctuation">(</span>func<span class="token punctuation">)</span>						</span><span class="token punctuation">\</span>
+<span class="token expression"><span class="token keyword">static</span> __always_inline <span class="token keyword">void</span> __</span><span class="token punctuation">##</span><span class="token expression"><span class="token function">func</span><span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token operator">*</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>		</span><span class="token punctuation">\</span>
+</span>
+<span class="token function">DEFINE_IDTENTRY</span><span class="token punctuation">(</span>exc_divide_error<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">do_error_trap</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"divide error"</span><span class="token punctuation">,</span> X86_TRAP_DE<span class="token punctuation">,</span> SIGFPE<span class="token punctuation">,</span>
+		      FPE_INTDIV<span class="token punctuation">,</span> <span class="token function">error_get_trap_addr</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token function">DEFINE_IDTENTRY</span><span class="token punctuation">(</span>exc_overflow<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">do_error_trap</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"overflow"</span><span class="token punctuation">,</span> X86_TRAP_OF<span class="token punctuation">,</span> SIGSEGV<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token function">DEFINE_IDTENTRY_ERRORCODE</span><span class="token punctuation">(</span>exc_invalid_tss<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">do_error_trap</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> error_code<span class="token punctuation">,</span> <span class="token string">"invalid TSS"</span><span class="token punctuation">,</span> X86_TRAP_TS<span class="token punctuation">,</span> SIGSEGV<span class="token punctuation">,</span>
+		      <span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token function">DEFINE_IDTENTRY_ERRORCODE</span><span class="token punctuation">(</span>exc_segment_not_present<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">do_error_trap</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> error_code<span class="token punctuation">,</span> <span class="token string">"segment not present"</span><span class="token punctuation">,</span> X86_TRAP_NP<span class="token punctuation">,</span>
+		      SIGBUS<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p>OK，总之异常处理我们现在知道最后走到了<code>do_error_trap</code>，我们看看这个函数里面是什么东西，同样是traps.c文件。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">do_error_trap</span><span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token operator">*</span>regs<span class="token punctuation">,</span> <span class="token keyword">long</span> error_code<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>str<span class="token punctuation">,</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> trapnr<span class="token punctuation">,</span> <span class="token keyword">int</span> signr<span class="token punctuation">,</span> <span class="token keyword">int</span> sicode<span class="token punctuation">,</span> <span class="token keyword">void</span> __user <span class="token operator">*</span>addr<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">RCU_LOCKDEP_WARN</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">rcu_is_watching</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"entry code didn't wake RCU"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">notify_die</span><span class="token punctuation">(</span>DIE_TRAP<span class="token punctuation">,</span> str<span class="token punctuation">,</span> regs<span class="token punctuation">,</span> error_code<span class="token punctuation">,</span> trapnr<span class="token punctuation">,</span> signr<span class="token punctuation">)</span> <span class="token operator">!=</span>
+			NOTIFY_STOP<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		<span class="token function">cond_local_irq_enable</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">do_trap</span><span class="token punctuation">(</span>trapnr<span class="token punctuation">,</span> signr<span class="token punctuation">,</span> str<span class="token punctuation">,</span> regs<span class="token punctuation">,</span> error_code<span class="token punctuation">,</span> sicode<span class="token punctuation">,</span> addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">cond_local_irq_disable</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">static</span> <span class="token keyword">void</span>
+<span class="token function">do_trap</span><span class="token punctuation">(</span><span class="token keyword">int</span> trapnr<span class="token punctuation">,</span> <span class="token keyword">int</span> signr<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>str<span class="token punctuation">,</span> <span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token operator">*</span>regs<span class="token punctuation">,</span>
+	<span class="token keyword">long</span> error_code<span class="token punctuation">,</span> <span class="token keyword">int</span> sicode<span class="token punctuation">,</span> <span class="token keyword">void</span> __user <span class="token operator">*</span>addr<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token keyword">struct</span> <span class="token class-name">task_struct</span> <span class="token operator">*</span>tsk <span class="token operator">=</span> current<span class="token punctuation">;</span>
+
+	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">do_trap_no_signal</span><span class="token punctuation">(</span>tsk<span class="token punctuation">,</span> trapnr<span class="token punctuation">,</span> str<span class="token punctuation">,</span> regs<span class="token punctuation">,</span> error_code<span class="token punctuation">)</span><span class="token punctuation">)</span>
+		<span class="token keyword">return</span><span class="token punctuation">;</span>
+
+	<span class="token function">show_signal</span><span class="token punctuation">(</span>tsk<span class="token punctuation">,</span> signr<span class="token punctuation">,</span> <span class="token string">"trap "</span><span class="token punctuation">,</span> str<span class="token punctuation">,</span> regs<span class="token punctuation">,</span> error_code<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>sicode<span class="token punctuation">)</span>
+		<span class="token function">force_sig</span><span class="token punctuation">(</span>signr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">else</span>
+		<span class="token function">force_sig_fault</span><span class="token punctuation">(</span>signr<span class="token punctuation">,</span> sicode<span class="token punctuation">,</span> addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token function">NOKPROBE_SYMBOL</span><span class="token punctuation">(</span>do_trap<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看到，很多处理过程最后都走到了<code>do_trap</code>函数里，且该函数里通过发送一些信号给进程来进行处理异常，而进程收到信号之后会执行信号处理函数。</p>
+<h3 id="真正的从用户态陷入内核态执行的代码"><a href="#真正的从用户态陷入内核态执行的代码" class="headerlink" title="真正的从用户态陷入内核态执行的代码"></a>真正的从用户态陷入内核态执行的代码</h3><p>​	很多细心的人应该发现，调用异常处理函数的时候会有一个参数pt_regs, 也就是说明这个函数其实不是真正填到中断向量表里跳转的函数，而是后面分发的函数，那么问题就来了，pt_regs参数是什么，是在什么时候构造的？接下来我们就来讲解真正的从用户态陷入内核态执行的代码逻辑。前方包含大量复杂的汇编和宏，很晦涩难懂。</p>
+<p>​	首先Linux-kernel在<code>arch/x86/entry/entry.S</code>中定义了所有内核的入口函数，其中idtentry（idt entry，这样就明白了）函数就是真正写在IDT表中的地址，其代码如下：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">&#x2F;**
+ * idtentry - Macro to generate entry stubs for simple IDT entries
+ * @vector:		Vector number
+ * @asmsym:		ASM symbol for the entry point
+ * @cfunc:		C function to be called
+ * @has_error_code:	Hardware pushed error code on stack
+ *
+ * The macro emits code to set up the kernel context for straight forward
+ * and simple IDT entries. No IST stack, no paranoid entry checks.
+ *&#x2F;
+.macro idtentry vector asmsym cfunc has_error_code:req
+SYM_CODE_START(\asmsym)
+	UNWIND_HINT_IRET_REGS offset&#x3D;\has_error_code*8
+	ASM_CLAC
+
+	.if \has_error_code &#x3D;&#x3D; 0
+		pushq	$-1			&#x2F;* ORIG_RAX: no syscall to restart *&#x2F;
+	.endif
+
+	.if \vector &#x3D;&#x3D; X86_TRAP_BP
+		&#x2F;*
+		 * If coming from kernel space, create a 6-word gap to allow the
+		 * int3 handler to emulate a call instruction.
+		 *&#x2F;
+		testb	$3, CS-ORIG_RAX(%rsp)
+		jnz	.Lfrom_usermode_no_gap_\@
+		.rept	6
+		pushq	5*8(%rsp)
+		.endr
+		UNWIND_HINT_IRET_REGS offset&#x3D;8
+.Lfrom_usermode_no_gap_\@:
+	.endif
+
+	idtentry_body \cfunc \has_error_code
+
+_ASM_NOKPROBE(\asmsym)
+SYM_CODE_END(\asmsym)
+.endm
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>稍微分析一下，idtentry是一个生成IDT entries的宏，其会生成一个函数，该函数接收一个vecter参数，一个asmsym参数，一个cfunc参数，一个has_error_code参数，其参数说明都在注释里。</p>
+<p>但是在执行这个函数之前，也就是在CPU自动跳转到异常处理函数的同时，cpu硬件上会做一些事情，首先他会到TSS中(tr寄存器指向的一个硬件上下文表在GDT中的索引，该表在CPU设计的本意是用于硬件上下文的保存，但是Linux并不那么做，Linux用软件进行保存，而在其中存了kernel stack的地址，tss结构在linux中定义如下)找到kernel stack，其中<code>sp0</code>字段存储了内核栈的地址（64位和32位的定义有所不同，不过这是架构相关内容，得看手册，太细的东西就没必要知道那么清楚了）。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">struct</span> <span class="token class-name">x86_hw_tss</span> <span class="token punctuation">&#123;</span>
+	u32			reserved1<span class="token punctuation">;</span>
+	u64			sp0<span class="token punctuation">;</span>
+	u64			sp1<span class="token punctuation">;</span>
+
+	<span class="token comment">/*
+	 * Since Linux does not use ring 2, the 'sp2' slot is unused by
+	 * hardware.  entry_SYSCALL_64 uses it as scratch space to stash
+	 * the user RSP value.
+	 */</span>
+	u64			sp2<span class="token punctuation">;</span>
+
+	u64			reserved2<span class="token punctuation">;</span>
+	u64			ist<span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+	u32			reserved3<span class="token punctuation">;</span>
+	u32			reserved4<span class="token punctuation">;</span>
+	u16			reserved5<span class="token punctuation">;</span>
+	u16			io_bitmap_base<span class="token punctuation">;</span>
+
+<span class="token punctuation">&#125;</span> <span class="token keyword">__attribute__</span><span class="token punctuation">(</span><span class="token punctuation">(</span>packed<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>切换到内核栈之后，CPU还会自动将寄存器压栈，压栈顺序如下图(error code由软件压)，左边是32位，右边是64位，最先入栈是SS，然后是RSP，因为内核栈是从上往下增长的。其中的error code字段有些异常处理会有，有些没有，所以在<code>idtentry()</code>宏中13~18行会进行判断是否有error code，如果有会开辟error code的空间并压栈。</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/imgimage-20220426212350991.png" alt="image-20220426212350991"></p>
+<p>接着函数就运行<code>idtentry_body \cfunc \has_error_code</code>到了idtentry_body函数处，该函数定义如下：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">&#x2F;**
+ * idtentry_body - Macro to emit code calling the C function
+ * @cfunc:		C function to be called
+ * @has_error_code:	Hardware pushed error code on stack
+ *&#x2F;
+.macro idtentry_body cfunc has_error_code:req
+
+	call	error_entry
+	UNWIND_HINT_REGS
+
+	movq	%rsp, %rdi			&#x2F;* pt_regs pointer into 1st argument*&#x2F;
+
+	.if \has_error_code &#x3D;&#x3D; 1
+		movq	ORIG_RAX(%rsp), %rsi	&#x2F;* get error code into 2nd argument*&#x2F;
+		movq	$-1, ORIG_RAX(%rsp)	&#x2F;* no syscall to restart *&#x2F;
+	.endif
+
+	call	\cfunc
+
+	jmp	error_return
+.endm<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>该函数在error_entry函数中构造pt_reg结构体，即把用户态的旧寄存器压栈，然后将栈顶指针(rsp指向pt_reg结构体，该结构体是栈上空间构造的)传递给rdi，我们都知道rdi是x64函数调用的第一个参数，也就终于回到了前面所提的参数是pt_regs的问题了，所以这里call \cfunc才是前面<code>DEFINE_IDTENTRY</code>定义的真正函数，而该参数也是从idtentry中一直传递下来的，相当于:</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">IDT表指向
+<span class="token operator">-></span><span class="token function">idtentry</span><span class="token punctuation">(</span>vector<span class="token punctuation">,</span> asmsym<span class="token punctuation">,</span> cfunc<span class="token punctuation">,</span> has_error_code<span class="token punctuation">)</span>
+	<span class="token operator">-></span><span class="token function">idtentry_body</span><span class="token punctuation">(</span>cfun<span class="token punctuation">,</span> has_error_code<span class="token punctuation">)</span>
+		<span class="token operator">-></span><span class="token function">cfunc</span><span class="token punctuation">(</span>pt_regs<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>终于清楚了所有的逻辑，我们最后看看error_entry中怎么做的把。</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">&#x2F;*
+ * Save all registers in pt_regs, and switch GS if needed.
+ *&#x2F;
+SYM_CODE_START_LOCAL(error_entry)
+	UNWIND_HINT_FUNC
+	cld
+	PUSH_AND_CLEAR_REGS save_ret&#x3D;1
+	ENCODE_FRAME_POINTER 8
+	testb	$3, CS+8(%rsp)
+	jz	.Lerror_kernelspace
+
+	&#x2F;*
+	 * We entered from user mode or we&#39;re pretending to have entered
+	 * from user mode due to an IRET fault.
+	 *&#x2F;
+	SWAPGS
+	FENCE_SWAPGS_USER_ENTRY
+	&#x2F;* We have user CR3.  Change to kernel CR3. *&#x2F;
+	SWITCH_TO_KERNEL_CR3 scratch_reg&#x3D;%rax
+
+.Lerror_entry_from_usermode_after_swapgs:
+	&#x2F;* Put us onto the real thread stack. *&#x2F;
+	popq	%r12				&#x2F;* save return addr in %12 *&#x2F;
+	movq	%rsp, %rdi			&#x2F;* arg0 &#x3D; pt_regs pointer *&#x2F;
+	call	sync_regs
+	movq	%rax, %rsp			&#x2F;* switch stack *&#x2F;
+	ENCODE_FRAME_POINTER
+	pushq	%r12
+	ret
+
+.Lerror_entry_done_lfence:
+	FENCE_SWAPGS_KERNEL_ENTRY
+.Lerror_entry_done:
+	ret
+
+	&#x2F;*
+	 * There are two places in the kernel that can potentially fault with
+	 * usergs. Handle them here.  B stepping K8s sometimes report a
+	 * truncated RIP for IRET exceptions returning to compat mode. Check
+	 * for these here too.
+	 *&#x2F;
+.Lerror_kernelspace:
+	leaq	native_irq_return_iret(%rip), %rcx
+	cmpq	%rcx, RIP+8(%rsp)
+	je	.Lerror_bad_iret
+	movl	%ecx, %eax			&#x2F;* zero extend *&#x2F;
+	cmpq	%rax, RIP+8(%rsp)
+	je	.Lbstep_iret
+	cmpq	$.Lgs_change, RIP+8(%rsp)
+	jne	.Lerror_entry_done_lfence
+
+	&#x2F;*
+	 * hack: .Lgs_change can fail with user gsbase.  If this happens, fix up
+	 * gsbase and proceed.  We&#39;ll fix up the exception and land in
+	 * .Lgs_change&#39;s error handler with kernel gsbase.
+	 *&#x2F;
+	SWAPGS
+	FENCE_SWAPGS_USER_ENTRY
+	jmp .Lerror_entry_done
+
+.Lbstep_iret:
+	&#x2F;* Fix truncated RIP *&#x2F;
+	movq	%rcx, RIP+8(%rsp)
+	&#x2F;* fall through *&#x2F;
+
+.Lerror_bad_iret:
+	&#x2F;*
+	 * We came from an IRET to user mode, so we have user
+	 * gsbase and CR3.  Switch to kernel gsbase and CR3:
+	 *&#x2F;
+	SWAPGS
+	FENCE_SWAPGS_USER_ENTRY
+	SWITCH_TO_KERNEL_CR3 scratch_reg&#x3D;%rax
+
+	&#x2F;*
+	 * Pretend that the exception came from user mode: set up pt_regs
+	 * as if we faulted immediately after IRET.
+	 *&#x2F;
+	mov	%rsp, %rdi
+	call	fixup_bad_iret
+	mov	%rax, %rsp
+	jmp	.Lerror_entry_from_usermode_after_swapgs
+SYM_CODE_END(error_entry)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其通过调用<code>PUSH_AND_CLEAR_REGS</code>构造pt_regs结构体，将相应的通用寄存器入栈。</p>
+<pre class="line-numbers language-none"><code class="language-none">.macro PUSH_AND_CLEAR_REGS rdx&#x3D;%rdx rax&#x3D;%rax save_ret&#x3D;0
+	PUSH_REGS rdx&#x3D;\rdx, rax&#x3D;\rax, save_ret&#x3D;\save_ret
+	CLEAR_REGS
+.endm
+
+.macro PUSH_REGS rdx&#x3D;%rdx rax&#x3D;%rax save_ret&#x3D;0
+	.if \save_ret
+	pushq	%rsi		&#x2F;* pt_regs-&gt;si *&#x2F;
+	movq	8(%rsp), %rsi	&#x2F;* temporarily store the return address in %rsi *&#x2F;
+	movq	%rdi, 8(%rsp)	&#x2F;* pt_regs-&gt;di (overwriting original return address) *&#x2F;
+	.else
+	pushq   %rdi		&#x2F;* pt_regs-&gt;di *&#x2F;
+	pushq   %rsi		&#x2F;* pt_regs-&gt;si *&#x2F;
+	.endif
+	pushq	\rdx		&#x2F;* pt_regs-&gt;dx *&#x2F;
+	pushq   %rcx		&#x2F;* pt_regs-&gt;cx *&#x2F;
+	pushq   \rax		&#x2F;* pt_regs-&gt;ax *&#x2F;
+	pushq   %r8		&#x2F;* pt_regs-&gt;r8 *&#x2F;
+	pushq   %r9		&#x2F;* pt_regs-&gt;r9 *&#x2F;
+	pushq   %r10		&#x2F;* pt_regs-&gt;r10 *&#x2F;
+	pushq   %r11		&#x2F;* pt_regs-&gt;r11 *&#x2F;
+	pushq	%rbx		&#x2F;* pt_regs-&gt;rbx *&#x2F;
+	pushq	%rbp		&#x2F;* pt_regs-&gt;rbp *&#x2F;
+	pushq	%r12		&#x2F;* pt_regs-&gt;r12 *&#x2F;
+	pushq	%r13		&#x2F;* pt_regs-&gt;r13 *&#x2F;
+	pushq	%r14		&#x2F;* pt_regs-&gt;r14 *&#x2F;
+	pushq	%r15		&#x2F;* pt_regs-&gt;r15 *&#x2F;
+	UNWIND_HINT_REGS
+
+	.if \save_ret
+	pushq	%rsi		&#x2F;* return address on top of stack *&#x2F;
+	.endif
+.endm<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>接着后面就不细讲了，其中16行有一个SWAPGS指令，其会交换kernel的CR3和user的CR3，CR3是页表基址，很多人会问地址空间kernel和user不是一起的吗，其实这里是由于KPTI的缘故，因为熔断meltdown和幽灵specter的硬件缺陷导致的漏洞，内核采用了KPTI，将用户页表和内核页表隔离来防止用户通过侧信道攻击获取内核数据，这里便是KPTI的体现，具体自己去查资料。</p>
+<p>最后贴一个pt_regs结构体定义，省的读者去找，看了之后是不是突然就明了了栈上的寄存器存储的顺序（64位的）。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token punctuation">&#123;</span>
+<span class="token comment">/*
+ * C ABI says these regs are callee-preserved. They aren't saved on kernel entry
+ * unless syscall needs a complete, fully filled "struct pt_regs".
+ */</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r15<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r14<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r13<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r12<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> bp<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> bx<span class="token punctuation">;</span>
+<span class="token comment">/* These regs are callee-clobbered. Always saved on kernel entry. */</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r11<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r10<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r9<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> r8<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> ax<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> cx<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> dx<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> si<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> di<span class="token punctuation">;</span>
+<span class="token comment">/*
+ * On syscall entry, this is syscall#. On CPU exception, this is error code.
+ * On hw interrupt, it's IRQ number:
+ */</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> orig_ax<span class="token punctuation">;</span>
+<span class="token comment">/* Return frame for iretq */</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> ip<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> cs<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> flags<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> sp<span class="token punctuation">;</span>
+	<span class="token keyword">unsigned</span> <span class="token keyword">long</span> ss<span class="token punctuation">;</span>
+<span class="token comment">/* top of stack page */</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="有始有终"><a href="#有始有终" class="headerlink" title="有始有终"></a>有始有终</h3><p>执行完了异常处理函数，总得返回用户态把，再来看看返回时候的逻辑。在idtentry_body函数中最后会<code>jmp error_return</code>返回，其会判断保存的cs是kernel的还是user的，如果是user则返回user，如果是kernel返回kernel。毕竟执行kernel代码也可能出现异常。</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">SYM_CODE_START_LOCAL(error_return)
+	UNWIND_HINT_REGS
+	DEBUG_ENTRY_ASSERT_IRQS_OFF
+	testb	$3, CS(%rsp)
+	jz	restore_regs_and_return_to_kernel
+	jmp	swapgs_restore_regs_and_return_to_usermode
+SYM_CODE_END(error_return)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后截取几段比较重要的，和弹出寄存器相关的代码，其中POP_REGS弹出相关寄存器，然后通过iretq指令会弹出最后的SS:RSP,得到存储的用户&#x2F;内核栈进行返回。这里嵌套了很多跳转的地方，总而言之最后都会到iretq的指令，中间细节就不细讲了。</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">SYM_CODE_START_LOCAL(common_interrupt_return)
+SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
+	POP_REGS pop_rdi&#x3D;0
+	addq	$8, %rsp	&#x2F;* skip regs-&gt;orig_ax *&#x2F;
+	
+	......
+
+	popq	%rdi
+	SWAPGS
+	INTERRUPT_RETURN	&#x2F;*#define INTERRUPT_RETURN	jmp native_iret*&#x2F;
+SYM_INNER_LABEL(restore_regs_and_return_to_kernel, SYM_L_GLOBAL)
+	POP_REGS
+	addq	$8, %rsp	&#x2F;* skip regs-&gt;orig_ax *&#x2F;
+	&#x2F;*
+	 * ARCH_HAS_MEMBARRIER_SYNC_CORE rely on IRET core serialization
+	 * when returning from IPI handler.
+	 *&#x2F;
+	INTERRUPT_RETURN  &#x2F;*#define INTERRUPT_RETURN	jmp native_iret*&#x2F;
+SYM_INNER_LABEL_ALIGN(native_iret, SYM_L_GLOBAL)
+	UNWIND_HINT_IRET_REGS
+	
+	......
+
+SYM_INNER_LABEL(native_irq_return_iret, SYM_L_GLOBAL)	
+	iretq
+SYM_CODE_END(common_interrupt_return)
+_ASM_NOKPROBE(common_interrupt_return)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h2 id="中断处理"><a href="#中断处理" class="headerlink" title="中断处理"></a>中断处理</h2><p>讲完了异常再来讲中断。还是一样的过程，先是初始化，然后是发生中断时候的逻辑，最后是退出中断的逻辑。</p>
+<h3 id="中断向量初始化"><a href="#中断向量初始化" class="headerlink" title="中断向量初始化"></a>中断向量初始化</h3><p>中断向量初始化的函数调用逻辑如下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">start_kernel</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token operator">-></span><span class="token function">init_IRQ</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token operator">-></span><span class="token function">native_init_IRQ</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token operator">-></span><span class="token function">idt_setup_apic_and_irq_gates</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                <span class="token operator">-></span><span class="token function">idt_setup_from_table</span><span class="token punctuation">(</span>idt_table<span class="token punctuation">,</span> apic_idts<span class="token punctuation">,</span> <span class="token function">ARRAY_SIZE</span><span class="token punctuation">(</span>apic_idts<span class="token punctuation">)</span><span class="token punctuation">,</span> true<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token function">for_each_clear_bit_from</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> system_vectors<span class="token punctuation">,</span> FIRST_SYSTEM_VECTOR<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+				entry <span class="token operator">=</span> irq_entries_start <span class="token operator">+</span> <span class="token number">8</span> <span class="token operator">*</span> <span class="token punctuation">(</span>i <span class="token operator">-</span> FIRST_EXTERNAL_VECTOR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+				<span class="token function">set_intr_gate</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> entry<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token punctuation">&#125;</span>
+                <span class="token operator">-></span><span class="token function">load_idt</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>idt_descr<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>又是熟悉的操作呗，<code>idt_setup_from_table</code>函数把<code>apic_idts</code>的内容拷贝到<code>idt_table</code>,上面讲过<code>idt_table</code>是什么，这里我们就看看<code>apic_idts</code>定义,哈哈明了了，又是一样的东西：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">static</span> <span class="token keyword">const</span> __initconst <span class="token keyword">struct</span> <span class="token class-name">idt_data</span> apic_idts<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_SMP</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>RESCHEDULE_VECTOR<span class="token punctuation">,</span>			asm_sysvec_reschedule_ipi<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>CALL_FUNCTION_VECTOR<span class="token punctuation">,</span>		asm_sysvec_call_function<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>CALL_FUNCTION_SINGLE_VECTOR<span class="token punctuation">,</span>	asm_sysvec_call_function_single<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>IRQ_MOVE_CLEANUP_VECTOR<span class="token punctuation">,</span>		asm_sysvec_irq_move_cleanup<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>REBOOT_VECTOR<span class="token punctuation">,</span>			asm_sysvec_reboot<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_THERMAL_VECTOR</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>THERMAL_APIC_VECTOR<span class="token punctuation">,</span>		asm_sysvec_thermal<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_MCE_THRESHOLD</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>THRESHOLD_APIC_VECTOR<span class="token punctuation">,</span>		asm_sysvec_threshold<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_MCE_AMD</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>DEFERRED_ERROR_VECTOR<span class="token punctuation">,</span>		asm_sysvec_deferred_error<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_LOCAL_APIC</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>LOCAL_TIMER_VECTOR<span class="token punctuation">,</span>		asm_sysvec_apic_timer_interrupt<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>X86_PLATFORM_IPI_VECTOR<span class="token punctuation">,</span>		asm_sysvec_x86_platform_ipi<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span> <span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_HAVE_KVM</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>POSTED_INTR_VECTOR<span class="token punctuation">,</span>		asm_sysvec_kvm_posted_intr_ipi<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>POSTED_INTR_WAKEUP_VECTOR<span class="token punctuation">,</span>		asm_sysvec_kvm_posted_intr_wakeup_ipi<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>POSTED_INTR_NESTED_VECTOR<span class="token punctuation">,</span>		asm_sysvec_kvm_posted_intr_nested_ipi<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span> <span class="token directive keyword">endif</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span> <span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_IRQ_WORK</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>IRQ_WORK_VECTOR<span class="token punctuation">,</span>			asm_sysvec_irq_work<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span> <span class="token directive keyword">endif</span></span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>SPURIOUS_APIC_VECTOR<span class="token punctuation">,</span>		asm_sysvec_spurious_apic_interrupt<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">INTG</span><span class="token punctuation">(</span>ERROR_APIC_VECTOR<span class="token punctuation">,</span>			asm_sysvec_error_interrupt<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="中断处理函数"><a href="#中断处理函数" class="headerlink" title="中断处理函数"></a>中断处理函数</h3><p>​	还是同样的，瞅瞅中断处理函数的定义吧，这里截取了一小部分，熟悉的DECLARE_IDTENTRY宏：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">/* System vector entry points */</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_X86_LOCAL_APIC</span></span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>ERROR_APIC_VECTOR<span class="token punctuation">,</span>		sysvec_error_interrupt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>SPURIOUS_APIC_VECTOR<span class="token punctuation">,</span>		sysvec_spurious_apic_interrupt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>LOCAL_TIMER_VECTOR<span class="token punctuation">,</span>		sysvec_apic_timer_interrupt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>X86_PLATFORM_IPI_VECTOR<span class="token punctuation">,</span>	sysvec_x86_platform_ipi<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_SMP</span></span>
+<span class="token function">DECLARE_IDTENTRY</span><span class="token punctuation">(</span>RESCHEDULE_VECTOR<span class="token punctuation">,</span>			sysvec_reschedule_ipi<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>IRQ_MOVE_CLEANUP_VECTOR<span class="token punctuation">,</span>	sysvec_irq_move_cleanup<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>REBOOT_VECTOR<span class="token punctuation">,</span>			sysvec_reboot<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>CALL_FUNCTION_SINGLE_VECTOR<span class="token punctuation">,</span>	sysvec_call_function_single<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">DECLARE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>CALL_FUNCTION_VECTOR<span class="token punctuation">,</span>		sysvec_call_function<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>​	当然函数内容也截取一小部分，就是真正处理中断的地方。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">DEFINE_IDTENTRY_SYSVEC_SIMPLE</span><span class="token punctuation">(</span>sysvec_reschedule_ipi<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">ack_APIC_irq</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">trace_reschedule_entry</span><span class="token punctuation">(</span>RESCHEDULE_VECTOR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">inc_irq_stat</span><span class="token punctuation">(</span>irq_resched_count<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">scheduler_ipi</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">trace_reschedule_exit</span><span class="token punctuation">(</span>RESCHEDULE_VECTOR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token function">DEFINE_IDTENTRY_SYSVEC</span><span class="token punctuation">(</span>sysvec_apic_timer_interrupt<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token operator">*</span>old_regs <span class="token operator">=</span> <span class="token function">set_irq_regs</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token function">ack_APIC_irq</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">trace_local_timer_entry</span><span class="token punctuation">(</span>LOCAL_TIMER_VECTOR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">local_apic_timer_interrupt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">trace_local_timer_exit</span><span class="token punctuation">(</span>LOCAL_TIMER_VECTOR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token function">set_irq_regs</span><span class="token punctuation">(</span>old_regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>当然上面列出的是有中断处理函数定义的地方，但是不是所有的32~127号中断向量都被定义了的，肯定会有一些空缺，空缺的地方怎么填呢，回忆一下中断向量初始化的函数调用逻辑，可以看到在函数<code>idt_setup_apic_and_irq_gates</code>有那么一部分代码，如下所示，其将IDT中空缺的位置用irq_entries_start加上了一个偏移填充，也就是跳转到了irq_entries_start数组中某个index的地方。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">for_each_clear_bit_from</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> system_vectors<span class="token punctuation">,</span> FIRST_SYSTEM_VECTOR<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	entry <span class="token operator">=</span> irq_entries_start <span class="token operator">+</span> <span class="token number">8</span> <span class="token operator">*</span> <span class="token punctuation">(</span>i <span class="token operator">-</span> FIRST_EXTERNAL_VECTOR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">set_intr_gate</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> entry<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>OK我们来看看irq_entries_start里面是什么：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">	.align 8
+SYM_CODE_START(irq_entries_start)
+    vector&#x3D;FIRST_EXTERNAL_VECTOR
+    .rept NR_EXTERNAL_VECTORS
+	UNWIND_HINT_IRET_REGS
+0 :
+	.byte	0x6a, vector
+	jmp	asm_common_interrupt
+	nop
+	&#x2F;* Ensure that the above is 8 bytes max *&#x2F;
+	. &#x3D; 0b + 8
+	vector &#x3D; vector+1
+    .endr
+SYM_CODE_END(irq_entries_start)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>看不懂没关系，其实这个数组中填充了8字节的汇编指令，每8字节都是如下的形式。</p>
+<pre class="line-numbers language-none"><code class="language-none">0x6a(push) xxx 
+0xe9(jmp) asm_common_interrupt
+0x90(nop)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>也就是往栈上push了一个向量号，然后跳转到<code>asm_common_interrupt</code>处。</p>
+<h3 id="真正陷入内核态执行的地方"><a href="#真正陷入内核态执行的地方" class="headerlink" title="真正陷入内核态执行的地方"></a>真正陷入内核态执行的地方</h3><p>上回书我们说到<code>asm_common_interrupt</code>的地方，这边是中断处理的真正函数入口点。其定义如下，也用到了DECLARE_IDTENTRY_IRQ。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">//定义</span>
+<span class="token function">DECLARE_IDTENTRY_IRQ</span><span class="token punctuation">(</span>X86_TRAP_OTHER<span class="token punctuation">,</span>	common_interrupt<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>那就跟之前一样了，跟异常那块串起来了，也是跳到idtentry的汇编代码处，然后，硬件把一些寄存器压栈，软件上会构造pt_regs，等等，都是异常处理部分讲过的内容，最后会调用<code>common_interrupt</code>函数。我们来看看<code>common_interrupt</code>做了什么</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">DEFINE_IDTENTRY_IRQ</span><span class="token punctuation">(</span>common_interrupt<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token operator">*</span>old_regs <span class="token operator">=</span> <span class="token function">set_irq_regs</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">struct</span> <span class="token class-name">irq_desc</span> <span class="token operator">*</span>desc<span class="token punctuation">;</span>
+
+	<span class="token comment">/* entry code tells RCU that we're not quiescent.  Check it. */</span>
+	<span class="token function">RCU_LOCKDEP_WARN</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">rcu_is_watching</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"IRQ failed to wake up RCU"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	desc <span class="token operator">=</span> <span class="token function">__this_cpu_read</span><span class="token punctuation">(</span>vector_irq<span class="token punctuation">[</span>vector<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">likely</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">IS_ERR_OR_NULL</span><span class="token punctuation">(</span>desc<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		<span class="token function">handle_irq</span><span class="token punctuation">(</span>desc<span class="token punctuation">,</span> regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+		<span class="token function">ack_APIC_irq</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>desc <span class="token operator">==</span> VECTOR_UNUSED<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+			<span class="token function">pr_emerg_ratelimited</span><span class="token punctuation">(</span><span class="token string">"%s: %d.%u No irq handler for vector\n"</span><span class="token punctuation">,</span>
+					     <span class="token constant">__func__</span><span class="token punctuation">,</span> <span class="token function">smp_processor_id</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+					     vector<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+			<span class="token function">__this_cpu_write</span><span class="token punctuation">(</span>vector_irq<span class="token punctuation">[</span>vector<span class="token punctuation">]</span><span class="token punctuation">,</span> VECTOR_UNUSED<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+	<span class="token punctuation">&#125;</span>
+
+	<span class="token function">set_irq_regs</span><span class="token punctuation">(</span>old_regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>OK，总之就是对中断进行一些处理，如果描述表中没有会报<code>No irq handler for vector</code>等等，然后又是中断返回那一套，具体看异常处理中有始有终章节即可。</p>
+<h2 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h2><p>系统调用也经过过时代的变迁，首先早期的系统执行系统调用时候，即通过INT指令调用，INT指令的作用是触发一个中断向量，其参数作为中断向量号，而处理器执行<code>INT 0x80</code>便是系统调用的中断向量号(0x80,128)。但是现在处理器有了新的指令SYSCALL指令，其也是x86_64内核默认使用的方法，64位的defconfig没有下面两个config选项了。所以这里我们将两种方式都进行讲解。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">if</span> <span class="token expression"><span class="token function">defined</span><span class="token punctuation">(</span>CONFIG_IA32_EMULATION<span class="token punctuation">)</span></span></span>
+	<span class="token function">SYSG</span><span class="token punctuation">(</span>IA32_SYSCALL_VECTOR<span class="token punctuation">,</span>	entry_INT80_compat<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">elif</span> <span class="token expression"><span class="token function">defined</span><span class="token punctuation">(</span>CONFIG_X86_32<span class="token punctuation">)</span></span></span>
+	<span class="token function">SYSG</span><span class="token punctuation">(</span>IA32_SYSCALL_VECTOR<span class="token punctuation">,</span>	entry_INT80_32<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="int-0x80"><a href="#int-0x80" class="headerlink" title="int 0x80"></a>int 0x80</h3><p>首先是老式的办法，通过指令触发中断，执行INT指令，然后触发0x80中断向量进行系统调用处理，如果在64位内核上要强制使用需要打开上述config，随后便和前述逻辑中的处理方式一样，进入<code>entry_INT80_compat</code>的汇编代码入口处，而32位使用的入口是<code>entry_INT80_32</code>，这里我们就看看64位的吧：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">SYM_CODE_START(entry_INT80_compat)
+	UNWIND_HINT_EMPTY
+	&#x2F;*
+	 * Interrupts are off on entry.
+	 *&#x2F;
+	ASM_CLAC			&#x2F;* Do this early to minimize exposure *&#x2F;
+	SWAPGS
+
+	&#x2F;*
+	 * User tracing code (ptrace or signal handlers) might assume that
+	 * the saved RAX contains a 32-bit number when we&#39;re invoking a 32-bit
+	 * syscall.  Just in case the high bits are nonzero, zero-extend
+	 * the syscall number.  (This could almost certainly be deleted
+	 * with no ill effects.)
+	 *&#x2F;
+	movl	%eax, %eax
+
+	&#x2F;* switch to thread stack expects orig_ax and rdi to be pushed *&#x2F;
+	pushq	%rax			&#x2F;* pt_regs-&gt;orig_ax *&#x2F;
+	pushq	%rdi			&#x2F;* pt_regs-&gt;di *&#x2F;
+
+	&#x2F;* Need to switch before accessing the thread stack. *&#x2F;
+	SWITCH_TO_KERNEL_CR3 scratch_reg&#x3D;%rdi
+
+	&#x2F;* In the Xen PV case we already run on the thread stack. *&#x2F;
+	ALTERNATIVE &quot;&quot;, &quot;jmp .Lint80_keep_stack&quot;, X86_FEATURE_XENPV
+
+	movq	%rsp, %rdi
+	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+
+	pushq	6*8(%rdi)		&#x2F;* regs-&gt;ss *&#x2F;
+	pushq	5*8(%rdi)		&#x2F;* regs-&gt;rsp *&#x2F;
+	pushq	4*8(%rdi)		&#x2F;* regs-&gt;eflags *&#x2F;
+	pushq	3*8(%rdi)		&#x2F;* regs-&gt;cs *&#x2F;
+	pushq	2*8(%rdi)		&#x2F;* regs-&gt;ip *&#x2F;
+	pushq	1*8(%rdi)		&#x2F;* regs-&gt;orig_ax *&#x2F;
+	pushq	(%rdi)			&#x2F;* pt_regs-&gt;di *&#x2F;
+.Lint80_keep_stack:
+
+	pushq	%rsi			&#x2F;* pt_regs-&gt;si *&#x2F;
+	xorl	%esi, %esi		&#x2F;* nospec   si *&#x2F;
+	pushq	%rdx			&#x2F;* pt_regs-&gt;dx *&#x2F;
+	xorl	%edx, %edx		&#x2F;* nospec   dx *&#x2F;
+	pushq	%rcx			&#x2F;* pt_regs-&gt;cx *&#x2F;
+	xorl	%ecx, %ecx		&#x2F;* nospec   cx *&#x2F;
+	pushq	$-ENOSYS		&#x2F;* pt_regs-&gt;ax *&#x2F;
+	pushq   %r8			&#x2F;* pt_regs-&gt;r8 *&#x2F;
+	xorl	%r8d, %r8d		&#x2F;* nospec   r8 *&#x2F;
+	pushq   %r9			&#x2F;* pt_regs-&gt;r9 *&#x2F;
+	xorl	%r9d, %r9d		&#x2F;* nospec   r9 *&#x2F;
+	pushq   %r10			&#x2F;* pt_regs-&gt;r10*&#x2F;
+	xorl	%r10d, %r10d		&#x2F;* nospec   r10 *&#x2F;
+	pushq   %r11			&#x2F;* pt_regs-&gt;r11 *&#x2F;
+	xorl	%r11d, %r11d		&#x2F;* nospec   r11 *&#x2F;
+	pushq   %rbx                    &#x2F;* pt_regs-&gt;rbx *&#x2F;
+	xorl	%ebx, %ebx		&#x2F;* nospec   rbx *&#x2F;
+	pushq   %rbp                    &#x2F;* pt_regs-&gt;rbp *&#x2F;
+	xorl	%ebp, %ebp		&#x2F;* nospec   rbp *&#x2F;
+	pushq   %r12                    &#x2F;* pt_regs-&gt;r12 *&#x2F;
+	xorl	%r12d, %r12d		&#x2F;* nospec   r12 *&#x2F;
+	pushq   %r13                    &#x2F;* pt_regs-&gt;r13 *&#x2F;
+	xorl	%r13d, %r13d		&#x2F;* nospec   r13 *&#x2F;
+	pushq   %r14                    &#x2F;* pt_regs-&gt;r14 *&#x2F;
+	xorl	%r14d, %r14d		&#x2F;* nospec   r14 *&#x2F;
+	pushq   %r15                    &#x2F;* pt_regs-&gt;r15 *&#x2F;
+	xorl	%r15d, %r15d		&#x2F;* nospec   r15 *&#x2F;
+
+	UNWIND_HINT_REGS
+
+	cld
+
+	movq	%rsp, %rdi
+	call	do_int80_syscall_32
+	jmp	swapgs_restore_regs_and_return_to_usermode
+SYM_CODE_END(entry_INT80_compat)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>粗略讲一下：2-29行大概就是一些关中断，然后处理KPTI等等的一些处理过程，随后是进行pt_regs构建压栈，最后调用（call）<code>do_int80_syscall_32</code>函数，其会从pt_regs中读取相应的系统调用号，然后进行相应的处理，就不过多叙述了。最后就是<code>swapgs_restore_regs_and_return_to_usermode</code>，就是处理KPTI，将寄存器弹出，然后返回用户态balabala一大堆。</p>
+<h3 id="SYSCALL-SYSENTER指令方式"><a href="#SYSCALL-SYSENTER指令方式" class="headerlink" title="SYSCALL&#x2F;SYSENTER指令方式"></a>SYSCALL&#x2F;SYSENTER指令方式</h3><p>该指令会从<code>IA32_LSTAR_MSR</code>寄存器中取出系统调用入口到RIP寄存器，然后执行相应的系统调用统一入口函数，其方式比上述方式快。那么Linux内核中怎么做的呢，下面一一道来：</p>
+<h4 id="寄存器初始化"><a href="#寄存器初始化" class="headerlink" title="寄存器初始化"></a>寄存器初始化</h4><p>在<code>arch/x86/kernel/cpu/common.c</code>文件中的syscall_init函数对寄存器进行初始化，其通过wrmsr将<code>entry_SYSCALL_64</code>的系统调用入口写入<code>MSR_LSTAR</code>寄存器(Linux定义的寄存器名字)，也就是上面所说的<code>IA32_LSTAR_MSR</code>（Intel定义的寄存器名字）。下面代码也可以看到如果开启了32位等选项，也可以使用SYSCALL指令进行跳转到<code>entry_SYSCALL_compat</code>处，该函数前面一节已经分析了。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">void</span> <span class="token function">syscall_init</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">wrmsr</span><span class="token punctuation">(</span>MSR_STAR<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>__USER32_CS <span class="token operator">&lt;&lt;</span> <span class="token number">16</span><span class="token punctuation">)</span> <span class="token operator">|</span> __KERNEL_CS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">wrmsrl</span><span class="token punctuation">(</span>MSR_LSTAR<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">long</span><span class="token punctuation">)</span>entry_SYSCALL_64<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">CONFIG_IA32_EMULATION</span></span>
+	<span class="token function">wrmsrl</span><span class="token punctuation">(</span>MSR_CSTAR<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">long</span><span class="token punctuation">)</span>entry_SYSCALL_compat<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="调用SYSCALL指令前后"><a href="#调用SYSCALL指令前后" class="headerlink" title="调用SYSCALL指令前后"></a>调用SYSCALL指令前后</h4><p>OK我们来看看<code>entry_SYSCALL_64</code>里面做了什么，首先猜一下应该就是硬件寄存器压栈，软件把寄存器压栈，跳转系统调用函数，处理完成返回那一套呗。就把代码都贴上了，粗略看一下果然就是那么做的。</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">SYM_CODE_START(entry_SYSCALL_64)
+	UNWIND_HINT_EMPTY
+
+	swapgs
+	&#x2F;* tss.sp2 is scratch space. *&#x2F;
+	movq	%rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
+	SWITCH_TO_KERNEL_CR3 scratch_reg&#x3D;%rsp
+	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+
+SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)
+
+	&#x2F;* Construct struct pt_regs on stack *&#x2F;
+	pushq	$__USER_DS				&#x2F;* pt_regs-&gt;ss *&#x2F;
+	pushq	PER_CPU_VAR(cpu_tss_rw + TSS_sp2)	&#x2F;* pt_regs-&gt;sp *&#x2F;
+	pushq	%r11					&#x2F;* pt_regs-&gt;flags *&#x2F;
+	pushq	$__USER_CS				&#x2F;* pt_regs-&gt;cs *&#x2F;
+	pushq	%rcx					&#x2F;* pt_regs-&gt;ip *&#x2F;
+SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+	pushq	%rax					&#x2F;* pt_regs-&gt;orig_ax *&#x2F;
+
+	PUSH_AND_CLEAR_REGS rax&#x3D;$-ENOSYS
+
+	&#x2F;* IRQs are off. *&#x2F;
+	movq	%rsp, %rdi
+	&#x2F;* Sign extend the lower 32bit as syscall numbers are treated as int *&#x2F;
+	movslq	%eax, %rsi
+	call	do_syscall_64		&#x2F;* returns with IRQs disabled *&#x2F;
+
+	&#x2F;*
+	 * Try to use SYSRET instead of IRET if we&#39;re returning to
+	 * a completely clean 64-bit userspace context.  If we&#39;re not,
+	 * go to the slow exit path.
+	 * In the Xen PV case we must use iret anyway.
+	 *&#x2F;
+
+	ALTERNATIVE &quot;&quot;, &quot;jmp	swapgs_restore_regs_and_return_to_usermode&quot;, \
+		X86_FEATURE_XENPV
+
+	movq	RCX(%rsp), %rcx
+	movq	RIP(%rsp), %r11
+
+	cmpq	%rcx, %r11	&#x2F;* SYSRET requires RCX &#x3D;&#x3D; RIP *&#x2F;
+	jne	swapgs_restore_regs_and_return_to_usermode
+
+	&#x2F;*
+	 * On Intel CPUs, SYSRET with non-canonical RCX&#x2F;RIP will #GP
+	 * in kernel space.  This essentially lets the user take over
+	 * the kernel, since userspace controls RSP.
+	 *
+	 * If width of &quot;canonical tail&quot; ever becomes variable, this will need
+	 * to be updated to remain correct on both old and new CPUs.
+	 *
+	 * Change top bits to match most significant bit (47th or 56th bit
+	 * depending on paging mode) in the address.
+	 *&#x2F;
+#ifdef CONFIG_X86_5LEVEL
+	ALTERNATIVE &quot;shl $(64 - 48), %rcx; sar $(64 - 48), %rcx&quot;, \
+		&quot;shl $(64 - 57), %rcx; sar $(64 - 57), %rcx&quot;, X86_FEATURE_LA57
+#else
+	shl	$(64 - (__VIRTUAL_MASK_SHIFT+1)), %rcx
+	sar	$(64 - (__VIRTUAL_MASK_SHIFT+1)), %rcx
+#endif
+
+	&#x2F;* If this changed %rcx, it was not canonical *&#x2F;
+	cmpq	%rcx, %r11
+	jne	swapgs_restore_regs_and_return_to_usermode
+
+	cmpq	$__USER_CS, CS(%rsp)		&#x2F;* CS must match SYSRET *&#x2F;
+	jne	swapgs_restore_regs_and_return_to_usermode
+
+	movq	R11(%rsp), %r11
+	cmpq	%r11, EFLAGS(%rsp)		&#x2F;* R11 &#x3D;&#x3D; RFLAGS *&#x2F;
+	jne	swapgs_restore_regs_and_return_to_usermode
+
+	&#x2F;*
+	 * SYSCALL clears RF when it saves RFLAGS in R11 and SYSRET cannot
+	 * restore RF properly. If the slowpath sets it for whatever reason, we
+	 * need to restore it correctly.
+	 *
+	 * SYSRET can restore TF, but unlike IRET, restoring TF results in a
+	 * trap from userspace immediately after SYSRET.  This would cause an
+	 * infinite loop whenever #DB happens with register state that satisfies
+	 * the opportunistic SYSRET conditions.  For example, single-stepping
+	 * this user code:
+	 *
+	 *           movq	$stuck_here, %rcx
+	 *           pushfq
+	 *           popq %r11
+	 *   stuck_here:
+	 *
+	 * would never get past &#39;stuck_here&#39;.
+	 *&#x2F;
+	testq	$(X86_EFLAGS_RF|X86_EFLAGS_TF), %r11
+	jnz	swapgs_restore_regs_and_return_to_usermode
+
+	&#x2F;* nothing to check for RSP *&#x2F;
+
+	cmpq	$__USER_DS, SS(%rsp)		&#x2F;* SS must match SYSRET *&#x2F;
+	jne	swapgs_restore_regs_and_return_to_usermode
+
+	&#x2F;*
+	 * We win! This label is here just for ease of understanding
+	 * perf profiles. Nothing jumps here.
+	 *&#x2F;
+syscall_return_via_sysret:
+	&#x2F;* rcx and r11 are already restored (see code above) *&#x2F;
+	POP_REGS pop_rdi&#x3D;0 skip_r11rcx&#x3D;1
+
+	&#x2F;*
+	 * Now all regs are restored except RSP and RDI.
+	 * Save old stack pointer and switch to trampoline stack.
+	 *&#x2F;
+	movq	%rsp, %rdi
+	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
+	UNWIND_HINT_EMPTY
+
+	pushq	RSP-RDI(%rdi)	&#x2F;* RSP *&#x2F;
+	pushq	(%rdi)		&#x2F;* RDI *&#x2F;
+
+	&#x2F;*
+	 * We are on the trampoline stack.  All regs except RDI are live.
+	 * We can do future final exit work right here.
+	 *&#x2F;
+	STACKLEAK_ERASE_NOCLOBBER
+
+	SWITCH_TO_USER_CR3_STACK scratch_reg&#x3D;%rdi
+
+	popq	%rdi
+	popq	%rsp
+	swapgs
+	sysretq
+SYM_CODE_END(entry_SYSCALL_64)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>首先2-9行由于SYSCALL指令没有IDT表那一块硬件逻辑，硬件不会自动加载TSS中的内核栈位置给寄存器，所以需要手动用软件的方式进行加载内核栈地址，也是从tss结构体中加载。然后看注释就知道，就构建pt_regs结构体，之后27行call了<code>do_syscall_64</code>，进行真正的系统调用处理，然后最后都会到<code>swapgs_restore_regs_and_return_to_usermode</code>进行返回，大差不差。</p>
+<h4 id="do-syscall-64进行系统调用处理"><a href="#do-syscall-64进行系统调用处理" class="headerlink" title="do_syscall_64进行系统调用处理"></a>do_syscall_64进行系统调用处理</h4><p>行吧，具体逻辑就不说了，贴个代码看看就行了，大概就是读一下系统调用号，然后跳转到相应的系统调用处理函数进行执行，然后返回就完了。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">__visible noinstr <span class="token keyword">void</span> <span class="token function">do_syscall_64</span><span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">pt_regs</span> <span class="token operator">*</span>regs<span class="token punctuation">,</span> <span class="token keyword">int</span> nr<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	<span class="token function">add_random_kstack_offset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">//ASLR，安全问题，就给栈加了个偏移</span>
+	nr <span class="token operator">=</span> <span class="token function">syscall_enter_from_user_mode</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> nr<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//一些初始化的处理，检查等操作</span>
+
+	<span class="token function">instrumentation_begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//KMSAN相关操作，如果没开选项则为空</span>
+
+    <span class="token comment">//do_syscall_x64处理64位系统调用，里面会调用系统调用表中的函数，x32就是32位的，不过是运行在64位kernel上的32位程序使用的</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">do_syscall_x64</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> nr<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token function">do_syscall_x32</span><span class="token punctuation">(</span>regs<span class="token punctuation">,</span> nr<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> nr <span class="token operator">!=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		<span class="token comment">/* Invalid system call, but still a system call. */</span>
+		regs<span class="token operator">-></span>ax <span class="token operator">=</span> <span class="token function">__x64_sys_ni_syscall</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span>
+
+	<span class="token function">instrumentation_end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//同前</span>
+	<span class="token function">syscall_exit_to_user_mode</span><span class="token punctuation">(</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//退出之前的最后处理，什么开关中断啊什么的。</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>Linux-kernel source code 5.15</p>
+<p>Intel spec</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/OS-base-knowledge/" rel="tag"># OS base knowledge</a>
+              <a href="/tags/operating-system-concepts/" rel="tag"># operating system concepts</a>
+              <a href="/tags/code-analysis/" rel="tag"># code analysis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/04/19/DMA/ASPLOS%20%E2%80%9916True%20IOMMU%20Protection%20from%20DMA%20Attacks%20When%20Copy%20is%20Faster%20than%20Zero%20Copy/" rel="prev" title="True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy">
+                  <i class="fa fa-angle-left"></i> True IOMMU Protection from DMA Attacks：When Copy is Faster than Zero Copy
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/05/08/DMA/Securing%20DMA%20through%20Virtualization/" rel="next" title="Securing DMA through Virtualization">
+                  Securing DMA through Virtualization <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
