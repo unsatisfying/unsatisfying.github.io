@@ -19,25 +19,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="ZhuZhuZai的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="My blog">
-<meta property="og:url" content="https://zhuzhuzai.top/page/2/index.html">
+    <meta name="description" content="Securing DMA through Virtualization 论文笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Securing DMA through Virtualization">
+<meta property="og:url" content="https://zhuzhuzai.top/2022/05/08/paper/DMA/Securing%20DMA%20through%20Virtualization/index.html">
 <meta property="og:site_name" content="My blog">
-<meta property="og:description" content="ZhuZhuZai的个人博客">
+<meta property="og:description" content="Securing DMA through Virtualization 论文笔记">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-05-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-14T14:57:14.994Z">
 <meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="DMA">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://zhuzhuzai.top/page/2/">
+<link rel="canonical" href="https://zhuzhuzai.top/2022/05/08/paper/DMA/Securing%20DMA%20through%20Virtualization/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"page/2/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2022/05/08/paper/DMA/Securing%20DMA%20through%20Virtualization/","path":"2022/05/08/paper/DMA/Securing DMA through Virtualization/","title":"Securing DMA through Virtualization"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>My blog</title>
+<title>Securing DMA through Virtualization | My blog</title>
   
 
 
@@ -70,7 +73,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">My blog</h1>
+      <p class="site-title">My blog</p>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -96,7 +99,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -109,6 +112,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Securing-DMA-through-Virtualization"><span class="nav-number">1.</span> <span class="nav-text">Securing DMA through Virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#problems"><span class="nav-number">1.1.</span> <span class="nav-text">problems:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#contribution"><span class="nav-number">1.2.</span> <span class="nav-text">contribution:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-work%EF%BC%9A"><span class="nav-number">1.3.</span> <span class="nav-text">Related work：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Assumptions%EF%BC%9A"><span class="nav-number">1.4.</span> <span class="nav-text">Assumptions：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Threat-model"><span class="nav-number">1.5.</span> <span class="nav-text">Threat model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Requirements"><span class="nav-number">1.6.</span> <span class="nav-text">Requirements</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Design%EF%BC%9A"><span class="nav-number">1.7.</span> <span class="nav-text">Design：</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -158,17 +162,18 @@
 
     </div>
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
 
-    
+
+  
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2021/08/17/paper/%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2022/05/08/paper/DMA/Securing%20DMA%20through%20Virtualization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/portrait.gif">
@@ -181,13 +186,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | My blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="name" content="Securing DMA through Virtualization | My blog">
+      <meta itemprop="description" content="Securing DMA through Virtualization 论文笔记">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/17/paper/%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/" class="post-title-link" itemprop="url">Nested virtualization</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          Securing DMA through Virtualization
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -197,14 +202,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2021-08-17 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-17T00:00:00+08:00">2021-08-17</time>
+      <time title="创建时间：2022-05-08 00:00:00" itemprop="dateCreated datePublished" datetime="2022-05-08T00:00:00+08:00">2022-05-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-09-14 23:01:05" itemprop="dateModified" datetime="2023-09-14T23:01:05+08:00">2023-09-14</time>
+      <time title="修改时间：2023-09-14 22:57:14" itemprop="dateModified" datetime="2023-09-14T22:57:14+08:00">2023-09-14</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -223,34 +228,57 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.6k</span>
+      <span>1.4k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>3 分钟</span>
+      <span>1 分钟</span>
     </span>
 </div>
 
+            <div class="post-description">Securing DMA through Virtualization 论文笔记</div>
         </div>
       </header>
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-          <p>嵌套虚拟化原理介绍</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/17/paper/%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
+    <div class="post-body" itemprop="articleBody"><h1 id="Securing-DMA-through-Virtualization"><a href="#Securing-DMA-through-Virtualization" class="headerlink" title="Securing DMA through Virtualization"></a>Securing DMA through Virtualization</h1><h2 id="problems"><a href="#problems" class="headerlink" title="problems:"></a>problems:</h2><p>这篇paper发于2012年，当时很多嵌入式设备并没有支持IOMMU，且ARM架构的版本较老，没有支持硬件虚拟化，而很多DMA相关的work并没有关注于DMA攻击，于是本文利用DMA虚拟化方式来保证隔离，防止DMA attack。</p>
+<h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution:"></a>contribution:</h2><ul>
+<li>描述了如何使用虚拟化在ARMv5上来保护DMA</li>
+<li>展示了不需要额外硬件支持的DMA虚拟化</li>
+<li>对方案进行安全性和性能分析</li>
+<li>形式化验证*</li>
+</ul>
+<h2 id="Related-work："><a href="#Related-work：" class="headerlink" title="Related work："></a>Related work：</h2><p>过去的工作都是在嵌入式系统中使用虚拟化，并关注于移植虚拟化层面和性能分析层面。<br>有人提出了在没有IOMMU时候监控存在的恶意设备驱动程序，但是没有支持多guest，也没有调度相关功能。</p>
+<h2 id="Assumptions："><a href="#Assumptions：" class="headerlink" title="Assumptions："></a>Assumptions：</h2><ul>
+<li>DMAC是一个通用的DMAC，并且需要CPU对其进行编程，且DMAC接口暴露给hypervisor。</li>
+<li>MMU支持对ARM domains的管理。外设是内存映射的，通过MMU可以控制对它们的访问。</li>
+<li>MMU和DMAC等硬件都是正常工作的，没有恶意。</li>
+<li>Hypervisor和boot loader&#x2F;BIOS都是可信的。</li>
+</ul>
+<h2 id="Threat-model"><a href="#Threat-model" class="headerlink" title="Threat model"></a>Threat model</h2><p>攻击者假设拥有Guest完全的控制权，包括运行代码和获取正常权限的数据，Guest目的是攻击其他guest，修改或者读取code和data，或者阻止其运行code。假设其无法决定DMA是否被其他部分使用，（即无法通过测信道攻击通过延迟时间判断。）</p>
+<h2 id="Requirements"><a href="#Requirements" class="headerlink" title="Requirements"></a>Requirements</h2><ul>
+<li>每次访问DMAC都会陷入hypervisor。</li>
+<li>DMAC只执行符合访问策略的操作。即MMU支持权限的读写。</li>
+<li>guest不能代表其他guest发送DMA请求。</li>
+<li>调度不会影响安全性。</li>
+<li>hypervisor不能被guest修改。</li>
+<li>DMAC任务要么由DMAC处理，要么进入队列。</li>
+<li>每个DMA请求都会被处理，处理了之后从DMAC删除。</li>
+</ul>
+<p>1-5保证了隔离性，6-7保证了可用性（Availability）。</p>
+<h2 id="Design："><a href="#Design：" class="headerlink" title="Design："></a>Design：</h2><p>设备被映射进内存，于是受MMU控制，于是可以控制拦截与DMAC相关的操作。<br>DMAC是OVP模拟的，hypervisor是一个别人实现轻量级的。核心就是DMA虚拟化，即模拟DMAC，就是在使用真是DMAC之前，会陷入hypervisor，在模拟DMAC处进行管理转发。</p>
+<ul>
+<li>Shadow Copies and Scheduling：为每个客户模式设置一个DMAC副本，从而防止DMAC设置期间的干扰，当guest需要写入DMAC寄存器时，被hypervisor拦截，然后将其写入shadow DMAC，物理DMAC只接受hypervisor发送过来的数据。然后用一个队列去调度所有的DMA tasks，相应的shadow DMAC中的任务被设置为waiting状态和active状态。</li>
+<li>Trapping with the Data Abort Handler：陷入hypervisor后，data abort handler会对虚拟的DMA请求进行翻译，载入真实的物理DMAC。</li>
+<li>Trapping with the Data Abort Handler：？？直接用MMU相关的权限。</li>
+<li>Handling DMA Interrupts：用以通知DMA已经完成，hypervisor会收到这些interrupts，然后发送给guest。</li>
+</ul>
+
     </div>
 
     
@@ -258,8 +286,24 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+          <div class="post-tags">
+              <a href="/tags/DMA/" rel="tag"># DMA</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/04/27/note/OS%E5%A4%8D%E4%B9%A0/%E4%B8%AD%E6%96%AD/" rel="prev" title="中断">
+                  <i class="fa fa-angle-left"></i> 中断
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/09/14/note/GPU/cuda_and_GPU/" rel="next" title="cuda和GPU的探索(转自周杨叶)">
+                  cuda和GPU的探索(转自周杨叶) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
   </article>
 </div>
@@ -267,9 +311,7 @@
 
 
 
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-  </nav>
+
 
 </div>
   </main>
