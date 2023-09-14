@@ -2224,13 +2224,6 @@ ul.breadcrumb li:last-child {
   border-bottom-color: #111;
   color: #111;
 }
-mjx-container[jax='CHTML'][display='true'],
-.has-jax {
-  overflow: auto hidden;
-}
-mjx-container[display='true'] + br {
-  display: none;
-}
 .use-motion .animated {
   animation-fill-mode: none;
   visibility: inherit;
@@ -2412,7 +2405,7 @@ header.header {
   vertical-align: middle;
 }
 .links-of-author a::before {
-  background: #a8f566;
+  background: #7efedb;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
