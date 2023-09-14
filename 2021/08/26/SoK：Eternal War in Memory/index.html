@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="论文的部分翻译与总结">
 <meta property="og:type" content="article">
@@ -292,11 +292,7 @@
 //攻击者可以让jump_table指向攻击者可以控制的地方
 func_ptr jump_table[3] = &#123;fn_0, fn_1, fn_2&#125;;
 jump_table[user_input]();
-<pre class="line-numbers language-none"><code class="language-none">
-* &#96;&#96;&#96;c
-  &#x2F;&#x2F;printf format string bug,利用类似的bug攻击者可以读任意地址内存
-  printf(user_input); &#x2F;&#x2F; input &quot;%3$x&quot; prints the
-  &#x2F;&#x2F; 3rd integer on the stack<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* ```c</span><br><span class="line">  <span class="regexp">//</span>printf format string bug,利用类似的bug攻击者可以读任意地址内存</span><br><span class="line">  printf(user_input); <span class="regexp">//</span> input <span class="string">&quot;%3$x&quot;</span> prints the</span><br><span class="line">  <span class="regexp">//</span> <span class="number">3</span>rd integer on the stack</span><br></pre></td></tr></table></figure>
 </code></pre>
 </li>
 <li><p>如果攻击者控制的是写指针，那么任何指针都可能被覆盖写，甚至任何数据都可能被覆盖写。<br>比如<code>buffer overflow/underflow</code>和下标错误，可以写覆盖写敏感错误的数据比如返回地址或者虚表指针。其中重写虚表指针就造成了图中3-&gt;1的反向循环。第一轮循环通过前述方式修改虚表指针，然后第二轮循环由于别的code解引用了这个虚表指针，从而造成控制流的劫持。从此循环反复，越来越多的指针就能被利用。</p>
@@ -305,33 +301,7 @@ jump_table[user_input]();
 </li>
 <li><pre><code class="c">//打印时候解引用的指针也会造成信息的泄露，控制err_msg指针的指向可以进行任意地址的读
 printf(&quot;%s\n&quot;, err_msg);
-<pre class="line-numbers language-none"><code class="language-none">
-  下面是针对temporal error的利用
-
-* 当解引用悬挂指针的时候，指向的内存可能被内存分配器比如堆分配器分配给了别的object，就可以利用悬挂指针对别的object进行控制读写，甚至double-free也能造成任意读写，即新的object也被错误地释放了。
-
-### Code corruption 攻击
-
-​	利用上述bug去重写程序在内存中的code，但是把code设置成read-only。
-
-​	但是他不支持“程序自己修改代码”和“Just-In-Time（JIT）即时编译”。如今大部分浏览器用的都是JIT用以解析Flash和JS脚本，这会给代码部分一个可写的窗口期。
-
-### 控制流挟持攻击
-
-4.通过前述指针的error，可以修改return address来跳转到攻击者可控的地址空间。这可被地址空间随机化缓解（不能根除）
-
-5.通过直接call或者间接跳转或者函数返回指令ret来造成CFI（Control-flow Integrity）的破坏。
-
-6.第六步就是运行恶意代码，比如shellcode。这样可以被数据页面不可执行缓解，即W⊕X (Write XOR Execute) 策略，即页面要么可写，要么可执行，但是不能同时可写可执行。同样JIT和self-modifying code的情况不适用。于是提出了（Instruction Set Randomization），即加密代码，但是performance太差了，慢慢被淘汰。同时攻击者为了绕过权限，设计了重用现有代码，实现ROP攻击比如return-to-libc攻击或者通过gadgets小组件来执行恶意操作，还有JOP的攻击。目前这种类型只能缓解，不能根除。比如面向编译器的一些缓解方式，二进制重写以及消除大块。（个人知识，paper里没写：目前Intel和ARM各自有硬件上的缓解措施，比如CET，形成第二个shadow stack记录跳转地址。）
-
-### data-only攻击
-
-3.总的来说攻击者目标就是恶意修改程序逻辑，获得更多的控制权限，甚至修改特权级以及泄露信息，这个目标可以通过不修改显式控制流相关数据比如返回地址，跳转地址这种来完成，可以通过修改变量来改变程序执行逻辑。比如如下代码：
-
-&#96;&#96;&#96;c
-bool isAdmin &#x3D; false;
-...
-if (isAdmin) &#x2F;&#x2F; do privileged operations<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  下面是针对temporal <span class="built_in">error</span>的利用</span><br><span class="line"></span><br><span class="line">* 当解引用悬挂指针的时候，指向的内存可能被内存分配器比如堆分配器分配给了别的object，就可以利用悬挂指针对别的object进行控制读写，甚至double-free也能造成任意读写，即新的object也被错误地释放了。</span><br><span class="line"></span><br><span class="line"><span class="meta">### Code corruption 攻击</span></span><br><span class="line"></span><br><span class="line">​	利用上述bug去重写程序在内存中的<span class="built_in">code</span>，但是把<span class="built_in">code</span>设置成read-only。</span><br><span class="line"></span><br><span class="line">​	但是他不支持“程序自己修改代码”和“Just-In-<span class="built_in">Time</span>（JIT）即时编译”。如今大部分浏览器用的都是JIT用以解析Flash和JS脚本，这会给代码部分一个可写的窗口期。</span><br><span class="line"></span><br><span class="line"><span class="meta">### 控制流挟持攻击</span></span><br><span class="line"></span><br><span class="line"><span class="number">4.</span>通过前述指针的<span class="built_in">error</span>，可以修改<span class="keyword">return</span> address来跳转到攻击者可控的地址空间。这可被地址空间随机化缓解（不能根除）</span><br><span class="line"></span><br><span class="line"><span class="number">5.</span>通过直接<span class="keyword">call</span>或者间接跳转或者函数返回指令ret来造成CFI（Control-flow Integrity）的破坏。</span><br><span class="line"></span><br><span class="line"><span class="number">6.</span>第六步就是运行恶意代码，比如shellcode。这样可以被数据页面不可执行缓解，即W⊕<span class="built_in">X</span> (Write <span class="keyword">XOR</span> Execute) 策略，即页面要么可写，要么可执行，但是不能同时可写可执行。同样JIT和self-modifying <span class="built_in">code</span>的情况不适用。于是提出了（Instruction Set Randomization），即加密代码，但是performance太差了，慢慢被淘汰。同时攻击者为了绕过权限，设计了重用现有代码，实现ROP攻击比如<span class="keyword">return</span>-to-libc攻击或者通过gadgets小组件来执行恶意操作，还有JOP的攻击。目前这种类型只能缓解，不能根除。比如面向编译器的一些缓解方式，二进制重写以及消除大块。（个人知识，paper里没写：目前Intel和ARM各自有硬件上的缓解措施，比如CET，形成第二个shadow stack记录跳转地址。）</span><br><span class="line"></span><br><span class="line"><span class="meta">### data-only攻击</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span>总的来说攻击者目标就是恶意修改程序逻辑，获得更多的控制权限，甚至修改特权级以及泄露信息，这个目标可以通过不修改显式控制流相关数据比如返回地址，跳转地址这种来完成，可以通过修改变量来改变程序执行逻辑。比如如下代码：</span><br><span class="line"></span><br><span class="line">```c</span><br><span class="line"><span class="keyword">bool</span> isAdmin = false;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (isAdmin) <span class="comment">// do privileged operations</span></span><br></pre></td></tr></table></figure>
 </code></pre>
 </li>
 </ul>
@@ -469,7 +439,7 @@ if (isAdmin) &#x2F;&#x2F; do privileged operations<span aria-hidden="true" class
 
   
 
-  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"all","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
 <script src="/js/third-party/math/mathjax.js"></script>
 
 
