@@ -19,28 +19,32 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="操作系统存储管理相关">
+    <meta name="description" content="This is my Ph.D. researches of AI system security.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="存储管理">
-<meta property="og:url" content="https://zhuzhuzai.top/2022/04/19/note/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:title" content="Personal works">
+<meta property="og:url" content="https://zhuzhuzai.top/2025/07/14/note/works/Researches/index.html">
 <meta property="og:site_name" content="My blog">
-<meta property="og:description" content="操作系统存储管理相关">
+<meta property="og:description" content="This is my Ph.D. researches of AI system security.">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-04-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-09-14T14:57:13.218Z">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718095603049.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718100609973.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718101049930.png">
+<meta property="article:published_time" content="2025-07-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-18T02:22:02.458Z">
 <meta property="article:author" content="Zhuzhuzai">
-<meta property="article:tag" content="os">
+<meta property="article:tag" content="gpu">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718095603049.png">
 
 
-<link rel="canonical" href="https://zhuzhuzai.top/2022/04/19/note/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/">
+<link rel="canonical" href="https://zhuzhuzai.top/2025/07/14/note/works/Researches/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2022/04/19/note/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/","path":"2022/04/19/note/OS复习/存储管理/","title":"存储管理"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2025/07/14/note/works/Researches/","path":"2025/07/14/note/works/Researches/","title":"Personal works"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>存储管理 | My blog</title>
+<title>Personal works | My blog</title>
   
 
 
@@ -112,7 +116,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">存储管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8"><span class="nav-number">1.1.</span> <span class="nav-text">存储介质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6"><span class="nav-number">1.2.</span> <span class="nav-text">磁盘调度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%88%E6%9D%A5%E5%85%88%E6%9C%8D%E5%8A%A1%E8%B0%83%E5%BA%A6%EF%BC%88First-come-first-served%EF%BC%8CFCFS%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">先来先服务调度（First come first served，FCFS）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E7%9F%AD%E5%AF%BB%E9%81%93%E6%97%B6%E9%97%B4%E4%BC%98%E5%85%88%EF%BC%88shortest-seek-time-first%EF%BC%8CSSTF%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">最短寻道时间优先（shortest seek time first，SSTF）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95%EF%BC%88SCAN-algorithm%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">扫描算法（SCAN algorithm）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95%EF%BC%88circular-SCAN%EF%BC%8C-C-SCAN%EF%BC%89"><span class="nav-number">1.2.4.</span> <span class="nav-text">循环扫描算法（circular SCAN， C-SCAN）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LOOK%E8%B0%83%E5%BA%A6%E4%B8%8EC-LOOK%E8%B0%83%E5%BA%A6"><span class="nav-number">1.2.5.</span> <span class="nav-text">LOOK调度与C-LOOK调度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">磁盘管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E6%A0%BC%E5%BC%8F%E5%8C%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">磁盘格式化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E5%AF%BC%E5%9D%97"><span class="nav-number">1.3.2.</span> <span class="nav-text">引导块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%8F%E5%9D%97"><span class="nav-number">1.3.3.</span> <span class="nav-text">坏块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E6%8D%A2%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">交换空间管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E5%86%97%E4%BD%99%E9%98%B5%E5%88%97%EF%BC%88Redundant-Arrays-of-Independent-Disk%EF%BC%8CRAID%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">磁盘冗余阵列（Redundant Arrays of Independent Disk，RAID）</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Secure-AI-Systems-A-Layered-Perspective"><span class="nav-number">1.</span> <span class="nav-text">Secure AI Systems: A Layered Perspective</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A9-Layer-1-Application-Level-%E2%80%94-Python-Module-Conflicts"><span class="nav-number">1.1.</span> <span class="nav-text">🧩 Layer 1: Application-Level — Python Module Conflicts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0-Layer-2-Framework-Level-%E2%80%94-Framework%E2%80%99s-API-based-Malicious-Models"><span class="nav-number">1.2.</span> <span class="nav-text">🧠 Layer 2: Framework-Level — Framework’s API-based Malicious Models</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%8D-Layer-3-Hardware-Level-%E2%80%94-GPU-ASLR-Weakness"><span class="nav-number">1.3.</span> <span class="nav-text">🔍 Layer 3: Hardware-Level — GPU ASLR Weakness</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%AB-Contact"><span class="nav-number">1.4.</span> <span class="nav-text">📫 Contact</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -173,7 +177,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2022/04/19/note/OS%E5%A4%8D%E4%B9%A0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2025/07/14/note/works/Researches/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/portrait.gif">
@@ -186,12 +190,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="存储管理 | My blog">
-      <meta itemprop="description" content="操作系统存储管理相关">
+      <meta itemprop="name" content="Personal works | My blog">
+      <meta itemprop="description" content="This is my Ph.D. researches of AI system security.">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          存储管理
+          Personal works
         </h1>
 
         <div class="post-meta-container">
@@ -202,14 +206,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-04-19 00:00:00" itemprop="dateCreated datePublished" datetime="2022-04-19T00:00:00+08:00">2022-04-19</time>
+      <time title="创建时间：2025-07-14 00:00:00" itemprop="dateCreated datePublished" datetime="2025-07-14T00:00:00+08:00">2025-07-14</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-09-14 22:57:13" itemprop="dateModified" datetime="2023-09-14T22:57:13+08:00">2023-09-14</time>
+      <time title="修改时间：2025-07-18 10:22:02" itemprop="dateModified" datetime="2025-07-18T10:22:02+08:00">2025-07-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -228,59 +232,73 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.5k</span>
+      <span>2.5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
+      <span>2 分钟</span>
     </span>
 </div>
 
-            <div class="post-description">操作系统存储管理相关</div>
+            <div class="post-description">This is my Ph.D. researches of AI system security.</div>
         </div>
       </header>
 
     
     
     
-    <div class="post-body" itemprop="articleBody"><h1 id="存储管理"><a href="#存储管理" class="headerlink" title="存储管理"></a>存储管理</h1><h2 id="存储介质"><a href="#存储介质" class="headerlink" title="存储介质"></a>存储介质</h2><p>​	存储介质可以分为磁盘(hard disk)、固态磁盘(Solid-State Disk)、磁带(magnetic tape)。</p>
-<h2 id="磁盘调度"><a href="#磁盘调度" class="headerlink" title="磁盘调度"></a>磁盘调度</h2><ul>
-<li>寻道时间：磁臂移动磁头到包含目标扇区的柱面的时间。</li>
-<li>旋转延迟时间：磁盘旋转目标扇区到磁头下的时间。</li>
-<li>磁盘带宽：传输字节的总数除以服务时间。</li>
-</ul>
-<h3 id="先来先服务调度（First-come-first-served，FCFS）"><a href="#先来先服务调度（First-come-first-served，FCFS）" class="headerlink" title="先来先服务调度（First come first served，FCFS）"></a>先来先服务调度（First come first served，FCFS）</h3><p>​	顾名思义</p>
-<h3 id="最短寻道时间优先（shortest-seek-time-first，SSTF）"><a href="#最短寻道时间优先（shortest-seek-time-first，SSTF）" class="headerlink" title="最短寻道时间优先（shortest seek time first，SSTF）"></a>最短寻道时间优先（shortest seek time first，SSTF）</h3><p>​	优先选择离当前磁头近的请求，本质上是一种最短作业优先调度，会导致请求饥饿。</p>
-<h3 id="扫描算法（SCAN-algorithm）"><a href="#扫描算法（SCAN-algorithm）" class="headerlink" title="扫描算法（SCAN algorithm）"></a>扫描算法（SCAN algorithm）</h3><p>​	磁臂从磁盘的一端开始向另一端移动，到达一端后磁头反转。有时候也被称为<strong>电梯算法（elevator algorithm）</strong></p>
-<h3 id="循环扫描算法（circular-SCAN，-C-SCAN）"><a href="#循环扫描算法（circular-SCAN，-C-SCAN）" class="headerlink" title="循环扫描算法（circular SCAN， C-SCAN）"></a>循环扫描算法（circular SCAN， C-SCAN）</h3><p>​	如果请求是均匀的，SCAN在扫描的时候，当前所在位置的处理因为刚扫过，所以附近的请求数较少，而相反另一端请求数肯定较多。于是就衍生出了C-SCAN。即扫到一端后立即返回，但是不处理任何请求，然后又重新开始扫。</p>
-<h3 id="LOOK调度与C-LOOK调度"><a href="#LOOK调度与C-LOOK调度" class="headerlink" title="LOOK调度与C-LOOK调度"></a>LOOK调度与C-LOOK调度</h3><p>​	类似于SCAN和C-SCAN，但是它不移动整个磁盘宽度，而是移动到最远的一个请求为止。</p>
-<h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><h3 id="磁盘格式化"><a href="#磁盘格式化" class="headerlink" title="磁盘格式化"></a>磁盘格式化</h3><ul>
-<li>低级格式化&#x2F;物理格式化：将空白磁盘分成扇区，并使用特殊数据结构填充（其中包括ECC（纠错码），用以校对和修复错误字节）</li>
-<li>分区：将磁盘分为由柱面组成的分区，不同分区上可以装不同的操作系统。</li>
-<li>逻辑格式化：即创建文件系统。</li>
-</ul>
-<h3 id="引导块"><a href="#引导块" class="headerlink" title="引导块"></a>引导块</h3><p>​	bootstrap程序（处于ROM中）找到磁盘上的引导块，将其加载入内存，然后该引导块的代码找到操作系统所在分区，并将操作系统加载入内存。</p>
-<h3 id="坏块"><a href="#坏块" class="headerlink" title="坏块"></a>坏块</h3><p>​	磁盘上一般有备用块作为坏块的备份，当某些块损坏时候，磁盘可以利用这些备用块进行补充。</p>
-<h2 id="交换空间管理"><a href="#交换空间管理" class="headerlink" title="交换空间管理"></a>交换空间管理</h2><p>交换空间可分为文件或者交换分区。</p>
+    <div class="post-body" itemprop="articleBody"><h1 id="Secure-AI-Systems-A-Layered-Perspective"><a href="#Secure-AI-Systems-A-Layered-Perspective" class="headerlink" title="Secure AI Systems: A Layered Perspective"></a>Secure AI Systems: A Layered Perspective</h1><p>My Ph.D. research focuses on <strong>AI system security</strong>, from high-level application risks, through AI framework-level vulnerabilities, to low-level hardware exploitation. This layered exploration reveals systemic threats that span across the full AI software stack.</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718095603049.png" alt="image-20250718095603049"></p>
+<hr>
+<h2 id="🧩-Layer-1-Application-Level-—-Python-Module-Conflicts"><a href="#🧩-Layer-1-Application-Level-—-Python-Module-Conflicts" class="headerlink" title="🧩 Layer 1: Application-Level — Python Module Conflicts"></a>🧩 Layer 1: Application-Level — Python Module Conflicts</h2><p><strong>Paper:</strong> <em>ModuleGuard: Understanding and Detecting Module Conflicts in Python Ecosystem</em> (ICSE 2024)<br><strong>Link:</strong> <a target="_blank" rel="noopener" href="https://doi.org/10.1145/3597503.3639221">DOI: 10.1145&#x2F;3597503.3639221</a></p>
+<p>Python has become the most important language for AI development. However, the ecosystem suffers from <strong>module conflicts</strong> (MCs), where different packages accidentally override or confuse module imports. These conflicts can cause runtime failures and make model deployment errors.</p>
 <ul>
-<li>文件：位于普通文件系统之上，但是效率低，因为需要访问磁盘目录等结构，需要额外的时间，同时可能需要遍历文件系统。</li>
-<li>交换分区：在单独的原始分区上创建交换空间，不存在文件系统，但是可能会增加内部碎片。</li>
+<li>Module overwriting at install time</li>
+<li>Import confusion at runtime</li>
 </ul>
-<p>Linux 的交换空间仅用于匿名内存（即堆，栈，进程未初始化数据等区域），而代码等本来是从磁盘上读的，可以直接丢弃。而别的部分通过交换映射进行交换。交换映射为一个数组，数组中内容表示该对应的交换页由多少进程使用（可能有共享内存，导致数组值大于1，为0则表明空闲）</p>
-<h2 id="磁盘冗余阵列（Redundant-Arrays-of-Independent-Disk，RAID）"><a href="#磁盘冗余阵列（Redundant-Arrays-of-Independent-Disk，RAID）" class="headerlink" title="磁盘冗余阵列（Redundant Arrays of Independent Disk，RAID）"></a>磁盘冗余阵列（Redundant Arrays of Independent Disk，RAID）</h2><p>磁盘的并行可以加速文件的读取，比如同时有8个盘，可以同时读取，每个盘上读取一位则形成了一个字。</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718100609973.png" alt="image-20250718100609973"></p>
+<p>We systematically studied MCs across 4.2M PyPI packages and 3.7k GitHub projects. Our tool <strong>ModuleGuard</strong> leverages semantic-aware static analysis and installation simulation to detect:</p>
+<blockquote>
+<p>🔧 We proposed <code>ModuleGuard</code> and analyzed the ecosystem at scale, uncovering thousands of silent module-level module conflict issues in real-world projects.</p>
+</blockquote>
+<hr>
+<h2 id="🧠-Layer-2-Framework-Level-—-Framework’s-API-based-Malicious-Models"><a href="#🧠-Layer-2-Framework-Level-—-Framework’s-API-based-Malicious-Models" class="headerlink" title="🧠 Layer 2: Framework-Level — Framework’s API-based Malicious Models"></a>🧠 Layer 2: Framework-Level — Framework’s API-based Malicious Models</h2><p><strong>Paper:</strong> <em>My Model is Malware to You: Transforming AI Models into Malware by Abusing TensorFlow APIs</em> (S&amp;P25)<br><strong>Link:</strong> <a target="_blank" rel="noopener" href="https://github.com/ZJU-SEC/TensorAbuse">GitHub: TensorAbuse</a></p>
+<p>Model sharing enables innovation — but also risk. We proposed the <strong>TensorAbuse</strong> attack, which abuses <strong>legitimate TensorFlow APIs</strong> (like <code>tf.io.matching_files</code>, <code>tf.raw_ops.DebugIdentityV3</code>) to:</p>
 <ul>
-<li>RAID0：有多个磁盘，但是没有冗余数据。</li>
-<li>RAID1：镜像磁盘，即每个磁盘有一个一模一样的镜像磁盘，需要两倍大小存储空间。</li>
-<li>RAID2：内存方式的差错纠正组织。用多个额外的位用于奇偶校验位，当奇偶校验位出错时候，可以由内存系统检测。由此在一定程度上可以修复单个位出错（奇变偶，偶变奇）。如第一个磁盘存储第一个字节，第二个磁盘存储第二个字节。。。然后剩下几个磁盘存储奇偶校验位。比RAID1稍微节约了空间。</li>
-<li>RAID3：位交错奇偶校验位结构。只有一个额外的磁盘作为校验位，类似于RAID2，但是磁盘控制器来检测扇区读取是否正确。</li>
-<li>RAID4：块交错奇偶校验位结构。</li>
-<li>RAID5：块交错分布奇偶校验结构。将数据和奇偶校验分散在每一个磁盘上，而RAID4和3是用一个单独的磁盘存储奇偶校验。（最为常见）</li>
-<li>RAID6：P+Q冗余方案。类似RAID5，但是保存了额外的冗余信息，可以容忍两个磁盘故障。</li>
-<li>RAID0+1：0和1组合，先分条，再镜像。</li>
-<li>RAID1+0：先镜像，再分条。</li>
+<li>Read arbitrary files</li>
+<li>Leak IPs</li>
+<li>Send data to external servers</li>
+<li>Get shell</li>
+</ul>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250718101049930.png" alt="image-20250718101049930"></p>
+<p>These <strong>attacks are embedded in the model graph</strong>, and get executed silently during inference — <strong>Users cannot be aware of them</strong>.</p>
+<blockquote>
+<p>🚨 We found 1,083 persistent TensorFlow APIs. 20 APIs in them can be abused to cause malicious behaviours. None of the current model hubs (e.g., Hugging Face, TensorFlow Hub) or scanners (e.g., ModelScan) could detect our synthetic malware.</p>
+</blockquote>
+<hr>
+<h2 id="🔍-Layer-3-Hardware-Level-—-GPU-ASLR-Weakness"><a href="#🔍-Layer-3-Hardware-Level-—-GPU-ASLR-Weakness" class="headerlink" title="🔍 Layer 3: Hardware-Level — GPU ASLR Weakness"></a>🔍 Layer 3: Hardware-Level — GPU ASLR Weakness</h2><p><strong>Paper:</strong> <em>Demystifying and Exploiting ASLR on NVIDIA GPUs</em><br><strong>Status:</strong> Under submission </p>
+<p>Modern AI workloads run on GPUs, but their memory layout is opaque. We reverse-engineered <strong>NVIDIA GPU’s ASLR implementation</strong>, uncovering multiple critical flaws:</p>
+<ul>
+<li>GPU heap is entirely <strong>unrandomized</strong></li>
+<li><strong>Correlated offsets</strong> between GPU and CPU ASLR undermine both</li>
+<li>Some regions are shared across all CUDA processes, enabling <strong>covert channels</strong></li>
+</ul>
+<p>We built two tools:</p>
+<ul>
+<li><strong>FlagProbe</strong> to recover memory segment semantics</li>
+<li><strong>AnchorTrace</strong> to trace randomized addresses recursively and infer ASLR entropy</li>
+</ul>
+<blockquote>
+<p>🧪 We showed that GPU memory layout leaks can be exploited to infer CPU glibc addresses — undermining fundamental ASLR protections.</p>
+</blockquote>
+<hr>
+<h2 id="📫-Contact"><a href="#📫-Contact" class="headerlink" title="📫 Contact"></a>📫 Contact</h2><p>If you’re interested in collaboration, feel free to reach out:</p>
+<ul>
+<li>📧 Email: <a href="mailto:&#x7a;&#104;&#117;&#114;&#117;&#x6f;&#102;&#97;&#x6e;&#x40;&#x7a;&#x6a;&#x75;&#x2e;&#x65;&#100;&#117;&#x2e;&#x63;&#110;">&#x7a;&#104;&#117;&#114;&#117;&#x6f;&#102;&#97;&#x6e;&#x40;&#x7a;&#x6a;&#x75;&#x2e;&#x65;&#100;&#117;&#x2e;&#x63;&#110;</a></li>
+<li>🔗 GitHub: <a target="_blank" rel="noopener" href="https://github.com/ZJU-SEC">ZJU-SEC</a></li>
 </ul>
 
     </div>
@@ -291,21 +309,18 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/os/" rel="tag"># os</a>
+              <a href="/tags/gpu/" rel="tag"># gpu</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/04/19/note/OS%E5%A4%8D%E4%B9%A0/%E6%AD%BB%E9%94%81/" rel="prev" title="死锁">
-                  <i class="fa fa-angle-left"></i> 死锁
+                <a href="/2023/09/22/note/GPU/Tensorflow-lite%20source%20code%20analysis/" rel="prev" title="Tensorflow lite源码分析(Tensorflow 2.14)">
+                  <i class="fa fa-angle-left"></i> Tensorflow lite源码分析(Tensorflow 2.14)
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/04/19/note/OS%E5%A4%8D%E4%B9%A0/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="next" title="内存管理">
-                  内存管理 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
