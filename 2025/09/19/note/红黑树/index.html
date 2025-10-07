@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="操作系统红黑树相关知识与源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红黑树">
+<meta property="og:url" content="https://zhuzhuzai.top/2025/09/19/note/%E7%BA%A2%E9%BB%91%E6%A0%91/index.html">
+<meta property="og:site_name" content="Zzzai&#39;s Blog">
+<meta property="og:description" content="操作系统红黑树相关知识与源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190317643.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190359749.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190427233.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190513948.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190759084.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190824711.png">
+<meta property="article:published_time" content="2025-09-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-07T11:34:06.699Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="os">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190317643.png">
+
+
+<link rel="canonical" href="https://zhuzhuzai.top/2025/09/19/note/%E7%BA%A2%E9%BB%91%E6%A0%91/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2025/09/19/note/%E7%BA%A2%E9%BB%91%E6%A0%91/","path":"2025/09/19/note/红黑树/","title":"红黑树"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>红黑树 | Zzzai's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zzzai's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">红黑树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">红黑树特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E4%B8%AD%E7%BA%A2%E9%BB%91%E6%A0%91%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">Linux中红黑树的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5"><span class="nav-number">1.3.</span> <span class="nav-text">增删改查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8rb-tree%E4%B8%AD%E5%A2%9E%E5%8A%A0%E4%B8%80%E4%B8%AAnode"><span class="nav-number">1.3.1.</span> <span class="nav-text">在rb_tree中增加一个node</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF1%EF%BC%9A%E7%BA%A2%E9%BB%91%E6%A0%91%E4%B8%BA%E7%A9%BA%E6%A0%91"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">场景1：红黑树为空树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF2%EF%BC%9A%E6%8F%92%E5%85%A5%E8%8A%82%E7%82%B9%E7%9A%84Key%E5%B7%B2%E7%BB%8F%E5%AD%98%E5%9C%A8"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">场景2：插入节点的Key已经存在</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%83%85%E6%99%AF3%EF%BC%9A%E6%8F%92%E5%85%A5%E8%8A%82%E7%82%B9%E7%9A%84%E7%88%B6%E8%8A%82%E7%82%B9%E4%B8%BA%E9%BB%91%E8%89%B2"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">情景3：插入节点的父节点为黑色</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%83%85%E6%99%AF4%EF%BC%9A%E6%8F%92%E5%85%A5%E8%8A%82%E7%82%B9%E7%9A%84%E7%88%B6%E8%8A%82%E7%82%B9%E4%B8%BA%E7%BA%A2%E8%89%B2"><span class="nav-number">1.3.1.4.</span> <span class="nav-text">情景4：插入节点的父节点为红色</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF4-1%EF%BC%9A%E7%88%B6%E4%BA%B2%E5%92%8C%E5%8F%94%E5%8F%94%E4%B8%BA%E7%BA%A2%E8%89%B2%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.1.4.1.</span> <span class="nav-text">场景4.1：父亲和叔叔为红色节点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF4-2%EF%BC%9A%E5%8F%94%E5%8F%94%E4%B8%BA%E9%BB%91%E8%89%B2%EF%BC%8C%E7%88%B6%E4%BA%B2%E4%B8%BA%E7%BA%A2%E8%89%B2%EF%BC%8C%E5%B9%B6%E4%B8%94%E6%8F%92%E5%9C%A8%E7%88%B6%E4%BA%B2%E7%9A%84%E5%B7%A6%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.1.4.2.</span> <span class="nav-text">场景4.2：叔叔为黑色，父亲为红色，并且插在父亲的左节点</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zhuzhuzai"
+      src="/images/portrait.gif">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description">Talk is cheap, show me the code!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/unsatisfying" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;unsatisfying" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:824941284@qq.com" title="E-Mail → mailto:824941284@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2025/09/19/note/%E7%BA%A2%E9%BB%91%E6%A0%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/portrait.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zzzai's Blog">
+      <meta itemprop="description" content="Talk is cheap, show me the code!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="红黑树 | Zzzai's Blog">
+      <meta itemprop="description" content="操作系统红黑树相关知识与源码分析">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          红黑树
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-19 00:00:00" itemprop="dateCreated datePublished" datetime="2025-09-19T00:00:00+08:00">2025-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-07 19:34:06" itemprop="dateModified" datetime="2025-10-07T19:34:06+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/note/" itemprop="url" rel="index"><span itemprop="name">note</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">操作系统红黑树相关知识与源码分析</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h1><h2 id="红黑树特点"><a href="#红黑树特点" class="headerlink" title="红黑树特点"></a>红黑树特点</h2><p>红黑树和别的树的优势在于：</p>
+<ul>
+<li>首先它是一个二叉树，这意味着二叉树的插入，查找和删除的平均复杂度在最快情况下都是<code>O(logN)</code>，因此在频繁插入删除和查找的情况下效率非常高。</li>
+<li>那为什么不采用二叉搜索树呢，这是因为二叉搜索树在插入的时候可能会导致树变成链表（比如按顺序插入从小到大的结点，一直插入到右子树），这样查找的效率就变成<code>O(N)</code>了。</li>
+<li>既然二叉搜索树太弱了，那为什么不用二叉平衡树呢，即AVL。这是因为二叉平衡树需要左右子树高度差&lt;&#x3D;1, 而红黑树允许左右子树高度差大于1，只是限定了路径上黑色结点数目相同，并且不存在连续的红色结点（最长路径为最短路径的两倍，最长路径是红黑交替的，最短路径为全黑的）。这样通过放宽平衡条件可以换取更少的旋转操作，更少的旋转操作意味着在频繁插入删除的场景下比AVL更高效。</li>
+</ul>
+<p>总的来说，红黑树具备以下特点</p>
+<ul>
+<li>它是一棵二叉搜索树</li>
+<li>每一个节点都会被着色，不是<strong>黑色</strong>就是<strong>红色</strong></li>
+<li><strong>根节点必须为黑色</strong></li>
+<li>对于一个红色节点，它的孩子或为空，或是黑色。也就是说<strong>路径上不能有连续红色节点</strong></li>
+<li>从根节点到NULL节点的所有路径上，<strong>黑色节点的数量都相同</strong></li>
+</ul>
+<h2 id="Linux中红黑树的实现"><a href="#Linux中红黑树的实现" class="headerlink" title="Linux中红黑树的实现"></a>Linux中红黑树的实现</h2><p>OK有了以上直观的观念后，咱们来看看Linux中实现红黑树的源码。</p>
+<p>首先是红黑树的定义（Linux 6.11版本）, 在内核文件<code>include/linux/rbtree_types.h</code>中，可以看到其实就是一个传统的数据结构，三个指针，分别指向父节点，两个左右子树，但是这个父节点这个值（<code>__rb_parent_color</code>）做了一个优化，具体看注释：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> &#123;</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">long</span>  __rb_parent_color; <span class="comment">//父节点地址&amp;0b00, 这是因为父节点的指针都是8字节对齐的（即后面代码所示__attribute__((aligned(sizeof(long))));），所以低位肯定是0，那么就用低位来存储对应当前节点的颜色即可。</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">rb_right</span>;</span> <span class="comment">//右子树</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">rb_left</span>;</span>  <span class="comment">//左子树</span></span><br><span class="line">&#125; __attribute__((aligned(<span class="keyword">sizeof</span>(<span class="type">long</span>))));</span><br><span class="line"><span class="comment">/* The alignment might seem pointless, but allegedly CRIS needs it */</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">rb_node</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>有了数据结构定义之后，我们再来看看相关的一些宏定义用来操作这个数据结构的。主要代码在文件在<code>include/linux/rbtree.h</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/rbtree.h</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> rb_parent(r)   ((struct rb_node *)((r)-&gt;__rb_parent_color &amp; ~3)) <span class="comment">//这里就是获取到parent的指针，把__rb_parent_color成员的低位置0。</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>	rb_entry(ptr, type, member) container_of(ptr, type, member) <span class="comment">//</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RB_EMPTY_ROOT(root)  (READ_ONCE((root)-&gt;rb_node) == NULL) <span class="comment">//判断root是不是空</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* &#x27;empty&#x27; nodes are nodes that are known not to be inserted in an rbtree */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RB_EMPTY_NODE(node)  \</span></span><br><span class="line"><span class="meta">	((node)-&gt;__rb_parent_color == (unsigned long)(node)) <span class="comment">//判断RBnode的父节点是不是自己</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RB_CLEAR_NODE(node)  \</span></span><br><span class="line"><span class="meta">	((node)-&gt;__rb_parent_color = (unsigned long)(node))</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后再来看看第二个比较重要的宏定义 <code>contain_of</code>,  这是因为Linux的数据结构，例如链表和红黑树，都是嵌入到结构体里面的，因此指针指向的也是rb_node结构，并不是包含该rbnode的结构体(例如mm_struct)，要提取真实的mm_struct结构体，则需要使用类似这种container_of宏。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/container_of.h</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> container_of(ptr, type, member) (&#123;				\</span></span><br><span class="line"><span class="meta">	void *__mptr = (void *)(ptr);					\ <span class="comment">//把ptr指针强转成void*， 防止类型警告。</span></span></span><br><span class="line">	<span class="keyword">static_assert</span>(__same_type(*(ptr), ((type *)<span class="number">0</span>)-&gt;member) ||	\ <span class="comment">//__same_type  GCC内置宏，确保*(ptr)和((type *)0)-&gt;member类型相同，这里用了一个技巧写法，即假设0是(type *)类型的指针，从而取其member成员。</span></span><br><span class="line">		      __same_type(*(ptr), <span class="type">void</span>),			\  <span class="comment">//允许 ptr是 void*（某些特殊情况，如 list_head可能是 void*）。</span></span><br><span class="line">		      <span class="string">&quot;pointer type mismatch in container_of()&quot;</span>);	\  <span class="comment">//编译时检查</span></span><br><span class="line">	((type *)(__mptr - offsetof(type, member))); &#125;) <span class="comment">// offsetof(type, member)：计算 member在 type结构体中的偏移量（字节）。然后把当前的rbnode减去偏移就是真实的</span></span><br><span class="line">        </span><br><span class="line"><span class="comment">// include/linux/stddef.h        </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> offsetof(TYPE, MEMBER)	__builtin_offsetof(TYPE, MEMBER) <span class="comment">// GCC函数，</span></span></span><br></pre></td></tr></table></figure>
+
+<p>假设有一个结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">person</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">char</span> name[<span class="number">20</span>];</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> <span class="title">rb</span>;</span>  <span class="comment">// 假设这是一个红黑树节点</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>并且假设我们现在有一个<code>struct rb_node* node</code>指针,我们使用如下语句就能获取到该结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">person</span> *<span class="title">p</span> =</span> container_of(node, <span class="keyword">struct</span> person, rb);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>此外还有一些比较常用的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/rbtree.c  </span></span><br><span class="line">  <span class="keyword">struct</span> rb_node *<span class="title function_">rb_first</span><span class="params">(<span class="keyword">struct</span> rb_root *tree)</span>;</span><br><span class="line">  <span class="keyword">struct</span> rb_node *<span class="title function_">rb_last</span><span class="params">(<span class="keyword">struct</span> rb_root *tree)</span>;</span><br><span class="line">  <span class="keyword">struct</span> rb_node *<span class="title function_">rb_next</span><span class="params">(<span class="keyword">struct</span> rb_node *node)</span>;</span><br><span class="line">  <span class="keyword">struct</span> rb_node *<span class="title function_">rb_prev</span><span class="params">(<span class="keyword">struct</span> rb_node *node)</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> rb_node *<span class="title function_">rb_first</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> rb_root *root)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span>	*<span class="title">n</span>;</span></span><br><span class="line"></span><br><span class="line">	n = root-&gt;rb_node;</span><br><span class="line">	<span class="keyword">if</span> (!n)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">while</span> (n-&gt;rb_left) <span class="comment">// 一直取最左边的结点</span></span><br><span class="line">		n = n-&gt;rb_left;</span><br><span class="line">	<span class="keyword">return</span> n;</span><br><span class="line">&#125; </span><br><span class="line">EXPORT_SYMBOL(rb_first);</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> rb_node *<span class="title function_">rb_last</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> rb_root *root)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span>	*<span class="title">n</span>;</span></span><br><span class="line"></span><br><span class="line">	n = root-&gt;rb_node;</span><br><span class="line">	<span class="keyword">if</span> (!n)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">while</span> (n-&gt;rb_right)	<span class="comment">// 一直取最右边的结点</span></span><br><span class="line">		n = n-&gt;rb_right;</span><br><span class="line">	<span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(rb_last);</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> rb_node *<span class="title function_">rb_next</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> rb_node *node)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">parent</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (RB_EMPTY_NODE(node)) <span class="comment">// 判断当前node的parent是不是指向自己，如果是说明该node没有被插入rb_root中，所以返回NULL。</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * If we have a right-hand child, go down and then left as far</span></span><br><span class="line"><span class="comment">	 * as we can.  如果有右子树，则取右子树的最左结点</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (node-&gt;rb_right) &#123;</span><br><span class="line">		node = node-&gt;rb_right;</span><br><span class="line">		<span class="keyword">while</span> (node-&gt;rb_left)</span><br><span class="line">			node = node-&gt;rb_left;</span><br><span class="line">		<span class="keyword">return</span> (<span class="keyword">struct</span> rb_node *)node;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * No right-hand children. Everything down and left is smaller than us,</span></span><br><span class="line"><span class="comment">	 * so any &#x27;next&#x27; node must be in the general direction of our parent.</span></span><br><span class="line"><span class="comment">	 * Go up the tree; any time the ancestor is a right-hand child of its</span></span><br><span class="line"><span class="comment">	 * parent, keep going up. First time it&#x27;s a left-hand child of its</span></span><br><span class="line"><span class="comment">	 * parent, said parent is our &#x27;next&#x27; node.  如果没有右子树，则一直递归往上取。不过这里有个疑问，如果本身是最后一个结点了，那最后一个结点的最后一个结点是什么？</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">while</span> ((parent = rb_parent(node)) &amp;&amp; node == parent-&gt;rb_right)</span><br><span class="line">		node = parent;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> parent;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(rb_next);</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> rb_node *<span class="title function_">rb_prev</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> rb_node *node)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">parent</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (RB_EMPTY_NODE(node))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * If we have a left-hand child, go down and then right as far</span></span><br><span class="line"><span class="comment">	 * as we can.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (node-&gt;rb_left) &#123;</span><br><span class="line">		node = node-&gt;rb_left;</span><br><span class="line">		<span class="keyword">while</span> (node-&gt;rb_right)</span><br><span class="line">			node = node-&gt;rb_right;</span><br><span class="line">		<span class="keyword">return</span> (<span class="keyword">struct</span> rb_node *)node;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * No left-hand children. Go up till we find an ancestor which</span></span><br><span class="line"><span class="comment">	 * is a right-hand child of its parent.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">while</span> ((parent = rb_parent(node)) &amp;&amp; node == parent-&gt;rb_left)</span><br><span class="line">		node = parent;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> parent;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(rb_prev);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="增删改查"><a href="#增删改查" class="headerlink" title="增删改查"></a>增删改查</h2><p>我们最为关心的增删改查。</p>
+<h3 id="在rb-tree中增加一个node"><a href="#在rb-tree中增加一个node" class="headerlink" title="在rb_tree中增加一个node"></a>在rb_tree中增加一个node</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/rbtree.h</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * rb_add() - insert @node into @tree</span></span><br><span class="line"><span class="comment"> * @node: node to insert</span></span><br><span class="line"><span class="comment"> * @tree: tree to insert @node into</span></span><br><span class="line"><span class="comment"> * @less: operator defining the (partial) node order</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> __always_inline <span class="type">void</span></span><br><span class="line"><span class="title function_">rb_add</span><span class="params">(<span class="keyword">struct</span> rb_node *node, <span class="keyword">struct</span> rb_root *tree,</span></span><br><span class="line"><span class="params">       <span class="type">bool</span> (*less)(<span class="keyword">struct</span> rb_node *, <span class="type">const</span> <span class="keyword">struct</span> rb_node *))</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> **<span class="title">link</span> =</span> &amp;tree-&gt;rb_node;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">parent</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (*link) &#123;</span><br><span class="line">		parent = *link;</span><br><span class="line">		<span class="keyword">if</span> (less(node, parent))</span><br><span class="line">			link = &amp;parent-&gt;rb_left;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			link = &amp;parent-&gt;rb_right;</span><br><span class="line">	&#125; <span class="comment">//这里先找到对应parent和link，即node要插入的位置的parent。</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//下面两个函数才是增加结点和平衡的关键</span></span><br><span class="line">	rb_link_node(node, parent, link);</span><br><span class="line">	rb_insert_color(node, tree);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们先来看看rb_link_node函数。其实就是把link的值改成node。原本link是null。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  include/linux/rbtree.h</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">rb_link_node</span><span class="params">(<span class="keyword">struct</span> rb_node *node, <span class="keyword">struct</span> rb_node *parent,</span></span><br><span class="line"><span class="params">				<span class="keyword">struct</span> rb_node **rb_link)</span></span><br><span class="line">&#123;</span><br><span class="line">	node-&gt;__rb_parent_color = (<span class="type">unsigned</span> <span class="type">long</span>)parent;</span><br><span class="line">	node-&gt;rb_left = node-&gt;rb_right = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	*rb_link = node;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后是rb_insert_color函数, 内核代码里都写了很好的注释。其中很关键的点都画图了，这里注释小写证明红色（n, p, g, u），大写证明黑色(N,P,G,U)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  lib/rbtree.c</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">rb_insert_color</span><span class="params">(<span class="keyword">struct</span> rb_node *node, <span class="keyword">struct</span> rb_root *root)</span></span><br><span class="line">&#123;</span><br><span class="line">	__rb_insert(node, root, dummy_rotate);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(rb_insert_color);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">dummy_rotate</span><span class="params">(<span class="keyword">struct</span> rb_node *old, <span class="keyword">struct</span> rb_node *new)</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="keyword">struct</span> rb_node *<span class="title function_">rb_red_parent</span><span class="params">(<span class="keyword">struct</span> rb_node *red)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> (<span class="keyword">struct</span> rb_node *)red-&gt;__rb_parent_color;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> __always_inline <span class="type">void</span></span><br><span class="line">__rb_insert(<span class="keyword">struct</span> rb_node *node, <span class="keyword">struct</span> rb_root *root,</span><br><span class="line">	    <span class="type">void</span> (*augment_rotate)(<span class="keyword">struct</span> rb_node *old, <span class="keyword">struct</span> rb_node *new))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">parent</span> =</span> rb_red_parent(node), *gparent, *tmp; <span class="comment">//插入的结点必定是红色的</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * Loop invariant: node is red.</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		<span class="keyword">if</span> (unlikely(!parent)) &#123;</span><br><span class="line">			<span class="comment">/*</span></span><br><span class="line"><span class="comment">			 * The inserted node is root. Either this is the</span></span><br><span class="line"><span class="comment">			 * first node, or we recursed at Case 1 below and</span></span><br><span class="line"><span class="comment">			 * are no longer violating 4). 如果插入的结点就是root，就把当前结点设置成黑色，又由于是root，也就是没有父结点，所以父结点是NULL。</span></span><br><span class="line"><span class="comment">			 * static inline void rb_set_parent_color(struct rb_node *rb,</span></span><br><span class="line"><span class="comment">			 *        struct rb_node *p, int color)</span></span><br><span class="line"><span class="comment">             *  &#123;</span></span><br><span class="line"><span class="comment">             *      rb-&gt;__rb_parent_color = (unsigned long)p + color;</span></span><br><span class="line"><span class="comment">             *  &#125;</span></span><br><span class="line"><span class="comment">			 */</span></span><br><span class="line">			rb_set_parent_color(node, <span class="literal">NULL</span>, RB_BLACK);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * If there is a black parent, we are done.</span></span><br><span class="line"><span class="comment">		 * Otherwise, take some corrective action as,</span></span><br><span class="line"><span class="comment">		 * per 4), we don&#x27;t want a red root or two</span></span><br><span class="line"><span class="comment">		 * consecutive red nodes.  如果父亲是黑色，那么直接插入即可，因为不会打破平衡。</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		<span class="keyword">if</span>(rb_is_black(parent))</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">		gparent = rb_red_parent(parent);  <span class="comment">//获取父亲的父亲 grandparent</span></span><br><span class="line"></span><br><span class="line">		tmp = gparent-&gt;rb_right;  <span class="comment">//尝试获取uncle结点。</span></span><br><span class="line">		<span class="keyword">if</span> (parent != tmp) &#123;	<span class="comment">/* parent == gparent-&gt;rb_left */</span> <span class="comment">//说明是左子树， uncle是g的右子树</span></span><br><span class="line">			<span class="keyword">if</span> (tmp &amp;&amp; rb_is_red(tmp)) &#123; <span class="comment">//其实就是从底部往上，因为当前结点是红的，并且uncle是红的，把parent和uncle都变成黑的，再把grandparent变成红的，然后往上递归。</span></span><br><span class="line">				<span class="comment">/*</span></span><br><span class="line"><span class="comment">				 * Case 1 - node&#x27;s uncle is red (color flips).</span></span><br><span class="line"><span class="comment">				 *</span></span><br><span class="line"><span class="comment">				 *       G            g</span></span><br><span class="line"><span class="comment">				 *      / \          / \</span></span><br><span class="line"><span class="comment">				 *     p   u  --&gt;   P   U</span></span><br><span class="line"><span class="comment">				 *    /            /</span></span><br><span class="line"><span class="comment">				 *   n            n</span></span><br><span class="line"><span class="comment">				 *</span></span><br><span class="line"><span class="comment">				 * However, since g&#x27;s parent might be red, and</span></span><br><span class="line"><span class="comment">				 * 4) does not allow this, we need to recurse</span></span><br><span class="line"><span class="comment">				 * at g.</span></span><br><span class="line"><span class="comment">				 */</span></span><br><span class="line">				rb_set_parent_color(tmp, gparent, RB_BLACK);</span><br><span class="line">				rb_set_parent_color(parent, gparent, RB_BLACK);</span><br><span class="line">				node = gparent;</span><br><span class="line">				parent = rb_parent(node);</span><br><span class="line">				rb_set_parent_color(node, parent, RB_RED);</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			tmp = parent-&gt;rb_right; </span><br><span class="line">			<span class="keyword">if</span> (node == tmp) &#123;</span><br><span class="line">				<span class="comment">/* 说明当前node就是parent的右子树，就旋转</span></span><br><span class="line"><span class="comment">				 * Case 2 - node&#x27;s uncle is black and node is</span></span><br><span class="line"><span class="comment">				 * the parent&#x27;s right child (left rotate at parent).</span></span><br><span class="line"><span class="comment">				 *</span></span><br><span class="line"><span class="comment">				 *      G             G</span></span><br><span class="line"><span class="comment">				 *     / \           / \</span></span><br><span class="line"><span class="comment">				 *    p   U  --&gt;    n   U</span></span><br><span class="line"><span class="comment">				 *     \           /</span></span><br><span class="line"><span class="comment">				 *      n         p</span></span><br><span class="line"><span class="comment">				 *</span></span><br><span class="line"><span class="comment">				 * This still leaves us in violation of 4), the</span></span><br><span class="line"><span class="comment">				 * continuation into Case 3 will fix that.</span></span><br><span class="line"><span class="comment">				 */</span></span><br><span class="line">				tmp = node-&gt;rb_left;</span><br><span class="line">				WRITE_ONCE(parent-&gt;rb_right, tmp);</span><br><span class="line">				WRITE_ONCE(node-&gt;rb_left, parent);</span><br><span class="line">				<span class="keyword">if</span> (tmp)</span><br><span class="line">					rb_set_parent_color(tmp, parent,</span><br><span class="line">							    RB_BLACK);</span><br><span class="line">				rb_set_parent_color(parent, node, RB_RED);</span><br><span class="line">				augment_rotate(parent, node);</span><br><span class="line">				parent = node;</span><br><span class="line">				tmp = node-&gt;rb_right;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">/*</span></span><br><span class="line"><span class="comment">			 * Case 3 - node&#x27;s uncle is black and node is</span></span><br><span class="line"><span class="comment">			 * the parent&#x27;s left child (right rotate at gparent).</span></span><br><span class="line"><span class="comment">			 *</span></span><br><span class="line"><span class="comment">			 *        G           P</span></span><br><span class="line"><span class="comment">			 *       / \         / \</span></span><br><span class="line"><span class="comment">			 *      p   U  --&gt;  n   g</span></span><br><span class="line"><span class="comment">			 *     /                 \</span></span><br><span class="line"><span class="comment">			 *    n                   U</span></span><br><span class="line"><span class="comment">			 */</span></span><br><span class="line">			WRITE_ONCE(gparent-&gt;rb_left, tmp); <span class="comment">/* == parent-&gt;rb_right */</span></span><br><span class="line">			WRITE_ONCE(parent-&gt;rb_right, gparent);</span><br><span class="line">			<span class="keyword">if</span> (tmp)</span><br><span class="line">				rb_set_parent_color(tmp, gparent, RB_BLACK);</span><br><span class="line">			__rb_rotate_set_parents(gparent, parent, root, RB_RED);</span><br><span class="line">			augment_rotate(gparent, parent);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			tmp = gparent-&gt;rb_left;</span><br><span class="line">			<span class="keyword">if</span> (tmp &amp;&amp; rb_is_red(tmp)) &#123;</span><br><span class="line">				<span class="comment">/* Case 1 - color flips */</span></span><br><span class="line">				rb_set_parent_color(tmp, gparent, RB_BLACK);</span><br><span class="line">				rb_set_parent_color(parent, gparent, RB_BLACK);</span><br><span class="line">				node = gparent;</span><br><span class="line">				parent = rb_parent(node);</span><br><span class="line">				rb_set_parent_color(node, parent, RB_RED);</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			tmp = parent-&gt;rb_left;</span><br><span class="line">			<span class="keyword">if</span> (node == tmp) &#123;</span><br><span class="line">				<span class="comment">/* Case 2 - right rotate at parent */</span></span><br><span class="line">				tmp = node-&gt;rb_right;</span><br><span class="line">				WRITE_ONCE(parent-&gt;rb_left, tmp);</span><br><span class="line">				WRITE_ONCE(node-&gt;rb_right, parent);</span><br><span class="line">				<span class="keyword">if</span> (tmp)</span><br><span class="line">					rb_set_parent_color(tmp, parent,</span><br><span class="line">							    RB_BLACK);</span><br><span class="line">				rb_set_parent_color(parent, node, RB_RED);</span><br><span class="line">				augment_rotate(parent, node);</span><br><span class="line">				parent = node;</span><br><span class="line">				tmp = node-&gt;rb_left;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">/* Case 3 - left rotate at gparent */</span></span><br><span class="line">			WRITE_ONCE(gparent-&gt;rb_right, tmp); <span class="comment">/* == parent-&gt;rb_left */</span></span><br><span class="line">			WRITE_ONCE(parent-&gt;rb_left, gparent);</span><br><span class="line">			<span class="keyword">if</span> (tmp)</span><br><span class="line">				rb_set_parent_color(tmp, gparent, RB_BLACK);</span><br><span class="line">			__rb_rotate_set_parents(gparent, parent, root, RB_RED);</span><br><span class="line">			augment_rotate(gparent, parent);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里看着代码比较复杂，其实就是利用递归来做旋转和变色，具体如下：</p>
+<h4 id="场景1：红黑树为空树"><a href="#场景1：红黑树为空树" class="headerlink" title="场景1：红黑树为空树"></a>场景1：红黑树为空树</h4><p>直接把插入结点作为根节点就可以了</p>
+<p>另外：根据红黑树性质 2根节点是黑色的。还需要把插入节点设置为黑色</p>
+<h4 id="场景2：插入节点的Key已经存在"><a href="#场景2：插入节点的Key已经存在" class="headerlink" title="场景2：插入节点的Key已经存在"></a>场景2：插入节点的Key已经存在</h4><p>更新当前节点的值，为插入节点的值。</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190317643.png" alt="image-20250930190317643"></p>
+<h4 id="情景3：插入节点的父节点为黑色"><a href="#情景3：插入节点的父节点为黑色" class="headerlink" title="情景3：插入节点的父节点为黑色"></a>情景3：插入节点的父节点为黑色</h4><p>由于插入的节点是红色的，当插入节点的父节点是黑色时，不会影响红黑树的平衡，</p>
+<p>所以： <strong>直接插入无需做自平衡</strong>。</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190359749.png" alt="image-20250930190359749"></p>
+<h4 id="情景4：插入节点的父节点为红色"><a href="#情景4：插入节点的父节点为红色" class="headerlink" title="情景4：插入节点的父节点为红色"></a>情景4：插入节点的父节点为红色</h4><p>根据性质2：根节点是黑色。</p>
+<p>如果插入节点的父节点为红色节点，那么该父节点不可能为根节点，所以插入节点总是存在祖父节点(三代关系)。</p>
+<p>根据性质4：每个<strong>红色</strong>节点的两个子节点一定是<strong>黑色</strong>的。不能有<strong>两个红色节点相连</strong>。</p>
+<p>此时会出现两种状态：</p>
+<ul>
+<li>父亲和叔叔为红色</li>
+<li>父亲为红色，叔叔为黑色</li>
+</ul>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190427233.png" alt="image-20250930190427233"></p>
+<h5 id="场景4-1：父亲和叔叔为红色节点"><a href="#场景4-1：父亲和叔叔为红色节点" class="headerlink" title="场景4.1：父亲和叔叔为红色节点"></a>场景4.1：父亲和叔叔为红色节点</h5><p>根据性质4：<strong>红色节点不能相连 &#x3D;&#x3D;》祖父节点肯定为黑色节点：</strong></p>
+<p>父亲为红色，那么此时该插入子树的红黑树层数的情况是：黑红红。</p>
+<p>因为不可能同时存在两个相连的红色节点，需要进行 变色， 显然处理方式是把其改为：红黑红</p>
+<p><strong>变色 处理</strong>：黑红红 &#x3D;&#x3D;&gt; 红黑红</p>
+<p>1.将F和V节点改为黑色</p>
+<p>2.将P改为红色</p>
+<p>3.将P设置为当前节点，进行后续处理</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190513948.png" alt="image-20250930190513948"></p>
+<p>将P设置为红色了，</p>
+<p>如果<strong>P的父节点是黑色</strong>，那么无需做处理；</p>
+<p>但如果P的父节点是红色，则违反红黑树性质了，所以需要将P设置为当前节点，继续插入操作, 作自平衡处理，直到整体平衡为止。</p>
+<h5 id="场景4-2：叔叔为黑色，父亲为红色，并且插在父亲的左节点"><a href="#场景4-2：叔叔为黑色，父亲为红色，并且插在父亲的左节点" class="headerlink" title="场景4.2：叔叔为黑色，父亲为红色，并且插在父亲的左节点"></a>场景4.2：叔叔为黑色，父亲为红色，并且插在父亲的左节点</h5><p>分为两种情况，当前结点是左节点和当前结点是右结点</p>
+<ul>
+<li>场景4.2.1 LL型失衡</li>
+</ul>
+<p>把F设置成黑色，P设置成红色，然后右旋。</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190759084.png" alt="image-20250930190759084"></p>
+<ul>
+<li>场景4.2.2 LR型失衡</li>
+</ul>
+<p>把K和F进行左旋，转换成4.2.1</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20250930190824711.png" alt="image-20250930190824711"></p>
+<p>同理RR失衡和RL失衡则不再重复。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/os/" rel="tag"># os</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/14/Researches/" rel="prev" title="Personal works">
+                  <i class="fa fa-angle-left"></i> Personal works
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/09/19/note/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" rel="next" title="x86_64系统调用">
+                  x86_64系统调用 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/unsatisfying" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+  
+
+      
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/click/fireWorks.js></script>
+      
+
+      s
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/move/fairyDustCursor.js></script>
+      
+    
+</body>
+</html>

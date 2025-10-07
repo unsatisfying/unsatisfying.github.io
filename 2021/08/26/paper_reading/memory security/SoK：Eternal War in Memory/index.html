@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="论文的部分翻译与总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SoK：Eternal War in Memory">
+<meta property="og:url" content="https://zhuzhuzai.top/2021/08/26/paper_reading/memory%20security/SoK%EF%BC%9AEternal%20War%20in%20Memory/index.html">
+<meta property="og:site_name" content="Zzzai&#39;s Blog">
+<meta property="og:description" content="论文的部分翻译与总结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210826141804129.png">
+<meta property="article:published_time" content="2021-08-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-07T11:23:34.099Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="security">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210826141804129.png">
+
+
+<link rel="canonical" href="https://zhuzhuzai.top/2021/08/26/paper_reading/memory%20security/SoK%EF%BC%9AEternal%20War%20in%20Memory/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2021/08/26/paper_reading/memory%20security/SoK%EF%BC%9AEternal%20War%20in%20Memory/","path":"2021/08/26/paper_reading/memory security/SoK：Eternal War in Memory/","title":"SoK：Eternal War in Memory"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SoK：Eternal War in Memory | Zzzai's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zzzai's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BA%E6%96%87%E6%9D%A5%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">论文来源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">2.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#contribution"><span class="nav-number">3.1.</span> <span class="nav-text">contribution</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#attack"><span class="nav-number">4.</span> <span class="nav-text">attack</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E8%AF%8D%E7%9A%84%E8%A7%A3%E9%87%8A"><span class="nav-number">4.1.</span> <span class="nav-text">一些词的解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98corruption%EF%BC%88%E4%B8%8B%E9%9D%A2%E7%9A%84%E5%BA%8F%E5%8F%B7%E5%AF%B9%E5%BA%94%E5%9B%BE%E4%B8%AD%E6%9C%80%E5%B7%A6%E8%BE%B9%E5%9C%86%E5%BD%A2%E7%9A%84%E5%BA%8F%E5%8F%B7%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">内存corruption（下面的序号对应图中最左边圆形的序号）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88"><span class="nav-number">4.2.1.</span> <span class="nav-text">指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Code-corruption-%E6%94%BB%E5%87%BB"><span class="nav-number">4.2.2.</span> <span class="nav-text">Code corruption 攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%B5%81%E6%8C%9F%E6%8C%81%E6%94%BB%E5%87%BB"><span class="nav-number">4.2.3.</span> <span class="nav-text">控制流挟持攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#data-only%E6%94%BB%E5%87%BB"><span class="nav-number">4.2.4.</span> <span class="nav-text">data-only攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="nav-number">4.2.5.</span> <span class="nav-text">信息泄露</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#real-world%E7%9A%84%E4%BF%9D%E6%8A%A4%E5%92%8C%E5%88%A9%E7%94%A8"><span class="nav-number">4.3.</span> <span class="nav-text">real-world的保护和利用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%92%8C%E8%AF%84%E4%BB%B7%E6%A0%87%E5%87%86"><span class="nav-number">5.</span> <span class="nav-text">方法和评价标准</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#memory-safety"><span class="nav-number">5.1.</span> <span class="nav-text">memory safety</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Temporal-safety"><span class="nav-number">5.2.</span> <span class="nav-text">Temporal safety</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%AB%E7%9A%84%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">别的资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zhuzhuzai"
+      src="/images/portrait.gif">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description">Talk is cheap, show me the code!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/unsatisfying" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;unsatisfying" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:824941284@qq.com" title="E-Mail → mailto:824941284@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2021/08/26/paper_reading/memory%20security/SoK%EF%BC%9AEternal%20War%20in%20Memory/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/portrait.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zzzai's Blog">
+      <meta itemprop="description" content="Talk is cheap, show me the code!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SoK：Eternal War in Memory | Zzzai's Blog">
+      <meta itemprop="description" content="论文的部分翻译与总结">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SoK：Eternal War in Memory
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-26 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-26T00:00:00+08:00">2021-08-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-07 19:23:34" itemprop="dateModified" datetime="2025-10-07T19:23:34+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/paper/" itemprop="url" rel="index"><span itemprop="name">paper</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">论文的部分翻译与总结</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="论文来源"><a href="#论文来源" class="headerlink" title="论文来源"></a>论文来源</h1><p><a target="_blank" rel="noopener" href="https://nebelwelt.net/publications/files/13Oakland.pdf">IEEE Security&amp;Privacy’13：SoK: Eternal War in Memory</a></p>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><ul>
+<li>描述了一些当今系统的攻击方式；</li>
+<li>并介绍了防御的一些策略；</li>
+<li>同时分析了为什么没有部署更严格的防御策略的原因；</li>
+<li>在不同的策略之间进行比较，为了找到安全和效率之间的平衡。</li>
+<li>提供了一些当今的研究问题，并给了一些建议。</li>
+</ul>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>​	如今的防御措施有几个方面的原因导致不能大面积部署：</p>
+<ul>
+<li>performance不够好，overhead太大；</li>
+<li>方法和过去的代码或者feature不兼容；</li>
+<li>方法不够健壮，提供的保护也不是很完整；</li>
+<li>有些保护依赖于修改工具链和编译器，但是很多工具链也并不是开源的。</li>
+</ul>
+<h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution"></a>contribution</h2><ul>
+<li>总结内存损坏攻击的通用模型，并根据模型确定不同的可执行安全策略;</li>
+<li>通过将攻击手段的执行阶段与利用阶段做匹配，总结哪些攻击目前还没被保护的，或者过去提出的方法不适用的;</li>
+<li>评估和比较提出的方法的performance，兼容性和鲁棒性。</li>
+<li>讨论了为什么很多防御措施没有被大范围接受，然后新的措施的标准是什么。</li>
+</ul>
+<h1 id="attack"><a href="#attack" class="headerlink" title="attack"></a>attack</h1><p>一张各个阶段的攻击总结：</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20210826141804129.png" alt="image-20210826141804129"></p>
+<h2 id="一些词的解释"><a href="#一些词的解释" class="headerlink" title="一些词的解释"></a>一些词的解释</h2><p><code>dangling pointer</code>：空悬指针，指针指向的内存已经释放。</p>
+<p><code>spatial error</code>：访问越界的指针错误</p>
+<p><code>temporal error</code>：解引用一个dangling指针引起的错误</p>
+<p><code>Return Oriented Programming (ROP)</code>：返回现有代码的攻击，组合现有代码完成一些操作。</p>
+<p><code>Jump Oriented Programming (JOP)</code>：面向跳转编程，即用直接跳转完成类似ROP的效果</p>
+<h2 id="内存corruption（下面的序号对应图中最左边圆形的序号）"><a href="#内存corruption（下面的序号对应图中最左边圆形的序号）" class="headerlink" title="内存corruption（下面的序号对应图中最左边圆形的序号）"></a>内存corruption（下面的序号对应图中最左边圆形的序号）</h2><h3 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h3><p>1.指针错误类型：</p>
+<ul>
+<li>通过指针越界或者访问释放了的内存来使得指针失效，主要有<code>buffer overflow/underflow</code>。</li>
+<li>通过边界检查错误造成的越界或者整数溢出，主要有<code>integer overflow</code>，截断，符号错误，指针转换错误。</li>
+<li>也可能通过内存腐败，修改了指针数据而造成指针error。</li>
+</ul>
+<p>2.获取这样的指针：</p>
+<ul>
+<li>通过不正确的异常处理bug，比如有些程序释放了一个对象之后没有把指向该对象的指针初始化。这种被叫做<code>use-after-free</code>。可以在堆分配和释放的时候做一些手脚。</li>
+<li>一些局部变量指针被全局指针赋值时候也可能会导致问题，因为这样的指针在函数返回时候释放了局部的变量，但是全局的部分称为了悬挂指针。</li>
+</ul>
+<p>3.有了这样的指针之后如何利用：</p>
+<p>​	利用之前获得的指针进行读或者写的时候，就可以泄露一些内部的数据。</p>
+<ul>
+<li><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//比如如下这种情况，下一次的控制流跳转是跳转到执行表中的某个函数，但是因为index是用户控制的，就可能产生任意地址的跳转,</span></span><br><span class="line"><span class="comment">//攻击者可以让jump_table指向攻击者可以控制的地方</span></span><br><span class="line">func_ptr jump_table[<span class="number">3</span>] = &#123;fn_0, fn_1, fn_2&#125;;</span><br><span class="line">jump_table[user_input]();</span><br></pre></td></tr></table></figure>
+</li>
+<li><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//printf format string bug,利用类似的bug攻击者可以读任意地址内存</span></span><br><span class="line"><span class="built_in">printf</span>(user_input); <span class="comment">// input &quot;%3$x&quot; prints the</span></span><br><span class="line"><span class="comment">// 3rd integer on the stack</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果攻击者控制的是写指针，那么任何指针都可能被覆盖写，甚至任何数据都可能被覆盖写。<br>比如<code>buffer overflow/underflow</code>和下标错误，可以写覆盖写敏感错误的数据比如返回地址或者虚表指针。其中重写虚表指针就造成了图中3-&gt;1的反向循环。第一轮循环通过前述方式修改虚表指针，然后第二轮循环由于别的code解引用了这个虚表指针，从而造成控制流的劫持。从此循环反复，越来越多的指针就能被利用。</p>
+</li>
+<li><p>攻击者利用corrupting的指针调用free()也能造成内存破坏。[jp, “Advanced Doug Lea’s malloc exploits,” Phrack, vol. 11, no. 61, Aug 2003.]</p>
+</li>
+<li><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//打印时候解引用的指针也会造成信息的泄露，控制err_msg指针的指向可以进行任意地址的读</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, err_msg);</span><br></pre></td></tr></table></figure>
+
+<p>下面是针对temporal error的利用</p>
+</li>
+<li><p>当解引用悬挂指针的时候，指向的内存可能被内存分配器比如堆分配器分配给了别的object，就可以利用悬挂指针对别的object进行控制读写，甚至double-free也能造成任意读写，即新的object也被错误地释放了。</p>
+</li>
+</ul>
+<h3 id="Code-corruption-攻击"><a href="#Code-corruption-攻击" class="headerlink" title="Code corruption 攻击"></a>Code corruption 攻击</h3><p>​	利用上述bug去重写程序在内存中的code，但是把code设置成read-only。</p>
+<p>​	但是他不支持“程序自己修改代码”和“Just-In-Time（JIT）即时编译”。如今大部分浏览器用的都是JIT用以解析Flash和JS脚本，这会给代码部分一个可写的窗口期。</p>
+<h3 id="控制流挟持攻击"><a href="#控制流挟持攻击" class="headerlink" title="控制流挟持攻击"></a>控制流挟持攻击</h3><p>4.通过前述指针的error，可以修改return address来跳转到攻击者可控的地址空间。这可被地址空间随机化缓解（不能根除）</p>
+<p>5.通过直接call或者间接跳转或者函数返回指令ret来造成CFI（Control-flow Integrity）的破坏。</p>
+<p>6.第六步就是运行恶意代码，比如shellcode。这样可以被数据页面不可执行缓解，即W⊕X (Write XOR Execute) 策略，即页面要么可写，要么可执行，但是不能同时可写可执行。同样JIT和self-modifying code的情况不适用。于是提出了（Instruction Set Randomization），即加密代码，但是performance太差了，慢慢被淘汰。同时攻击者为了绕过权限，设计了重用现有代码，实现ROP攻击比如return-to-libc攻击或者通过gadgets小组件来执行恶意操作，还有JOP的攻击。目前这种类型只能缓解，不能根除。比如面向编译器的一些缓解方式，二进制重写以及消除大块。（个人知识，paper里没写：目前Intel和ARM各自有硬件上的缓解措施，比如CET，形成第二个shadow stack记录跳转地址。）</p>
+<h3 id="data-only攻击"><a href="#data-only攻击" class="headerlink" title="data-only攻击"></a>data-only攻击</h3><p>3.总的来说攻击者目标就是恶意修改程序逻辑，获得更多的控制权限，甚至修改特权级以及泄露信息，这个目标可以通过不修改显式控制流相关数据比如返回地址，跳转地址这种来完成，可以通过修改变量来改变程序执行逻辑。比如如下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> isAdmin = <span class="literal">false</span>;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (isAdmin) <span class="comment">// do privileged operations</span></span><br></pre></td></tr></table></figure>
+
+<p>可以通过数据空间随机化以及增加数据熵的方式缓解。</p>
+<h3 id="信息泄露"><a href="#信息泄露" class="headerlink" title="信息泄露"></a>信息泄露</h3><p>任何内存错误都可能造成信息泄露，而利用信息泄露可以绕过ASLR，解决的办法是数据空间随机化。</p>
+<h2 id="real-world的保护和利用"><a href="#real-world的保护和利用" class="headerlink" title="real-world的保护和利用"></a>real-world的保护和利用</h2><p>用的最多的是stack smashing  protection，DEP&#x2F;W⊕X 和 ASLR。windows还用SafeSEH 和 SEHOP保护堆元数据和异常处理，但是这样的保护很有限，仅仅是在跳转时候check一下，也仅仅是检查了返回地址和异常处理函数等方面，没有覆盖到全部，并且这种可以被绕过，比如利用索引来攻击，而不是覆盖。</p>
+<ul>
+<li>stack smashing  protection：在栈上返回地址和buffer之间放一个随机值（cookie或者canary），然后在返回之前check</li>
+<li>SafeSEH and SEHOP：在使用异常处理指针时候先用cookie验证一下。</li>
+</ul>
+<p>DEP&#x2F;W⊕X可以保护code注入的攻击，但是不能保护ROP这种code reuse攻击，这种攻击可以用ASLR稍微防护一下，但是可以被去随机化和信息泄露等方式破解ASLR。</p>
+<p>现在PDF viewers, 办公应用，web浏览器等运行user可控的脚本，可以用来动态构建payload，并使目标机器运行。</p>
+<h1 id="方法和评价标准"><a href="#方法和评价标准" class="headerlink" title="方法和评价标准"></a>方法和评价标准</h1><ul>
+<li><p>主要分为两大类：概率性保护（probabilistic）和确定性保护（deterministic）</p>
+<p>概率性主要是随机化：Instruction Set Randomization, Address Space Randomization, or Data Space Randomization, build on randomization or encryption</p>
+<p>其他的都是确定性的保护。</p>
+</li>
+</ul>
+<h2 id="memory-safety"><a href="#memory-safety" class="headerlink" title="memory safety"></a>memory safety</h2><p>指针边界检查：</p>
+<ul>
+<li>胖指针：要修改指针结构和代码结构，让一个指针结构体记录额外的信息</li>
+<li>SoftBound：将元数据和指针分离开来，用一个熵来记录，数据都存在一个特定的区域，类似哈希的方式（这里为了防止别人破解用的加密方式），在指针解引用的时候去特定区域取数据。</li>
+</ul>
+<p>基于对象的指针检查：由于我们不知道指针是不是指向正确的对象，尽管有边界检查，对象指错了也不行。基于对象的指针关注于指针运算，而非解引用。但是这样的过程只关注于对象创建和释放的时候，在对象被修改的时候是注意不到的。</p>
+<h2 id="Temporal-safety"><a href="#Temporal-safety" class="headerlink" title="Temporal safety"></a>Temporal safety</h2><p>特殊的分配器：不再使用相同的虚拟地址。或者地址只能被相同类型的对象使用。或者随机分配位置的分配器</p>
+<p>根据对象的方法：</p>
+<p>根据指针的方法：不仅要维护边界，还要维护分配信息保证安全。</p>
+<h1 id="别的资料"><a href="#别的资料" class="headerlink" title="别的资料"></a>别的资料</h1><p><a target="_blank" rel="noopener" href="http://www.pl-enthusiast.net/2014/07/21/memory-safety/">What is memory safety</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/security/" rel="tag"># security</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/17/paper_reading/spp/spp/" rel="prev" title="SPP(Sub-page protection)">
+                  <i class="fa fa-angle-left"></i> SPP(Sub-page protection)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/09/08/paper_reading/memory%20security/overall/" rel="next" title="Practical Protection of Kernel Integrity for Commodity OS from Untrusted Extensions">
+                  Practical Protection of Kernel Integrity for Commodity OS from Untrusted Extensions <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/unsatisfying" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+  
+
+      
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/click/fireWorks.js></script>
+      
+
+      s
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/move/fairyDustCursor.js></script>
+      
+    
+</body>
+</html>

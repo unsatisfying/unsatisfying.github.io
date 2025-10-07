@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="V-Shuttle论文解读与翻译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing">
+<meta property="og:url" content="https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/V-shuffle/index.html">
+<meta property="og:site_name" content="Zzzai&#39;s Blog">
+<meta property="og:description" content="V-Shuttle论文解读与翻译">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211122154306324.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123195225888.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123201912737.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123202951628.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123205350914.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123221219163.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123221601596.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123222556008.png">
+<meta property="article:published_time" content="2021-08-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-07T11:37:52.039Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="virtualization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211122154306324.png">
+
+
+<link rel="canonical" href="https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/V-shuffle/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/V-shuffle/","path":"2021/08/17/paper_reading/虚拟化/V-shuffle/","title":"V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing | Zzzai's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zzzai's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#V-Shuttle-Scalable-and-Semantics-Aware-Hypervisor-Virtual-Device-Fuzzing"><span class="nav-number">1.</span> <span class="nav-text">V-Shuttle: Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">1.1.</span> <span class="nav-text">2.背景知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E8%99%9A%E6%8B%9F%E8%AE%BE%E5%A4%87"><span class="nav-number">1.1.1.</span> <span class="nav-text">2.1 虚拟设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%A9%B1%E5%8A%A8%E4%B8%8E%E8%AE%BE%E5%A4%87%E4%BA%A4%E4%BA%92"><span class="nav-number">1.1.2.</span> <span class="nav-text">2.2 驱动与设备交互</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%A0%B8%E5%BF%83%E6%8C%91%E6%88%98-%E5%B5%8C%E5%A5%97%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-number">1.1.3.</span> <span class="nav-text">2.3 核心挑战-嵌套的结构体</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-V-SHUTTLE-DESIGN"><span class="nav-number">1.2.</span> <span class="nav-text">3. V-SHUTTLE DESIGN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Threat-model"><span class="nav-number">1.2.1.</span> <span class="nav-text">3.1 Threat model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-System-overview"><span class="nav-number">1.2.2.</span> <span class="nav-text">3.2 System overview</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#fuzzer"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">fuzzer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fuzzing-agent"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">fuzzing agent</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-DMA-%E9%87%8D%E5%AE%9A%E5%90%91"><span class="nav-number">1.2.3.</span> <span class="nav-text">3.3 DMA 重定向</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Semantics-Aware-Fuzzing-via-SeedPools"><span class="nav-number">1.2.4.</span> <span class="nav-text">3.4 Semantics-Aware Fuzzing via SeedPools</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-lightweight-fuzzing-loop"><span class="nav-number">1.2.5.</span> <span class="nav-text">3.5 lightweight fuzzing loop</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-evaluation"><span class="nav-number">1.3.</span> <span class="nav-text">5 evaluation</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zhuzhuzai"
+      src="/images/portrait.gif">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description">Talk is cheap, show me the code!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/unsatisfying" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;unsatisfying" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:824941284@qq.com" title="E-Mail → mailto:824941284@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/V-shuffle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/portrait.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zzzai's Blog">
+      <meta itemprop="description" content="Talk is cheap, show me the code!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing | Zzzai's Blog">
+      <meta itemprop="description" content="V-Shuttle论文解读与翻译">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-17 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-17T00:00:00+08:00">2021-08-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-07 19:37:52" itemprop="dateModified" datetime="2025-10-07T19:37:52+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/paper/" itemprop="url" rel="index"><span itemprop="name">paper</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">V-Shuttle论文解读与翻译</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="V-Shuttle-Scalable-and-Semantics-Aware-Hypervisor-Virtual-Device-Fuzzing"><a href="#V-Shuttle-Scalable-and-Semantics-Aware-Hypervisor-Virtual-Device-Fuzzing" class="headerlink" title="V-Shuttle: Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing"></a>V-Shuttle: Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing</h1><h2 id="2-背景知识"><a href="#2-背景知识" class="headerlink" title="2.背景知识"></a>2.背景知识</h2><h3 id="2-1-虚拟设备"><a href="#2-1-虚拟设备" class="headerlink" title="2.1 虚拟设备"></a>2.1 虚拟设备</h3><p>​	 所谓虚拟设备，就是提供给guest的外围仿真设备。guest中的驱动可以处理这些虚拟设备，就好像他们处理物理设备一样。每一个设备的协议规定了寄存器级别的硬件接口，用以设备和os之间的交互。总的来说虚拟化设计虚拟设备是根据SPEC来设计的，但是这会提供一种攻击hypervisor的方式。</p>
+<h3 id="2-2-驱动与设备交互"><a href="#2-2-驱动与设备交互" class="headerlink" title="2.2 驱动与设备交互"></a>2.2 驱动与设备交互</h3><p>​	总的来说，一个虚拟设备暴露了三种重要的交互方式，MMIO,PIO,DMA（IOMMU）。（这三个就不细说了，具体原理看王柏生、谢广军撰写的《深度探索Linux系统虚拟化：原理与实现》一书第三章）。</p>
+<p>​	在最开始设备执行的时候，guest的驱动会写入一些数据到MMIO或者PIO regions，从而做一些初始化相关的工作，比如设置设备状态，寄存器地址初始化等等。完成初始化之后，设备进入ready状态，可以进行处理交互数据。最初始的数据交互机制是DMA，它允许设备和guest之间交换大量复杂的数据。由于数据处理部分是设备驱动的主要code part，所以这一部分也比别的部分更加危险，更容易受攻击。</p>
+<h3 id="2-3-核心挑战-嵌套的结构体"><a href="#2-3-核心挑战-嵌套的结构体" class="headerlink" title="2.3 核心挑战-嵌套的结构体"></a>2.3 核心挑战-嵌套的结构体</h3><p>​	hypervisor是被用于guest memory和设备驱动交互的。这种转换操作是用特定的和DMA相关的API，比如QEMU里的<code>pci_dma_read</code> 和<code>pci_dma_write</code>。<code>pci_dma_read</code>从guest的内存复制了一个block的数据到host的buffer，write则相反。通过指定的地址参数，DMA操作可以访问任意位置的guest的物理内存。</p>
+<p>​	我们观察到通过DMA的机制访问的一些数据结构通常被组织成nested structures。<img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211122154306324.png" alt="image-20211122154306324"></p>
+<p>​	如图。这些结构体有很多种类和很多层，所以hypervisor通过树形结构组织这些structure，这些structure开始于一个root node。这些特定导致fuzz的一些问题：</p>
+<p>​	1）Nested Form Construction。</p>
+<p>对于fuzz来说，构建复杂的多层数据对象于结构，或者子结构是很困难的，因为这些对象可以是任意层次的。其一，数据的分层结构，树的相互嵌套等等导致的复杂，fuzz方法很难构造这种数据；其二，每个node内部的指针和数据的偏移也不是固定的，而fuzz mutator会把这些node一视同仁，从而导致不容易变异数据。并且也由于缺少数据语义（semantics），更导致了fuzz的困难。</p>
+<p>​	2）Node Type Awareness。</p>
+<p>由于设备根据规范支持各种数据类型，因此需要关于嵌套节点的细粒度语义知识。不同node之间的连接也是尤为重要，有些连接是固定的，所以需要我们在node之中建立正确的连接方式。有些指针关系甚至可能在运行时候才知道，因为很多field可以指向不同种类的数据。所以在node level，fuzzer需要知道具体的指针语，从而能够构造正确的数据结构，进入深层次的fuzz，而不是在程序开始阶段就导致crash。</p>
+<p>​	为了更好的说明这些nested structure是如何被hypervisor支持的，接下来讲一些hypervisor处理nested structure的通常情况。</p>
+<p>​	1）从root节点开始，hypervisor开始获得了一个指针（一般由address register获得），该指针指向一个处理guest memory中的数据结构 A。</p>
+<p>​	2）hyervisor动态地allocate buff，该buff是用以存储A的副本。</p>
+<p>​	3）hypervisor 通过pci_dma_read拷贝A到buff中。</p>
+<p>​	4）当A中有指针指向别的结构B的时候，hypervisor用同样的方法，构造一个副本B的buff。</p>
+<p>​	5）再次利用pci_dma_read拷贝B到buff中。</p>
+<p>如此反复，从而递归地获取一个structure。然后用上图做一个例子。</p>
+<p>一个直观地方法来处理这些数据结构就是用structure-aware fuzzing。这些方法需要开发者构造一个规范的模型。并且还需要把这些数据结构连接起来，所以会很费时，并且还容易出错。并且这些数据结构的SPEC也很庞大，需要大量工作来定义。手工的工作也很容易出错。并且开发人员可能会增加新的机制，因此这些方法都不太适合大范围的hypervisor fuzz。</p>
+<h2 id="3-V-SHUTTLE-DESIGN"><a href="#3-V-SHUTTLE-DESIGN" class="headerlink" title="3. V-SHUTTLE DESIGN"></a>3. V-SHUTTLE DESIGN</h2><p>V-shuttle是一个轻量级的，可度量的，语义感知的hypervisor fuzz framwork，并且结合了civerage-guided fuzz和静态分析。为了定位前面所说的challenge, V-shuttle用了两种方法：1）重定向DMA相关的函数。2）通过seedpools的语义感知fuzz。</p>
+<h3 id="3-1-Threat-model"><a href="#3-1-Threat-model" class="headerlink" title="3.1 Threat model"></a>3.1 Threat model</h3><p>假设攻击者是一个privileged guest user，同时拥有VM内的所有内存权限，由此可以向device输送二进制数据。</p>
+<h3 id="3-2-System-overview"><a href="#3-2-System-overview" class="headerlink" title="3.2 System overview"></a>3.2 System overview</h3><p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123195225888.png" alt="image-20211123195225888"></p>
+<p>它利用集成在hypervisor中的fuzz代理，向虚拟设备喂测试数据，持续向虚拟设备发送读写请求。主要由两部分，fuzzer和fuzzing agent。</p>
+<h4 id="fuzzer"><a href="#fuzzer" class="headerlink" title="fuzzer"></a>fuzzer</h4><p>fuzzer在hypervisor之外，并且启用持久模式，即不用每次测试都新启动一个新的实例。因为1）重启一个hypervisor进程或者恢复一个快照是有开销的。2）hypervisor是event-based system，它设计的目的就是长时间的交互。并且大多数的BUG是通过对已发现的分支进行深层次的fuzz发现的，这些深层次状态很可能依赖于之前很多状态的交互构建出来的。</p>
+<h4 id="fuzzing-agent"><a href="#fuzzing-agent" class="headerlink" title="fuzzing agent"></a>fuzzing agent</h4><p>它是被放置在hypervisor中的核心组件。1）驱动fuzzing loop和（fuzzer 和 device）的交互 。2）管理DMA&#x2F;MMIO 的上下文分配。为了适应传统的application-fuzz的方法。把guest system中的数据交互重定向到了fuzzed input中。然后fuzzing agent模拟攻击者控制的恶意guest kernel driver，拦截所有device发出的DMA和IO 读写指令，所有从hypervisor的读写操作都被发送到了一个fuzzing agent中的注册函数里。该注册函数会执行操作并返回fuzz生成的数据给device。所以增加新设备的时候，没必要额外的labor，因为它是嵌入在hypervisor中的。</p>
+<h3 id="3-3-DMA-重定向"><a href="#3-3-DMA-重定向" class="headerlink" title="3.3 DMA 重定向"></a>3.3 DMA 重定向</h3><p>由于给大量的device创建合法的数据结构工作量很大，并且很复杂，所以设计了DMA重定向的方法。通过拦截设备请求guest memory，来扁平化嵌套结构。他把DMA传输转化成fuzz input的读取，即把所有的DMA相关的API中以及他们的包装函数中都插入宏，从而所有的API都被替换成从文件中读取数据，从而是读取fuzzing input。下图给了个例子。</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123201912737.png" alt="image-20211123201912737"></p>
+<p>而关注于DMA是因为他们负责guest和host之间的数据交互，也是构建这些嵌套数据结构的关键机制。同时这样也消除了DMA的寻址操作。并且由于完全控制DMA机制，任何的DMA请求都能够用传统coverage-guided fuzzer，不论数据结构中的指针指向哪里，即使他们是0. 从图上可以看出原本需要buffer_addr，现在只需要从文件中读取，所以任意地址都行。并且V-shuttle只是操作设备从guest中读取的数据，并不管写入的数据，因为一般来说攻击者都是向设备来input一些数据来攻击的，所以不管他们收到的。</p>
+<p>当收到device向guest memory中的read 请求：</p>
+<p>​	1）V-thuttle确保DMA读取函数调用源自于正在监视的目标设备，因为对其他来自系统组件的DMA传输请求不感兴趣，这些请求不受guest控制。<br>​	2）给定的host 的buffer和 buffer size，V-shuttle从seed file中选定适合的数据，而不是去读guest 内存。下图给了大致示意图</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123202951628.png" alt="image-20211123202951628"></p>
+<p>相比于传统的在guest中构建数据结构，V-shuttle从hypervisor中构建测试数据，从而把所有的多维数据结构变成了一维，并且保证了nested structure的语义。这样所有的底层代码都可以访问。对于每一次的模糊迭代，模糊器引擎首先通过突变的方式生成DMA数据序列，然后设备开始遍历树，然后每个DMA请求都从file中获取input。消除了每个节点中的指针，同时仍然保持每个节点隐含的指针依赖信息，所以这不会破坏设备的正常进行。</p>
+<h3 id="3-4-Semantics-Aware-Fuzzing-via-SeedPools"><a href="#3-4-Semantics-Aware-Fuzzing-via-SeedPools" class="headerlink" title="3.4 Semantics-Aware Fuzzing via SeedPools"></a>3.4 Semantics-Aware Fuzzing via SeedPools</h3><p>但是上面的方法也存在一个问题，就是它并没有把node type给考虑进去，所以效率会比较低。而且有些node type是动态决定的，所以有些时候控制流也是动态改变的。并且一些节点之间连接的语义也很容易在迭代的时候消失。（有个例子没看懂），然后就给每个fuzz数据加了一个type_id，这样同一类的node就可以更好的异变迭代。如下图，把接口中加了一个参数。</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123205350914.png" alt="image-20211123205350914"></p>
+<p>由此，就能够把数据结构之间进行解耦合，然后每个结构的数量又是有限的，所以独立地进行generate。</p>
+<p>1）对DMA对象进行静态分析。大概就是backward data flow analysis（他们call这个叫live-variable analysis），通过一些函数（比如pic_dma_read），去反向找这些数据的type。（这块属实不是我的长项，就贴原文把<br>Therefore, we define a DMA object as a host’s structure that holds the copy of the guest’s data through DMA. Each DMA object represents a unique type of node. Aiming to label all the DMA objects, V-Shuttle performs static analysis on the hypervisor’s source code. In particular, V-Shuttle utilizes a live-variable analysis, which is a special type of data flow analysis. Considering the host’s buffer field of DMA operations (e.g., pci_dma_read, and its wrapped function) as the source, we do the backward data flow analysis from the source to its declaration or definition (the DMA object). After collecting all the DMA objects, we assign unique IDs to each of them. These labeled objects help us identify the node type of each DMA request at runtime and ensure that each type of DMA object can be correctly grouped）</p>
+<p>2）通过每次读取input增加的type_id进行特定的读取。</p>
+<p>3）同时为了解决多种类型的input，就扩展了AFL，增加了seedpool，这样就fuzzer在每个seed queue上变异，由此对每个type的structure单独变异出input。然后根据coverage的feedback反馈，就fuzzing就可以知道如何给每一种类型的type变异生成input。</p>
+<p>4）语义感知 fuzzing过程。伪算法如下：</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123221219163.png" alt="image-20211123221219163"></p>
+<p>这里给了一个example：USB-UHCI：</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123221601596.png" alt="image-20211123221601596"></p>
+<h3 id="3-5-lightweight-fuzzing-loop"><a href="#3-5-lightweight-fuzzing-loop" class="headerlink" title="3.5 lightweight fuzzing loop"></a>3.5 lightweight fuzzing loop</h3><p>过去的方式通过在guest os中增加代理来实现，这样在vmexit的时候会造成很大的开销，但是此方法不会</p>
+<p><strong>环境主要功能模型</strong>：</p>
+<p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211123222556008.png" alt="image-20211123222556008"></p>
+<h2 id="5-evaluation"><a href="#5-evaluation" class="headerlink" title="5 evaluation"></a>5 evaluation</h2><p>测试了Qemu5.1.0和VirtualBox6.1.14，</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/virtualization/" rel="tag"># virtualization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/xmp/" rel="next" title="xMP：Selective Memory Protection for Kernel and User Space">
+                  xMP：Selective Memory Protection for Kernel and User Space <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/unsatisfying" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+  
+
+      
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/click/fireWorks.js></script>
+      
+
+      s
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/move/fairyDustCursor.js></script>
+      
+    
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="操作系统x86_64系统调用相关知识与源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="x86_64系统调用">
+<meta property="og:url" content="https://zhuzhuzai.top/2025/09/19/note/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/index.html">
+<meta property="og:site_name" content="Zzzai&#39;s Blog">
+<meta property="og:description" content="操作系统x86_64系统调用相关知识与源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001204334700.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001220608653.png">
+<meta property="og:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001233147305.png">
+<meta property="article:published_time" content="2025-09-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-07T11:35:01.249Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="os">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001204334700.png">
+
+
+<link rel="canonical" href="https://zhuzhuzai.top/2025/09/19/note/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2025/09/19/note/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/","path":"2025/09/19/note/系统调用/","title":"x86_64系统调用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>x86_64系统调用 | Zzzai's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zzzai's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">系统调用的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9C%9F%E6%AD%A3%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">真正系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5%E5%86%85%E6%A0%B8%E6%80%81%E8%BF%90%E8%A1%8C%E4%BB%A3%E7%A0%81%E4%B9%8B%E5%89%8D%E9%9C%80%E8%A6%81%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%EF%BC%88%E5%88%87%E6%8D%A2%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8%E5%92%8CCR3%E7%AD%89%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">进入内核态运行代码之前需要的一些准备工作（切换段寄存器和CR3等）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E7%94%A8%E6%88%B7%E6%80%81%E5%AF%84%E5%AD%98%E5%99%A8%E5%80%BC"><span class="nav-number">1.2.2.</span> <span class="nav-text">保存用户态寄存器值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#do-syscall-64"><span class="nav-number">1.2.3.</span> <span class="nav-text">do_syscall_64</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E8%BF%94%E5%9B%9E"><span class="nav-number">1.2.4.</span> <span class="nav-text">系统调用的返回</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zhuzhuzai"
+      src="/images/portrait.gif">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description">Talk is cheap, show me the code!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/unsatisfying" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;unsatisfying" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:824941284@qq.com" title="E-Mail → mailto:824941284@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2025/09/19/note/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/portrait.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zzzai's Blog">
+      <meta itemprop="description" content="Talk is cheap, show me the code!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="x86_64系统调用 | Zzzai's Blog">
+      <meta itemprop="description" content="操作系统x86_64系统调用相关知识与源码分析">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          x86_64系统调用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-19 00:00:00" itemprop="dateCreated datePublished" datetime="2025-09-19T00:00:00+08:00">2025-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-07 19:35:01" itemprop="dateModified" datetime="2025-10-07T19:35:01+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/note/" itemprop="url" rel="index"><span itemprop="name">note</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">操作系统x86_64系统调用相关知识与源码分析</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h1><p>本文专注于x86_64架构的系统调用，与x86架构不同的是，32位使用的是int80中断来处理的系统调用，具体看<code>arch/x86/entry/entry_32.S</code>文件。 而x86_64架构对应的kernel入口在entry_64.S中，其直接使用syscall指令。二者的区别在于，</p>
+<ul>
+<li><p>直接使用syscall需要保存的寄存器数量更少。x86 的 <code>int 0x80</code>需要保存更多寄存器（如 <code>CS:EIP</code>、<code>SS:ESP</code>、<code>EFLAGS</code>等），而 <code>syscall</code>仅保存 <code>RFLAGS</code>和 <code>CS:RIP</code>，因此减少了上下文切换的开销。此外x86_64还避免了中断处理的开销。</p>
+</li>
+<li><p>参数传递的寄存器不同。<strong>x86</strong>：前6个参数依次通过 <code>ebx</code>、<code>ecx</code>、<code>edx</code>、<code>esi</code>、<code>edi</code>、<code>ebp</code>传递，超出部分通过栈传递。<strong>x86_64</strong>：前6个参数通过 <code>rdi</code>、<code>rsi</code>、<code>rdx</code>、<code>r10</code>、<code>r8</code>、<code>r9</code>传递，且第四个参数（原 <code>ecx</code>）改为 <code>r10</code>，以避免与返回地址冲突。<strong>关键区别</strong>在于x86_64 的 <code>rcx</code>寄存器用于保存返回地址，因此参数传递需避开该寄存器。</p>
+</li>
+<li><p>错误码返回不同。两者均通过 <code>eax/rax</code>返回结果，但 x86_64 的错误码以负数形式（范围 <code>-4095</code>至 <code>-1</code>）表示，而 x86 使用正数错误码。</p>
+</li>
+</ul>
+<h2 id="系统调用的初始化"><a href="#系统调用的初始化" class="headerlink" title="系统调用的初始化"></a>系统调用的初始化</h2><p>在系统启动之初的CPU_init阶段，会对CPU上一些MSR寄存器进行初始化，而对于syscall_init部分的初始化在syscall_init函数中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file: arch/x86/kernel/cpu/common.c</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">syscall_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/* The default user and kernel segments */</span></span><br><span class="line">	wrmsr(MSR_STAR, <span class="number">0</span>, (__USER32_CS &lt;&lt; <span class="number">16</span>) | __KERNEL_CS);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Except the IA32_STAR MSR, there is NO need to setup SYSCALL and</span></span><br><span class="line"><span class="comment">	 * SYSENTER MSRs for FRED, because FRED uses the ring 3 FRED</span></span><br><span class="line"><span class="comment">	 * entrypoint for SYSCALL and SYSENTER, and ERETU is the only legit</span></span><br><span class="line"><span class="comment">	 * instruction to return to ring 3 (both sysexit and sysret cause</span></span><br><span class="line"><span class="comment">	 * #UD when FRED is enabled).</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (!cpu_feature_enabled(X86_FEATURE_FRED))</span><br><span class="line">		idt_syscall_init();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">idt_syscall_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	wrmsrl(MSR_LSTAR, (<span class="type">unsigned</span> <span class="type">long</span>)entry_SYSCALL_64);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (ia32_enabled()) &#123;</span><br><span class="line">		wrmsrl_cstar((<span class="type">unsigned</span> <span class="type">long</span>)entry_SYSCALL_compat);</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * This only works on Intel CPUs.</span></span><br><span class="line"><span class="comment">		 * On AMD CPUs these MSRs are 32-bit, CPU truncates MSR_IA32_SYSENTER_EIP.</span></span><br><span class="line"><span class="comment">		 * This does not cause SYSENTER to jump to the wrong location, because</span></span><br><span class="line"><span class="comment">		 * AMD doesn&#x27;t allow SYSENTER in long mode (either 32- or 64-bit).</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)__KERNEL_CS);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_ESP,</span><br><span class="line">			    (<span class="type">unsigned</span> <span class="type">long</span>)(cpu_entry_stack(smp_processor_id()) + <span class="number">1</span>));</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_EIP, (u64)entry_SYSENTER_compat);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		wrmsrl_cstar((<span class="type">unsigned</span> <span class="type">long</span>)entry_SYSCALL32_ignore);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)GDT_ENTRY_INVALID_SEG);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_ESP, <span class="number">0ULL</span>);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_EIP, <span class="number">0ULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Flags to clear on syscall; clear as much as possible</span></span><br><span class="line"><span class="comment">	 * to minimize user space-kernel interference.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	wrmsrl(MSR_SYSCALL_MASK,</span><br><span class="line">	       X86_EFLAGS_CF|X86_EFLAGS_PF|X86_EFLAGS_AF|</span><br><span class="line">	       X86_EFLAGS_ZF|X86_EFLAGS_SF|X86_EFLAGS_TF|</span><br><span class="line">	       X86_EFLAGS_IF|X86_EFLAGS_DF|X86_EFLAGS_OF|</span><br><span class="line">	       X86_EFLAGS_IOPL|X86_EFLAGS_NT|X86_EFLAGS_RF|</span><br><span class="line">	       X86_EFLAGS_AC|X86_EFLAGS_ID);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中在第6行，将User段的cs和kernel段的cs写入MSR_STAR寄存器。第一个特殊模块集寄存器- <code>MSR_STAR</code> 的 <code>63:48</code> 为用户代码的代码段。这些数据将加载至 <code>CS</code> 和 <code>SS</code> 段选择符，由提供将系统调用返回至相应特权级的用户代码功能的 <code>sysret</code> 指令使用。 同时从内核代码来看， 当用户空间应用程序执行系统调用时，<code>MSR_STAR</code> 的 <code>47:32</code> 将作为 <code>CS</code> and <code>SS</code>段选择寄存器的基地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* The default user and kernel segments */</span></span><br><span class="line">	wrmsr(MSR_STAR, <span class="number">0</span>, (__USER32_CS &lt;&lt; <span class="number">16</span>) | __KERNEL_CS);</span><br></pre></td></tr></table></figure>
+
+<p>然后在第21行写入entry_SYSCALL_64函数的地址，即kernel entry的入口地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wrmsrl(MSR_LSTAR, (<span class="type">unsigned</span> <span class="type">long</span>)entry_SYSCALL_64);</span><br></pre></td></tr></table></figure>
+
+<p>设置好系统调用入口后，需要以下特殊模式的寄存器进行操作，以方便64位CPU能够执行32位的程序。</p>
+<ul>
+<li><code>MSR_CSTAR</code> - target <code>rip</code> for the compability mode callers;</li>
+<li><code>MSR_IA32_SYSENTER_CS</code> - target <code>cs</code> for the <code>sysenter</code> instruction;</li>
+<li><code>MSR_IA32_SYSENTER_ESP</code> - target <code>esp</code> for the <code>sysenter</code> instruction;</li>
+<li><code>MSR_IA32_SYSENTER_EIP</code> - target <code>eip</code> for the <code>sysenter</code> instruction.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ia32_enabled()) &#123;</span><br><span class="line">		wrmsrl_cstar((<span class="type">unsigned</span> <span class="type">long</span>)entry_SYSCALL_compat);</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * This only works on Intel CPUs.</span></span><br><span class="line"><span class="comment">		 * On AMD CPUs these MSRs are 32-bit, CPU truncates MSR_IA32_SYSENTER_EIP.</span></span><br><span class="line"><span class="comment">		 * This does not cause SYSENTER to jump to the wrong location, because</span></span><br><span class="line"><span class="comment">		 * AMD doesn&#x27;t allow SYSENTER in long mode (either 32- or 64-bit).</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)__KERNEL_CS);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_ESP,</span><br><span class="line">			    (<span class="type">unsigned</span> <span class="type">long</span>)(cpu_entry_stack(smp_processor_id()) + <span class="number">1</span>));</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_EIP, (u64)entry_SYSENTER_compat);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		wrmsrl_cstar((<span class="type">unsigned</span> <span class="type">long</span>)entry_SYSCALL32_ignore);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)GDT_ENTRY_INVALID_SEG);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_ESP, <span class="number">0ULL</span>);</span><br><span class="line">		wrmsrl_safe(MSR_IA32_SYSENTER_EIP, <span class="number">0ULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	wrmsrl(MSR_SYSCALL_MASK,</span><br><span class="line">	       X86_EFLAGS_CF|X86_EFLAGS_PF|X86_EFLAGS_AF|</span><br><span class="line">	       X86_EFLAGS_ZF|X86_EFLAGS_SF|X86_EFLAGS_TF|</span><br><span class="line">	       X86_EFLAGS_IF|X86_EFLAGS_DF|X86_EFLAGS_OF|</span><br><span class="line">	       X86_EFLAGS_IOPL|X86_EFLAGS_NT|X86_EFLAGS_RF|</span><br><span class="line">	       X86_EFLAGS_AC|X86_EFLAGS_ID);  <span class="comment">//禁止中断和一些别的掩码位，最重要的是禁止中断。也就是说syscall是不允许中断的</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要了解一下几个寄存器的作用</p>
+<ul>
+<li><code>esp </code>- 当前栈顶</li>
+<li><code>eip</code> - 下一条指令地址</li>
+<li><code>ebp</code> - 当前栈底</li>
+<li><code>cs</code> - 代码段地址</li>
+</ul>
+<p>这里代码就是比较明了，就是把32位程序的使用的一些MSR寄存器等进行设置，把64位下的值给他们。不过这是关于64位程序运行32位的部分，因此我们先跳过这块，直接看具体的入口函数，即<code>entry_SYSCALL_64</code>，该函数地址被写入MSR_LSTAR寄存器，一旦用户态执行syscall指令，就会跳转到该地址进行执行。</p>
+<p>syscall指令主要做了以下几件事：</p>
+<ul>
+<li><p>把<code>syscall</code>指令的下一条指令（也就是返回地址）存入 <code>%rcx</code> 寄存，然后把指令指针寄存器 <code>%rip</code> 替换成IA32_LSTAR MSR寄存器里的值。</p>
+</li>
+<li><p>把 rflags 标志寄存器的值保存到 <code>%r11</code>，然后把 rflags 的值与 IA32_FMASK MSR 里的值做掩码运算。</p>
+</li>
+<li><p>把 IA32_STAR MSR寄存器里第32~47位加载到 CS 和 SS 段寄存器。</p>
+</li>
+</ul>
+<h2 id="真正系统调用"><a href="#真正系统调用" class="headerlink" title="真正系统调用"></a>真正系统调用</h2><h3 id="进入内核态运行代码之前需要的一些准备工作（切换段寄存器和CR3等）"><a href="#进入内核态运行代码之前需要的一些准备工作（切换段寄存器和CR3等）" class="headerlink" title="进入内核态运行代码之前需要的一些准备工作（切换段寄存器和CR3等）"></a>进入内核态运行代码之前需要的一些准备工作（切换段寄存器和CR3等）</h3><p>然后我们来看真正的内核入口的汇编代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">SYM_CODE_START(entry_SYSCALL_64)</span><br><span class="line">	UNWIND_HINT_ENTRY</span><br><span class="line">	ENDBR</span><br><span class="line">	</span><br><span class="line">	swapgs </span><br><span class="line">	/* tss.sp2 is scratch space. */</span><br><span class="line">	movq	%rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)</span><br><span class="line">	SWITCH_TO_KERNEL_CR3 scratch_reg=%rsp</span><br><span class="line">	movq	PER_CPU_VAR(pcpu_hot + X86_top_of_stack), %rsp</span><br><span class="line"></span><br><span class="line">SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)</span><br><span class="line">	ANNOTATE_NOENDBR</span><br><span class="line"></span><br><span class="line">	/* Construct struct pt_regs on stack */</span><br><span class="line">	pushq	$__USER_DS				/* pt_regs-&gt;ss */</span><br><span class="line">	pushq	PER_CPU_VAR(cpu_tss_rw + TSS_sp2)	/* pt_regs-&gt;sp */</span><br><span class="line">	pushq	%r11					/* pt_regs-&gt;flags */</span><br><span class="line">	pushq	$__USER_CS				/* pt_regs-&gt;cs */</span><br><span class="line">	pushq	%rcx					/* pt_regs-&gt;ip */</span><br><span class="line">SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)</span><br><span class="line">	pushq	%rax					/* pt_regs-&gt;orig_ax */</span><br><span class="line"></span><br><span class="line">	PUSH_AND_CLEAR_REGS rax=$-ENOSYS</span><br><span class="line"></span><br><span class="line">	/* IRQs are off. */</span><br><span class="line">	movq	%rsp, %rdi</span><br><span class="line">	/* Sign extend the lower 32bit as syscall numbers are treated as int */</span><br><span class="line">	movslq	%eax, %rsi</span><br><span class="line"></span><br><span class="line">	/* clobbers %rax, make sure it is after saving the syscall nr */</span><br><span class="line">	IBRS_ENTER</span><br><span class="line">	UNTRAIN_RET</span><br><span class="line">	CLEAR_BRANCH_HISTORY</span><br><span class="line"></span><br><span class="line">	call	do_syscall_64		/* returns with IRQs disabled */</span><br></pre></td></tr></table></figure>
+
+<p>首先前两行，第一行是处理ftrace,kprobe等关于内核栈调用和调试信息相关的部分，我们不关心，因此跳过，第二行是x86开启CET保护后，函数call过来必须跳转的指令，不然会异常，所以我们也不关心。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UNWIND_HINT_ENTRY</span><br><span class="line">ENDBR</span><br></pre></td></tr></table></figure>
+
+<p>然后是切换GS段基址，从用户态切换到内核态。因为x86-64上有一个per CPU数据区域，是需要通过GS寄存器访问的，在用户态下GS 指向用户线程的 TLS；内核态下，GS 指向内核的 <code>per_cpu</code> 数据。这一步是从用户态的段切换到内核态的段。<code>PS：其实这里切换来切换去都是同一个段，因为平坦内存模型，在GDT表中，所有的段的基址都是0，只是不同段的idx不同，比如12 - kernel code segment， 13 - kernel data segment， 14 - default user CS （具体看文件arch/x86/include/asm/segment.h中的注释）所以这里只是一个历史遗留问题，为了保证早期只支持段的设备做的。</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">swapgs </span><br></pre></td></tr></table></figure>
+
+<p>然后把当前用户态的栈指针<code>%RSP</code>临时存储的TSS段，注释已经告诉我们这个段的sp2字段是空的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/* tss.sp2 is scratch space. */</span><br><span class="line">movq	%rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)</span><br></pre></td></tr></table></figure>
+
+<p>然后是切换页表到内核页表，即修改CR3寄存器。这个宏把rsp当作一个临时寄存器，因为rsp的值已经存储过的。然后是一个处理CPU特性的宏，判断CPU支不支持PTI（Page Table Isolation），如果不支持就直接跳转到末尾<code>.Lend_\@</code>, 支持的话就接着执行下面的语句，当前语句是空<code>&quot;&quot;</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">SWITCH_TO_KERNEL_CR3 scratch_reg=%rsp</span><br><span class="line"></span><br><span class="line">.macro SWITCH_TO_KERNEL_CR3 scratch_reg:req</span><br><span class="line">	ALTERNATIVE &quot;jmp .Lend_\@&quot;, &quot;&quot;, X86_FEATURE_PTI</span><br><span class="line">	mov	%cr3, \scratch_reg</span><br><span class="line">	ADJUST_KERNEL_CR3 \scratch_reg</span><br><span class="line">	mov	\scratch_reg, %cr3</span><br><span class="line">.Lend_\@:</span><br><span class="line">.endm</span><br><span class="line"></span><br><span class="line">.macro ADJUST_KERNEL_CR3 reg:req</span><br><span class="line">	ALTERNATIVE &quot;&quot;, &quot;SET_NOFLUSH_BIT \reg&quot;, X86_FEATURE_PCID</span><br><span class="line">	/* Clear PCID and &quot;MITIGATION_PAGE_TABLE_ISOLATION bit&quot;, point CR3 at kernel pagetables: */</span><br><span class="line">	andq    $(~PTI_USER_PGTABLE_AND_PCID_MASK), \reg</span><br><span class="line">.endm</span><br><span class="line"></span><br><span class="line">#define PTI_USER_PGTABLE_BIT		PAGE_SHIFT</span><br><span class="line">#define PTI_USER_PGTABLE_MASK		(1 &lt;&lt; PTI_USER_PGTABLE_BIT)</span><br><span class="line">#define PTI_USER_PCID_BIT		X86_CR3_PTI_PCID_USER_BIT</span><br><span class="line">#define PTI_USER_PCID_MASK		(1 &lt;&lt; PTI_USER_PCID_BIT)</span><br><span class="line">#define PTI_USER_PGTABLE_AND_PCID_MASK  (PTI_USER_PCID_MASK | PTI_USER_PGTABLE_MASK)</span><br></pre></td></tr></table></figure>
+
+<p>然后上面的宏第四行把CR3寄存器临时存到rsp寄存器里，然后又是一个宏，这里判断CPU支不支持PCID(Process Context ID)，如果支持就不需要flush TLB。同时把用户态CR3的PTI_USER_PCID_MASK和PTI_USER_PGTABLE_MASK清空，然后再将其写回CR3寄存器中。这里其实关键的地方在于，用户态的CR3和内核态的CR3只差了一页。用一张网上的图就是如下所示，所以这里把PTI_USER_PGTABLE_MASK，即1&lt;&lt;12这里变成了0，表明是kernel的CR3了。这里其实就是为了防护熔断和幽灵漏洞设置的KPTI部分。<br><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001204334700.png" alt="image-20251001204334700"></p>
+<p>最后就是切换到内核栈了,即把per-cpu变量中的栈顶写入RSP。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">movq PER_CPU_VAR(pcpu_hot + X86_top_of_stack), %rsp</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="保存用户态寄存器值"><a href="#保存用户态寄存器值" class="headerlink" title="保存用户态寄存器值"></a>保存用户态寄存器值</h3><p>前面已经设置好内核栈和内核态页表了之后，就开始保存一些寄存器的值了，我们一行行来看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)</span><br><span class="line">	ANNOTATE_NOENDBR #标记这个地址没有endbr指令，并不做什么关键的事情。</span><br><span class="line"></span><br><span class="line">	/* Construct struct pt_regs on stack */</span><br><span class="line">	pushq	$__USER_DS				/* pt_regs-&gt;ss */</span><br><span class="line">	pushq	PER_CPU_VAR(cpu_tss_rw + TSS_sp2)	/* pt_regs-&gt;sp */</span><br><span class="line">	pushq	%r11					/* pt_regs-&gt;flags */</span><br><span class="line">	pushq	$__USER_CS				/* pt_regs-&gt;cs */</span><br><span class="line">	pushq	%rcx					/* pt_regs-&gt;ip */</span><br><span class="line">SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)</span><br><span class="line">	pushq	%rax					/* pt_regs-&gt;orig_ax */</span><br><span class="line"></span><br><span class="line">	PUSH_AND_CLEAR_REGS rax=$-ENOSYS</span><br><span class="line">	</span><br><span class="line">.macro PUSH_AND_CLEAR_REGS rdx=%rdx rcx=%rcx rax=%rax save_ret=0 clear_bp=1 unwind_hint=1</span><br><span class="line">	PUSH_REGS rdx=\rdx, rcx=\rcx, rax=\rax, save_ret=\save_ret unwind_hint=\unwind_hint</span><br><span class="line">	CLEAR_REGS clear_bp=\clear_bp</span><br><span class="line">.endm</span><br><span class="line"></span><br><span class="line">.macro PUSH_REGS rdx=%rdx rcx=%rcx rax=%rax save_ret=0 unwind_hint=1</span><br><span class="line">	.if \save_ret</span><br><span class="line">	pushq	%rsi		/* pt_regs-&gt;si */  # 有些情况栈上已经会存在返回地址，例如call指令压入的，如果直接push会导致返回地址被破坏，因此先把返回地址保存一下，</span><br><span class="line">	movq	8(%rsp), %rsi	/* temporarily store the return address in %rsi */</span><br><span class="line">	movq	%rdi, 8(%rsp)	/* pt_regs-&gt;di (overwriting original return address) */</span><br><span class="line">	.else</span><br><span class="line">	pushq   %rdi		/* pt_regs-&gt;di */</span><br><span class="line">	pushq   %rsi		/* pt_regs-&gt;si */</span><br><span class="line">	.endif</span><br><span class="line">	pushq	\rdx		/* pt_regs-&gt;dx */</span><br><span class="line">	pushq   \rcx		/* pt_regs-&gt;cx */</span><br><span class="line">	pushq   \rax		/* pt_regs-&gt;ax */</span><br><span class="line">	pushq   %r8		/* pt_regs-&gt;r8 */</span><br><span class="line">	pushq   %r9		/* pt_regs-&gt;r9 */</span><br><span class="line">	pushq   %r10		/* pt_regs-&gt;r10 */</span><br><span class="line">	pushq   %r11		/* pt_regs-&gt;r11 */</span><br><span class="line">	pushq	%rbx		/* pt_regs-&gt;rbx */</span><br><span class="line">	pushq	%rbp		/* pt_regs-&gt;rbp */</span><br><span class="line">	pushq	%r12		/* pt_regs-&gt;r12 */</span><br><span class="line">	pushq	%r13		/* pt_regs-&gt;r13 */</span><br><span class="line">	pushq	%r14		/* pt_regs-&gt;r14 */</span><br><span class="line">	pushq	%r15		/* pt_regs-&gt;r15 */</span><br><span class="line"></span><br><span class="line">	.if \unwind_hint</span><br><span class="line">	UNWIND_HINT_REGS</span><br><span class="line">	.endif</span><br><span class="line"></span><br><span class="line">	.if \save_ret</span><br><span class="line">	pushq	%rsi		/* return address on top of stack */ # 最后再写入rsi，即返回地址</span><br><span class="line">	.endif</span><br><span class="line">.endm</span><br><span class="line"></span><br><span class="line">.macro CLEAR_REGS clear_bp=1</span><br><span class="line">	/*</span><br><span class="line">	 * Sanitize registers of values that a speculation attack might</span><br><span class="line">	 * otherwise want to exploit. The lower registers are likely clobbered</span><br><span class="line">	 * well before they could be put to use in a speculative execution</span><br><span class="line">	 * gadget.</span><br><span class="line">	 */</span><br><span class="line">	xorl	%esi,  %esi	/* nospec si  */</span><br><span class="line">	xorl	%edx,  %edx	/* nospec dx  */</span><br><span class="line">	xorl	%ecx,  %ecx	/* nospec cx  */</span><br><span class="line">	xorl	%r8d,  %r8d	/* nospec r8  */</span><br><span class="line">	xorl	%r9d,  %r9d	/* nospec r9  */</span><br><span class="line">	xorl	%r10d, %r10d	/* nospec r10 */</span><br><span class="line">	xorl	%r11d, %r11d	/* nospec r11 */</span><br><span class="line">	xorl	%ebx,  %ebx	/* nospec rbx */</span><br><span class="line">	.if \clear_bp</span><br><span class="line">	xorl	%ebp,  %ebp	/* nospec rbp */</span><br><span class="line">	.endif</span><br><span class="line">	xorl	%r12d, %r12d	/* nospec r12 */</span><br><span class="line">	xorl	%r13d, %r13d	/* nospec r13 */</span><br><span class="line">	xorl	%r14d, %r14d	/* nospec r14 */</span><br><span class="line">	xorl	%r15d, %r15d	/* nospec r15 */</span><br><span class="line"></span><br><span class="line">.endm</span><br></pre></td></tr></table></figure>
+
+<p>然后开始push寄存器到pt_regs结构体</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	/* Construct struct pt_regs on stack */</span><br><span class="line">	pushq	$__USER_DS				/* pt_regs-&gt;ss  用户段DS*/</span><br><span class="line">	pushq	PER_CPU_VAR(cpu_tss_rw + TSS_sp2)	/* pt_regs-&gt;sp 之前保存到tss段的用户态rsp寄存器*/</span><br><span class="line">	pushq	%r11					/* pt_regs-&gt;flags syscall指令自动存储的rflags寄存器*/</span><br><span class="line">	pushq	$__USER_CS				/* pt_regs-&gt;cs 用户段CS寄存器*/</span><br><span class="line">	pushq	%rcx					/* pt_regs-&gt;ip 用户态的下一条指令，是由syscall指令执行时候CPU自动存储到rcx寄存器中的*/</span><br><span class="line">SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)</span><br><span class="line">	pushq	%rax					/* pt_regs-&gt;orig_ax 把rax寄存器压入栈，也就是系统调用号*/</span><br></pre></td></tr></table></figure>
+
+<p>然后是一个宏调用, 就是按顺序压入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">PUSH_AND_CLEAR_REGS rax=$-ENOSYS</span><br><span class="line">.macro PUSH_AND_CLEAR_REGS rdx=%rdx rcx=%rcx rax=%rax save_ret=0 clear_bp=1 unwind_hint=1</span><br><span class="line">	PUSH_REGS rdx=\rdx, rcx=\rcx, rax=\rax, save_ret=\save_ret unwind_hint=\unwind_hint</span><br><span class="line">	CLEAR_REGS clear_bp=\clear_bp</span><br><span class="line">.endm</span><br><span class="line"></span><br><span class="line">.macro PUSH_REGS rdx=%rdx rcx=%rcx rax=%rax save_ret=0 unwind_hint=1</span><br><span class="line">	.if \save_ret</span><br><span class="line">	pushq	%rsi		/* pt_regs-&gt;si */</span><br><span class="line">	movq	8(%rsp), %rsi	/* temporarily store the return address in %rsi */</span><br><span class="line">	movq	%rdi, 8(%rsp)	/* pt_regs-&gt;di (overwriting original return address) */</span><br><span class="line">	.else</span><br><span class="line">	pushq   %rdi		/* pt_regs-&gt;di */</span><br><span class="line">	pushq   %rsi		/* pt_regs-&gt;si */</span><br><span class="line">	.endif</span><br><span class="line">	pushq	\rdx		/* pt_regs-&gt;dx */</span><br><span class="line">	pushq   \rcx		/* pt_regs-&gt;cx */</span><br><span class="line">	pushq   \rax		/* pt_regs-&gt;ax */</span><br><span class="line">	pushq   %r8		/* pt_regs-&gt;r8 */</span><br><span class="line">	pushq   %r9		/* pt_regs-&gt;r9 */</span><br><span class="line">	pushq   %r10		/* pt_regs-&gt;r10 */</span><br><span class="line">	pushq   %r11		/* pt_regs-&gt;r11 */</span><br><span class="line">	pushq	%rbx		/* pt_regs-&gt;rbx */</span><br><span class="line">	pushq	%rbp		/* pt_regs-&gt;rbp */</span><br><span class="line">	pushq	%r12		/* pt_regs-&gt;r12 */</span><br><span class="line">	pushq	%r13		/* pt_regs-&gt;r13 */</span><br><span class="line">	pushq	%r14		/* pt_regs-&gt;r14 */</span><br><span class="line">	pushq	%r15		/* pt_regs-&gt;r15 */</span><br><span class="line"></span><br><span class="line">	.if \unwind_hint</span><br><span class="line">	UNWIND_HINT_REGS</span><br><span class="line">	.endif</span><br><span class="line"></span><br><span class="line">	.if \save_ret</span><br><span class="line">	pushq	%rsi		/* return address on top of stack */</span><br><span class="line">	.endif</span><br><span class="line">.endm</span><br></pre></td></tr></table></figure>
+
+<p>在看这一部分的时候可以结合pt_regs结构体一起来看, 因为压入栈的顺序与pt_regs的顺序相反。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">struct pt_regs &#123;</span><br><span class="line">	/*</span><br><span class="line">	 * C ABI says these regs are callee-preserved. They aren&#x27;t saved on</span><br><span class="line">	 * kernel entry unless syscall needs a complete, fully filled</span><br><span class="line">	 * &quot;struct pt_regs&quot;.</span><br><span class="line">	 */</span><br><span class="line">	unsigned long r15;</span><br><span class="line">	unsigned long r14;</span><br><span class="line">	unsigned long r13;</span><br><span class="line">	unsigned long r12;</span><br><span class="line">	unsigned long bp;</span><br><span class="line">	unsigned long bx;</span><br><span class="line"></span><br><span class="line">	/* These regs are callee-clobbered. Always saved on kernel entry. */</span><br><span class="line">	unsigned long r11;</span><br><span class="line">	unsigned long r10;</span><br><span class="line">	unsigned long r9;</span><br><span class="line">	unsigned long r8;</span><br><span class="line">	unsigned long ax;</span><br><span class="line">	unsigned long cx;</span><br><span class="line">	unsigned long dx;</span><br><span class="line">	unsigned long si;</span><br><span class="line">	unsigned long di;</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">	 * orig_ax is used on entry for:</span><br><span class="line">	 * - the syscall number (syscall, sysenter, int80)</span><br><span class="line">	 * - error_code stored by the CPU on traps and exceptions</span><br><span class="line">	 * - the interrupt number for device interrupts</span><br><span class="line">	 *</span><br><span class="line">	 * A FRED stack frame starts here:</span><br><span class="line">	 *   1) It _always_ includes an error code;</span><br><span class="line">	 *</span><br><span class="line">	 *   2) The return frame for ERET[US] starts here, but</span><br><span class="line">	 *      the content of orig_ax is ignored.</span><br><span class="line">	 */</span><br><span class="line">	unsigned long orig_ax;</span><br><span class="line"></span><br><span class="line">	/* The IRETQ return frame starts here */</span><br><span class="line">	unsigned long ip;</span><br><span class="line"></span><br><span class="line">	union &#123;</span><br><span class="line">		/* CS selector */</span><br><span class="line">		u16		cs;</span><br><span class="line">		/* The extended 64-bit data slot containing CS */</span><br><span class="line">		u64		csx;</span><br><span class="line">		/* The FRED CS extension */</span><br><span class="line">		struct fred_cs	fred_cs;</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	unsigned long flags;</span><br><span class="line">	unsigned long sp;</span><br><span class="line"></span><br><span class="line">	union &#123;</span><br><span class="line">		/* SS selector */</span><br><span class="line">		u16		ss;</span><br><span class="line">		/* The extended 64-bit data slot containing SS */</span><br><span class="line">		u64		ssx;</span><br><span class="line">		/* The FRED SS extension */</span><br><span class="line">		struct fred_ss	fred_ss;</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">	 * Top of stack on IDT systems, while FRED systems have extra fields</span><br><span class="line">	 * defined above for storing exception related information, e.g. CR2 or</span><br><span class="line">	 * DR6.</span><br><span class="line">	 */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>把以上两个结合起来其实就是以下这张图：</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001220608653.png" alt="image-20251001220608653"></p>
+<p>然后仔细观察会发现，rax其实被压入栈了两次，</p>
+<ul>
+<li><p><code>orig_ax</code> 用于 restart_syscall &#x2F; ptrace &#x2F; syscall trace：可以知道用户最初调用哪个 syscall。</p>
+</li>
+<li><p><code>ax</code> 是常规用户寄存器快照，和其他通用寄存器一样，用于 pt_regs 完整保存，虽然两个值一样，但是这里需要给返回值一个占位。</p>
+</li>
+</ul>
+<p>另外还有%rdi并没有被清除，这是因为rdi是syscall的第一个参数，因为会直接被用，所以就不清0了。</p>
+<p>OK 到这里就已经把所有寄存器的值保存到内核栈上了，然后就可以调用真正的系统调用了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/* IRQs are off. */</span><br><span class="line">	movq	%rsp, %rdi</span><br><span class="line">	/* Sign extend the lower 32bit as syscall numbers are treated as int */</span><br><span class="line">	movslq	%eax, %rsi</span><br><span class="line"></span><br><span class="line">	/* clobbers %rax, make sure it is after saving the syscall nr */</span><br><span class="line">	IBRS_ENTER  # 限制间接分支预测</span><br><span class="line">	UNTRAIN_RET # 清理返回栈预测器</span><br><span class="line">	CLEAR_BRANCH_HISTORY # 清分支历史，防止 spec leak</span><br><span class="line">	</span><br><span class="line">	call	do_syscall_64		/* returns with IRQs disabled */</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">__visible noinstr bool do_syscall_64(struct pt_regs *regs, int nr)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们先看这个函数有两个参数，第一个是pt_regs地址，第二个是系统调用号，所以这里汇编将rsp的值，也就是pt_regs的地址给rdi寄存器，也就是ABI规约里的第一个参数，然后把eax，也就是系统调用号给rsi，也就是ABI规约里的第二个参数。然后做了一些防止幽灵攻击的措施。（这里就不详细了解了，可以具体查看相关幽灵和熔断漏洞<a target="_blank" rel="noopener" href="https://events19.linuxfoundation.cn/wp-content/uploads/2017/11/Understanding-Spectre-v2-and-How-the-Vulnerability-Impact-the-Cloud-Security_Gavin-Guo.pdf">Understanding-Spectre-v2-and-How-the-Vulnerability-Impact-the-Cloud-Security_Gavin-Guo.pdf</a>）</p>
+<h3 id="do-syscall-64"><a href="#do-syscall-64" class="headerlink" title="do_syscall_64"></a>do_syscall_64</h3><p>终于我们跳出了汇编的函数，来到了看得明白一点的C函数，我先贴个完整的代码，然后我们再一点点看</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">__visible noinstr <span class="type">bool</span> <span class="title function_">do_syscall_64</span><span class="params">(<span class="keyword">struct</span> pt_regs *regs, <span class="type">int</span> nr)</span></span><br><span class="line">&#123;</span><br><span class="line">	add_random_kstack_offset(); <span class="comment">//给内核栈加一个随机偏移</span></span><br><span class="line">	nr = syscall_enter_from_user_mode(regs, nr); <span class="comment">// 做一些限制检查，比如syscall 过滤/限制（seccomp 等），然后可能要调整syscall的编号，最终nr才是需要调用的编号。</span></span><br><span class="line"></span><br><span class="line">	instrumentation_begin(); <span class="comment">//用于kprobe, ftrace的跟踪</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!do_syscall_x64(regs, nr) &amp;&amp; !do_syscall_x32(regs, nr) &amp;&amp; nr != <span class="number">-1</span>) &#123;</span><br><span class="line">		<span class="comment">/* Invalid system call, but still a system call. */</span></span><br><span class="line">		regs-&gt;ax = __x64_sys_ni_syscall(regs);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	instrumentation_end();</span><br><span class="line">	syscall_exit_to_user_mode(regs);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Check that the register state is valid for using SYSRET to exit</span></span><br><span class="line"><span class="comment">	 * to userspace.  Otherwise use the slower but fully capable IRET</span></span><br><span class="line"><span class="comment">	 * exit path.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* XEN PV guests always use the IRET path */</span></span><br><span class="line">	<span class="keyword">if</span> (cpu_feature_enabled(X86_FEATURE_XENPV))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* SYSRET requires RCX == RIP and R11 == EFLAGS */</span></span><br><span class="line">	<span class="keyword">if</span> (unlikely(regs-&gt;cx != regs-&gt;ip || regs-&gt;r11 != regs-&gt;flags))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* CS and SS must match the values set in MSR_STAR */</span></span><br><span class="line">	<span class="keyword">if</span> (unlikely(regs-&gt;cs != __USER_CS || regs-&gt;ss != __USER_DS))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * On Intel CPUs, SYSRET with non-canonical RCX/RIP will #GP</span></span><br><span class="line"><span class="comment">	 * in kernel space.  This essentially lets the user take over</span></span><br><span class="line"><span class="comment">	 * the kernel, since userspace controls RSP.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * TASK_SIZE_MAX covers all user-accessible addresses other than</span></span><br><span class="line"><span class="comment">	 * the deprecated vsyscall page.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (unlikely(regs-&gt;ip &gt;= TASK_SIZE_MAX))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * SYSRET cannot restore RF.  It can restore TF, but unlike IRET,</span></span><br><span class="line"><span class="comment">	 * restoring TF results in a trap from userspace immediately after</span></span><br><span class="line"><span class="comment">	 * SYSRET.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (unlikely(regs-&gt;flags &amp; (X86_EFLAGS_RF | X86_EFLAGS_TF)))</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Use SYSRET to exit to userspace */</span></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键在于调用系统调用的地方在以下代码片段。先尝试用64位，再尝试32位，如果实在都失败，就用一个ni（not implemented）的系统调用，这样不会挂内核。</p>
+<ul>
+<li><p><strong>do_syscall_x64(regs, nr)</strong> → 尝试调用 64-bit syscall</p>
+</li>
+<li><p><strong>do_syscall_x32(regs, nr)</strong> → 尝试调用 32-bit compatibility syscall</p>
+</li>
+<li><p>如果两者都失败，且 syscall 编号有效 (<code>nr != -1</code>)：</p>
+<ul>
+<li><p>调用 <code>__x64_sys_ni_syscall()</code> → <strong>“not implemented”</strong> syscall</p>
+</li>
+<li><p>将返回值存到 <code>regs-&gt;ax</code>，保证用户态看到正确的返回值（-ENOSYS）</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">if</span> (!do_syscall_x64(regs, nr) &amp;&amp; !do_syscall_x32(regs, nr) &amp;&amp; nr != <span class="number">-1</span>) &#123;</span><br><span class="line">		<span class="comment">/* Invalid system call, but still a system call. */</span></span><br><span class="line">		regs-&gt;ax = __x64_sys_ni_syscall(regs);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> __always_inline <span class="type">bool</span> <span class="title function_">do_syscall_x64</span><span class="params">(<span class="keyword">struct</span> pt_regs *regs, <span class="type">int</span> nr)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Convert negative numbers to very high and thus out of range</span></span><br><span class="line"><span class="comment">	 * numbers for comparisons.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> unr = nr;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (likely(unr &lt; NR_syscalls)) &#123;</span><br><span class="line">		unr = array_index_nospec(unr, NR_syscalls); <span class="comment">//防止幽灵攻击，比如传入一个nr=-1的值，然后转uint时候会变得很大。</span></span><br><span class="line">		regs-&gt;ax = x64_sys_call(regs, unr); <span class="comment">//根据unr的编号调用具体函数</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> __always_inline <span class="type">bool</span> <span class="title function_">do_syscall_x32</span><span class="params">(<span class="keyword">struct</span> pt_regs *regs, <span class="type">int</span> nr)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Adjust the starting offset of the table, and convert numbers</span></span><br><span class="line"><span class="comment">	 * &lt; __X32_SYSCALL_BIT to very high and thus out of range</span></span><br><span class="line"><span class="comment">	 * numbers for comparisons.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> xnr = nr - __X32_SYSCALL_BIT;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (IS_ENABLED(CONFIG_X86_X32_ABI) &amp;&amp; likely(xnr &lt; X32_NR_syscalls)) &#123;</span><br><span class="line">		xnr = array_index_nospec(xnr, X32_NR_syscalls);</span><br><span class="line">		regs-&gt;ax = x32_sys_call(regs, xnr);</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实x64_sys_call的代码也很巧妙,就是一个简单的switch，然后中间用一个头文件弄了一个自动生成的syscall表，具体内容看文件<code>arch/x86/entry/syscalls/syscall_64.tbl</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="title function_">x64_sys_call</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> pt_regs *regs, <span class="type">unsigned</span> <span class="type">int</span> nr)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">switch</span> (nr) &#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">include</span> <span class="string">&lt;asm/syscalls_64.h&gt;</span></span></span><br><span class="line">	<span class="keyword">default</span>: <span class="keyword">return</span> __x64_sys_ni_syscall(regs);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>OK到这里就大概清楚了具体的系统调用怎么调用的，怎么call到表里的表项的。</p>
+<h3 id="系统调用的返回"><a href="#系统调用的返回" class="headerlink" title="系统调用的返回"></a>系统调用的返回</h3><p>先看看完整的代码路径, 执行完do_syscall_64之后，会把syscall返回的结果写入pt_regs-&gt;ax部分，然后do_syscall_64的返回值如果是true，则是使用sysret返回，是快速路径，如果是false，则使用iret满速路径。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">	call	do_syscall_64		/* returns with IRQs disabled */</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">	 * Try to use SYSRET instead of IRET if we&#x27;re returning to</span><br><span class="line">	 * a completely clean 64-bit userspace context.  If we&#x27;re not,</span><br><span class="line">	 * go to the slow exit path.</span><br><span class="line">	 * In the Xen PV case we must use iret anyway.</span><br><span class="line">	 */</span><br><span class="line"></span><br><span class="line">	ALTERNATIVE &quot;testb %al, %al; jz swapgs_restore_regs_and_return_to_usermode&quot;, \</span><br><span class="line">		&quot;jmp swapgs_restore_regs_and_return_to_usermode&quot;, X86_FEATURE_XENPV</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">	 * We win! This label is here just for ease of understanding</span><br><span class="line">	 * perf profiles. Nothing jumps here.</span><br><span class="line">	 */</span><br><span class="line">syscall_return_via_sysret:</span><br><span class="line">	IBRS_EXIT #清除IBRS相关寄存器</span><br><span class="line">	POP_REGS pop_rdi=0 # 把所有pt_regs寄存器弹出来，并且不弹出%rdi，因为本身没有压入过</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">	 * Now all regs are restored except RSP and RDI.</span><br><span class="line">	 * Save old stack pointer and switch to trampoline stack.</span><br><span class="line">	 */</span><br><span class="line">	movq	%rsp, %rdi # 把当前栈顶%rsp 给 rdi寄存器</span><br><span class="line">	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp  #把trampoline的栈给rsp，这是一个固定的小栈</span><br><span class="line">	UNWIND_HINT_END_OF_STACK</span><br><span class="line"></span><br><span class="line">	pushq	RSP-RDI(%rdi)	/* RSP */  </span><br><span class="line">	pushq	(%rdi)		/* RDI */</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">	 * We are on the trampoline stack.  All regs except RDI are live.</span><br><span class="line">	 * We can do future final exit work right here.</span><br><span class="line">	 */</span><br><span class="line">	STACKLEAK_ERASE_NOCLOBBER</span><br><span class="line"></span><br><span class="line">	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi</span><br><span class="line"></span><br><span class="line">	popq	%rdi</span><br><span class="line">	popq	%rsp</span><br><span class="line">SYM_INNER_LABEL(entry_SYSRETQ_unsafe_stack, SYM_L_GLOBAL)</span><br><span class="line">	ANNOTATE_NOENDBR</span><br><span class="line">	swapgs #把 GS 基址从内核的 per-cpu 基址交换回用户态 GS（TLS）的值。这一步必须在恢复用户寄存器并在最终 sysretq 之前执行，因为用户态的 GS/FS 必须是用户原值。</span><br><span class="line">	CLEAR_CPU_BUFFERS</span><br><span class="line">	sysretq #这里就返回用户态了，后续代码都不会被调用到。 sysretq：真正的、快速的返回到用户态（使用 RCX = RIP, R11 = RFLAGS，CS/SS 由 MSR_STAR 指定，且 RSP 已经被恢复为用户 RSP）。sysretq 之后 CPU 立即在用户态继续执行。</span><br><span class="line">SYM_INNER_LABEL(entry_SYSRETQ_end, SYM_L_GLOBAL)</span><br><span class="line">	ANNOTATE_NOENDBR</span><br><span class="line">	int3  # int3 是调试断点指令（如果控制流不该到这里却到这里，触发 oops / bugcheck）。在正确的系统里 sysretq 不会返回到下一条指令，这里的 int3 只是保险（&quot;should not reach&quot;）。</span><br><span class="line">SYM_CODE_END(entry_SYSCALL_64)</span><br></pre></td></tr></table></figure>
+
+<p>然后有两行代码比较魔幻</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">	pushq	RSP-RDI(%rdi)	<span class="comment">/* RSP */</span>  </span><br><span class="line">	pushq	(%rdi)		<span class="comment">/* RDI */</span></span><br><span class="line">        </span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DATA(offset)		(KEXEC_CONTROL_CODE_MAX_SIZE+(offset))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Minimal CPU state */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RSP			DATA(0x0)</span></span><br></pre></td></tr></table></figure>
+
+<p>因为我们进入了trampoline栈，但是呢原本内核栈还有一些数据没有pop完，如下所示, 所以这两行总的作用就是复制原来旧内核栈上保存的 RSP 和 RDI 到当前 trampoline 栈以便恢复。那么以下这些寄存器就不pop了嘛，有人肯定会有疑问。这就有了iret和sysret的区别，iret要求栈上需要有ss sp这些东西，从而自动会pop，但是sysret不会，这些脏东西会留在内核栈上，但是无所谓，下次进来的时候会把这些覆盖。</p>
+<p><img src="https://zhuzhuzaiimgbed.oss-cn-hangzhou.aliyuncs.com/img/image-20251001233147305.png" alt="image-20251001233147305"></p>
+<p>具体一点就是</p>
+<ul>
+<li><p><strong><code>iretq</code></strong> 要求栈上有严格的 frame（SS, RSP, RFLAGS, CS, RIP），所以 CPU 会真正 pop 它们。</p>
+</li>
+<li><p><strong><code>sysretq</code></strong> 更轻量：它直接从 <code>%rcx</code> 取返回地址，从 <code>%r11</code> 取 RFLAGS，然后跳回用户态。它根本不会理会栈上的那一坨。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/os/" rel="tag"># os</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/19/note/%E7%BA%A2%E9%BB%91%E6%A0%91/" rel="prev" title="红黑树">
+                  <i class="fa fa-angle-left"></i> 红黑树
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/09/19/note/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="next" title="文件系统">
+                  文件系统 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/unsatisfying" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+  
+
+      
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/click/fireWorks.js></script>
+      
+
+      s
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/move/fairyDustCursor.js></script>
+      
+    
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Xmp论文解读与翻译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xMP：Selective Memory Protection for Kernel and User Space">
+<meta property="og:url" content="https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/xmp/index.html">
+<meta property="og:site_name" content="Zzzai&#39;s Blog">
+<meta property="og:description" content="Xmp论文解读与翻译">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-07T11:38:03.009Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="virtualization">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/xmp/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/xmp/","path":"2021/08/17/paper_reading/虚拟化/xmp/","title":"xMP：Selective Memory Protection for Kernel and User Space"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>xMP：Selective Memory Protection for Kernel and User Space | Zzzai's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zzzai's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E7%9A%84%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">需要的背景知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#altp2m"><span class="nav-number">1.1.</span> <span class="nav-text">altp2m</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VE-Virtualization-Exception"><span class="nav-number">1.2.</span> <span class="nav-text">#VE:Virtualization Exception</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VMFUNC"><span class="nav-number">1.3.</span> <span class="nav-text">VMFUNC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MPK-Memory-Protection-Key"><span class="nav-number">1.4.</span> <span class="nav-text">MPK:Memory-Protection Key</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EPTP-switch"><span class="nav-number">1.5.</span> <span class="nav-text">EPTP switch</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Impletment"><span class="nav-number">2.</span> <span class="nav-text">Impletment</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#buddy-allocator"><span class="nav-number">2.1.</span> <span class="nav-text">buddy allocator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slab-allocator"><span class="nav-number">2.2.</span> <span class="nav-text">slab allocator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Switches-across-Execution-Contexts"><span class="nav-number">2.3.</span> <span class="nav-text">Switches across Execution Contexts</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="nav-number">2.3.1.</span> <span class="nav-text">上下文切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%B8%AD%E6%96%AD"><span class="nav-number">2.3.2.</span> <span class="nav-text">硬中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%B8%AD%E6%96%AD"><span class="nav-number">2.3.3.</span> <span class="nav-text">软中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#User-space-API"><span class="nav-number">2.3.4.</span> <span class="nav-text">User space API</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zhuzhuzai"
+      src="/images/portrait.gif">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description">Talk is cheap, show me the code!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/unsatisfying" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;unsatisfying" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:824941284@qq.com" title="E-Mail → mailto:824941284@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/xmp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/portrait.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zzzai's Blog">
+      <meta itemprop="description" content="Talk is cheap, show me the code!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="xMP：Selective Memory Protection for Kernel and User Space | Zzzai's Blog">
+      <meta itemprop="description" content="Xmp论文解读与翻译">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          xMP：Selective Memory Protection for Kernel and User Space
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-17 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-17T00:00:00+08:00">2021-08-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-07 19:38:03" itemprop="dateModified" datetime="2025-10-07T19:38:03+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/paper/" itemprop="url" rel="index"><span itemprop="name">paper</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">Xmp论文解读与翻译</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="需要的背景知识"><a href="#需要的背景知识" class="headerlink" title="需要的背景知识"></a>需要的背景知识</h1><h2 id="altp2m"><a href="#altp2m" class="headerlink" title="altp2m"></a>altp2m</h2><ul>
+<li><p>p2m: guest Physical memory to machine physical</p>
+<p>p2m代表从客户机物理地址到机器真实物理地址的内存管理层。这一层是为了多个VM之间的隔离。在XEN中，这一层叫Hardware Assisted Paging(hap).</p>
+</li>
+<li><p>altp2m</p>
+<p>​    而 altp2m允许为每个VM创建多个EPT表，并且Intel已经支持了这种特性，在VMCS结构中最多允许有512个EPT指针。</p>
+<p>​    因为当VM的某个访问页面的权限出问题了的时候，会陷入的VMM，在VM内部并不知道外面做了什么事情。而有的时候对于多个vcpu的系统来说，对于一块页面访问出现了权限问题，可能要放松对于该页面的权限，但是这会导致别的vcpu可能会因为竞争关系访问到宽松权限后的权限，这就会导致有安全问题，于是允许为不同的vcpu设置不同的stage2页表，就可以避免这种问题。当然也可以在访问的时候暂停别的vcpu，这种方案会导致很多的overhead。也可以采用软件模拟的方式，捕获的访问的异常，然后在需要放松权限的地方，陷入到VMM进行模拟。（这种方式对于XEN好像不太友好。原话是这样的：This solution, while supported in Xen, is not particularly ideal either as Xen’s emulator is incomplete and is known to have issues that can lead to guest instability. ）</p>
+<p>​    利用这种特性，可以将VM映射到不同的物理页，也可以将VM对同一物理页有不同的权限。总之就是允许stage2的页表更加灵活，并且有多个。</p>
+</li>
+</ul>
+<h2 id="VE-Virtualization-Exception"><a href="#VE-Virtualization-Exception" class="headerlink" title="#VE:Virtualization Exception"></a>#VE:Virtualization Exception</h2><p>​	#VE是intel的CPU提供的一个特性。原本一些异常的操作会导致VM exit，现在允许将一些设定的情形不再导致VM exit，而是出发一个#VE，然后再guest中进行处理，减少开销。</p>
+<p>​	开启#VE需要设置<code> EPT-violation #VE” VM-execution control</code> 。当发生VE的时候，CPU会将关于异常的信息保存到<code> virtualization-exception information area</code>。一些VMM允许guest访问这个area，并改一些这个area的设置，来防止发生VM exit。</p>
+<p>​	特别的，EPT的访问再没设置VE时候都会导致VM exit。如果设置了VE，一些特定的EPT违规行为就会触发VE。page entry的第63位bit设置则表明抑制VE。一些EPT违规的情形能够设置为VE参考手册 卷3-25.5.7。</p>
+<p>​	具体来说，如果VMCS中的异常位图的第20位（#VE）为1，则该VE会导致VM exit，并将信息存入VMCS中VM exit区域。如果该位为0并且是没有导致VM exit的情况则直接在guest中使用IDT表中的20号中断，如果导致VM exit，则会在<code> IDT-vectoring information field</code> 中存入异常信息。</p>
+<h2 id="VMFUNC"><a href="#VMFUNC" class="headerlink" title="VMFUNC"></a>VMFUNC</h2><p>​	VMFUNC是一条Intel CPU提供的指令。详情参考手册卷3-25.5.6</p>
+<p>​	相较于hypercall使用的VMCALL指令而言，VMFUNC是在guest中运行VMM的函数，不会导致VM exit。 而hypercall是向VMM请求服务，会导致VM exit，将控制权转至VMM。</p>
+<h2 id="MPK-Memory-Protection-Key"><a href="#MPK-Memory-Protection-Key" class="headerlink" title="MPK:Memory-Protection Key"></a>MPK:Memory-Protection Key</h2><p>​	MPK是Intel CPU提供的一种特性，用以页级粒度的保护。它只针对数据获取的权限（accessable，writable），没有针对指令获取。并且只有64位时候有MPK，32位没有。该特性使得能够给用户态提供申请保护，而不用陷入内核修改页表项，减小了开销。</p>
+<p>​	MPK最多提供16个key（stage1 page entry中的（59-62）4个bit位。）。对于用户态：CR4.PKE决定了从用户态地址获取页面的MPK开启。PKRU寄存器（32位）中存放了不同的key的权限。对于内核态：CR4.PKS决定了从内核态地址获取页面的MPK的开启，IA32_PKRS MSR寄存器(64位寄存器，但是低32位存放了权限，高32位必须为0)存放了不同key的权限。</p>
+<p>​	对于每个key的权限，用两个bit表示，所以16个key就是32位。 偶数位是access-disable bit,奇数位是write-disable bit。</p>
+<p>​	kernel提供了syscall给用户态用以申请MPK。详情见</p>
+<h2 id="EPTP-switch"><a href="#EPTP-switch" class="headerlink" title="EPTP switch"></a>EPTP switch</h2><p>​	EPTP switching 是VMFUNC 0.这个函数允许在guest中为自己切换EPT表，但是这些EPT表是提前在hypervisor中配置好的。详情见手册卷3-25.5.6.3</p>
+<p>​	寄存器ECX用以选择EPTP。Intel现在最多支持512个EPTP，所以ECX超过512就会导致VM exit。</p>
+<h1 id="Impletment"><a href="#Impletment" class="headerlink" title="Impletment"></a>Impletment</h1><h2 id="buddy-allocator"><a href="#buddy-allocator" class="headerlink" title="buddy allocator"></a>buddy allocator</h2><p>​	对于内存分配器中的buddy allocator，增加了__GFP_XMP标志位，用以申请xMP domain区域的页。通过8个bit来分配256个domain。利用altp2m可以切换每个domain的view（不同权限）</p>
+<h2 id="slab-allocator"><a href="#slab-allocator" class="headerlink" title="slab allocator"></a>slab allocator</h2><p>​	slab是建立在buddy之上，更加细粒度的分配器。它将一页分成了多个部分，分配给一些特定的结构，并且有专门的slab cache用于分配和释放内核的数据结构（例如task_struct）。</p>
+<p>​	xMP允许在使用slab的时候，将slab放到xMP domain中，因为他是建立在buddy之上的。每当slab cache 要申请新的页时，就可以利用xMP的接口申请xMP domain的页。</p>
+<h2 id="Switches-across-Execution-Contexts"><a href="#Switches-across-Execution-Contexts" class="headerlink" title="Switches across Execution Contexts"></a>Switches across Execution Contexts</h2><h3 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h3><p>​	在task_struct中增加了domian index字段，用于识别当前thread处于何种xMP view。该字段初始值为最严格的domain view。 当要进入domain区域的时候会切换index值，从而切换权限。之后再上下文切换的时候index值相应的会保存。</p>
+<h3 id="硬中断"><a href="#硬中断" class="headerlink" title="硬中断"></a>硬中断</h3><p>​	在硬件中断的时候，将view切换成最严格的domain，防止潜在的中断处理程序问题访问受保护的内存。然后当结束中断返回时，如果要访问xMP domain的内容，会产生一个#VE（原本因为权限问题会陷入VMM），然后#VE handler 处理，验证thread 访问domain的合法性，然后切换domain view，然后继续运行。</p>
+<h3 id="软中断"><a href="#软中断" class="headerlink" title="软中断"></a>软中断</h3><p>​	软中断指的是硬件中断中断之后，中断的下半部分机制，这部分kernel由软件实现。（软件中断和软中断在中文上有区别，因为翻译问题）二者区别参考</p>
+<p>[知乎]: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/80371745">https://zhuanlan.zhihu.com/p/80371745</a>	“知乎的解答”</p>
+<p>​	这部分利用Linux的（CONFIG_RCU_NOCB_CPU），不用软中断处理，而是起另一个线程来处理，这样就可以根据不同的线程可能要在callback中访问xMP domain，就可以分别给每个线程处理irq时候起的线程进行配置。（这部分还不是特别明白，先这么写）</p>
+<h3 id="User-space-API"><a href="#User-space-API" class="headerlink" title="User space API"></a>User space API</h3><p>​	创建了四个系统调用，类似MPK的系统调用，创建sys_xmp_{alloc,free,mprotect}，但是他不能像MPK那样在用户空间使用VMFUNC指令，所以新建了一个系统调用sys_xmp_enter，用以进入xMP domain，并更新domain view。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/virtualization/" rel="tag"># virtualization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/V-shuffle/" rel="prev" title="V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing">
+                  <i class="fa fa-angle-left"></i> V-Shuttle：Scalable and Semantics-Aware Hypervisor Virtual Device Fuzzing
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/17/paper_reading/%E8%99%9A%E6%8B%9F%E5%8C%96/%E5%B5%8C%E5%A5%97%E8%99%9A%E6%8B%9F%E5%8C%96%20nest%20virtualization/" rel="next" title="Nested virtualization">
+                  Nested virtualization <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/unsatisfying" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+  
+
+      
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/click/fireWorks.js></script>
+      
+
+      s
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/move/fairyDustCursor.js></script>
+      
+    
+</body>
+</html>

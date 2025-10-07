@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhuzhuzai.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs 论文笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs">
+<meta property="og:url" content="https://zhuzhuzai.top/2022/05/08/paper_reading/Fuzz/HyperFuzzer/index.html">
+<meta property="og:site_name" content="Zzzai&#39;s Blog">
+<meta property="og:description" content="HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs 论文笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211209131632848.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211209132958700.png">
+<meta property="article:published_time" content="2022-05-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-07T11:50:31.809Z">
+<meta property="article:author" content="Zhuzhuzai">
+<meta property="article:tag" content="Fuzz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211209131632848.png">
+
+
+<link rel="canonical" href="https://zhuzhuzai.top/2022/05/08/paper_reading/Fuzz/HyperFuzzer/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhuzhuzai.top/2022/05/08/paper_reading/Fuzz/HyperFuzzer/","path":"2022/05/08/paper_reading/Fuzz/HyperFuzzer/","title":"HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs | Zzzai's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zzzai's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HyperFuzzer-An-Efficient-Hybrid-Fuzzer-for-Virtual-CPUs"><span class="nav-number">1.</span> <span class="nav-text">HyperFuzzer: An Efficient Hybrid Fuzzer for Virtual CPUs</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#contribution"><span class="nav-number">1.1.</span> <span class="nav-text">contribution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motivation"><span class="nav-number">1.2.</span> <span class="nav-text">motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#overview"><span class="nav-number">1.3.</span> <span class="nav-text">overview</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#thread-model"><span class="nav-number">1.3.1.</span> <span class="nav-text">thread model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hyperfuzzer%E2%80%99s-design"><span class="nav-number">1.3.2.</span> <span class="nav-text">hyperfuzzer’s design</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Design"><span class="nav-number">1.4.</span> <span class="nav-text">Design</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fuzzing-setup"><span class="nav-number">1.4.1.</span> <span class="nav-text">fuzzing setup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E6%A8%A1%E5%9E%8B%EF%BC%9A%E5%B0%86-VM-%E5%AE%8C%E6%95%B4%E7%8A%B6%E6%80%81%E4%BD%9C%E4%B8%BA-fuzzing-input"><span class="nav-number">1.4.2.</span> <span class="nav-text">输入模型：将 VM 完整状态作为 fuzzing input</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzzing-%E8%BF%90%E8%A1%8C%E6%96%B9%E5%BC%8F%EF%BC%9A%E5%8F%AA%E8%A7%A6%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AA-VM-trap"><span class="nav-number">1.4.3.</span> <span class="nav-text">Fuzzing 运行方式：只触发第一个 VM trap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nimble-Symbolic-Execution%EF%BC%88NSE%EF%BC%89%EF%BC%9A%E7%94%A8%E4%BD%8E%E5%BC%80%E9%94%80%E6%8E%A7%E5%88%B6%E6%B5%81-%E9%87%8D%E6%9E%84%E8%BF%91%E4%BC%BC%E6%89%A7%E8%A1%8C%E8%BD%A8%E8%BF%B9"><span class="nav-number">1.4.4.</span> <span class="nav-text">Nimble Symbolic Execution（NSE）：用低开销控制流 + 重构近似执行轨迹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B7%E5%90%88%E6%9C%BA%E5%88%B6%EF%BC%9A%E8%A6%86%E7%9B%96%E5%AF%BC%E5%90%91-%E7%AC%A6%E5%8F%B7%E6%8C%87%E5%AF%BC%E7%BB%93%E5%90%88"><span class="nav-number">1.4.5.</span> <span class="nav-text">混合机制：覆盖导向 + 符号指导结合</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zhuzhuzai"
+      src="/images/portrait.gif">
+  <p class="site-author-name" itemprop="name">Zhuzhuzai</p>
+  <div class="site-description" itemprop="description">Talk is cheap, show me the code!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/unsatisfying" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;unsatisfying" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:824941284@qq.com" title="E-Mail → mailto:824941284@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhuzhuzai.top/2022/05/08/paper_reading/Fuzz/HyperFuzzer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/portrait.gif">
+      <meta itemprop="name" content="Zhuzhuzai">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zzzai's Blog">
+      <meta itemprop="description" content="Talk is cheap, show me the code!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs | Zzzai's Blog">
+      <meta itemprop="description" content="HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs 论文笔记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-05-08 00:00:00" itemprop="dateCreated datePublished" datetime="2022-05-08T00:00:00+08:00">2022-05-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-07 19:50:31" itemprop="dateModified" datetime="2025-10-07T19:50:31+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/paper/" itemprop="url" rel="index"><span itemprop="name">paper</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">HyperFuzzer：An Efficient Hybrid Fuzzer for Virtual CPUs 论文笔记</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="HyperFuzzer-An-Efficient-Hybrid-Fuzzer-for-Virtual-CPUs"><a href="#HyperFuzzer-An-Efficient-Hybrid-Fuzzer-for-Virtual-CPUs" class="headerlink" title="HyperFuzzer: An Efficient Hybrid Fuzzer for Virtual CPUs"></a>HyperFuzzer: An Efficient Hybrid Fuzzer for Virtual CPUs</h1><h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution"></a>contribution</h2><ul>
+<li>The first efficient hybrid fuzzer for virtual CPUs without using a slow hardware emulator. </li>
+<li>The Nimble Symbolic Execution technique that enables whitebox fuzzing for virtual CPUs with only a control-flow trace recorded by the commodity hardware. </li>
+<li>An effective prototype of HyperFuzzer that has found 11 previously unknown virtual CPU bugs in the Hyper-V hypervisor.</li>
+</ul>
+<h2 id="motivation"><a href="#motivation" class="headerlink" title="motivation"></a>motivation</h2><p>​	这篇paper以一个hyperfuzzer找到的bug来解释动机。这个bug发生在16bit 保护模式下的情况，并且没有页面保护的时候，VM试图执行一个APIC的MMIO区域的指令，该指令被map在物理地址0xFEE00000位置，随后会trap进入hypervisor模拟该指令，在这种情况下，hypervisor发现VM处于16bit情况下，于是会把前面的物理地址转为低16位，即0x0000，从而发生bug。这主要是由于hypervisor无法理解在x86上16bit实模式和16bit保护模式的区别。16bit实模式和保护模式的有效数据地址都是16bit，然后指令指针在实模式下是16bit，在保护模式下是32bit。（这种差异在手册中也没有详细说明）。</p>
+<p>​	为了找寻这种bug，从而开发了hyperfuzzer，并且提出了两个requirements：</p>
+<ul>
+<li>必须mutate一个VM entire state，而不是仅仅是它运行的指令。这是由于有些状态定义了vm的模式状态，就比如上面bug所说的16bit保护模式，这些状态是被GDT中的两个bit位控制的。</li>
+<li>HyperFuzzer必须支持基于动态符号执行的精确输入生成。为了在16位保护模式下生成新的虚拟机状态，HyperFuzzer需要对guest GDT中的2位进行反置。这要求它精确地跟踪虚拟机管理程序检查guest VM模式时的路径约束。</li>
+</ul>
+<h2 id="overview"><a href="#overview" class="headerlink" title="overview"></a>overview</h2><h3 id="thread-model"><a href="#thread-model" class="headerlink" title="thread model"></a>thread model</h3><p>​	假设攻击者能够完全控制guest VM，并且能够控制虚拟硬盘，由此可以控制boot的代码以及guestOS。</p>
+<h3 id="hyperfuzzer’s-design"><a href="#hyperfuzzer’s-design" class="headerlink" title="hyperfuzzer’s design"></a>hyperfuzzer’s design</h3><p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211209131632848.png" alt="image-20211209131632848"></p>
+<p>Inputs就是一个完整的VM state，即一些寄存器状态，一些即将运行的指令以及这些指令运行的上下文环境。</p>
+<p>每个input loop会在hyper-V的一个VM中运行，这些VM会触发VCPU的执行，然后可能会暂停VM 触发一个陷入到hypervisor。在这个过程中，hyperfuzzer利用Intel PT等硬件特性去记录控制流。</p>
+<h2 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h2><h3 id="fuzzing-setup"><a href="#fuzzing-setup" class="headerlink" title="fuzzing setup"></a>fuzzing setup</h3><p><img src="https://raw.githubusercontent.com/unsatisfying/picture-server/main/img/image-20211209132958700.png" alt="image-20211209132958700"></p>
+<h3 id="输入模型：将-VM-完整状态作为-fuzzing-input"><a href="#输入模型：将-VM-完整状态作为-fuzzing-input" class="headerlink" title="输入模型：将 VM 完整状态作为 fuzzing input"></a>输入模型：将 VM 完整状态作为 fuzzing input</h3><ul>
+<li>传统的 fuzzing 通常把“指令”、“参数”或“系统调用”作为输入来变异。HyperFuzzer 的 insight 是：<strong>虚拟 CPU 的行为主要由虚拟机状态（VM state，包括寄存器、内存、控制结构等）决定</strong>。</li>
+<li>因此每个 fuzzing 样本是一个 VM 的完整状态快照（或者说足够完整以使得 hypervisor 在第一次 VM 退出时可以执行）。通过变异该状态，既可以变异要执行的指令，也可以变异周围的架构环境（例如段寄存器、页表、控制寄存器等）。</li>
+<li>为了效率，HyperFuzzer 并不要求 snapshot 包含冗余无用状态，而是精简到“架构上必须的那部分”（例如页表只有在必要时候才包含等）。这样输入体积可以压得很小（几百字节级别），便于快速变异与恢复。</li>
+</ul>
+<h3 id="Fuzzing-运行方式：只触发第一个-VM-trap"><a href="#Fuzzing-运行方式：只触发第一个-VM-trap" class="headerlink" title="Fuzzing 运行方式：只触发第一个 VM trap"></a>Fuzzing 运行方式：只触发第一个 VM trap</h3><ul>
+<li>为了简化分析，HyperFuzzer 设计让 VM 在恢复后 <strong>立即触发一次 VM 退出（VMEXIT）</strong>，即 guest 执行一条特殊指令或者通过单步强制退出，以便 hypervisor 介入。然后抓取这次退出进入 hypervisor 的控制流执行，处理完这次退出之后就停止该执行。即只 fuzz “单次 trap 进入 hypervisor 的这条路径”。</li>
+<li>这样做的好处是：<ol>
+<li>避免在 guest 中做大量执行与符号追踪（减少复杂性）<ol start="2">
+<li>每次测试的路径较短，使得符号执行、约束求解更加可控</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>虽然看似只能覆盖一次 VMEXIT 的代码路径，但论文认为：因为你可以对 VM 状态做变异，不同的状态就可能触发 hypervisor 内不同的分支／退出行为，从而整体可以探索较为全面的 vCPU 实现。</li>
+</ul>
+<h3 id="Nimble-Symbolic-Execution（NSE）：用低开销控制流-重构近似执行轨迹"><a href="#Nimble-Symbolic-Execution（NSE）：用低开销控制流-重构近似执行轨迹" class="headerlink" title="Nimble Symbolic Execution（NSE）：用低开销控制流 + 重构近似执行轨迹"></a>Nimble Symbolic Execution（NSE）：用低开销控制流 + 重构近似执行轨迹</h3><ul>
+<li>传统的符号执行（白盒分析）需要详尽的执行轨迹（control flow + data flow）记录。但这样会带巨大的开销，尤其是在 hypervisor 级别。HyperFuzzer 不记录完整数据流，仅借助<strong>硬件跟踪机制</strong>（如 Intel Processor Trace, PT）来记录 <strong>控制流</strong>，即指令&#x2F;分支走向（不记录寄存器或内存具体值）</li>
+<li>然后，通过已知的 fuzzing input（即 VM 状态）+ 控制流记录，<strong>在用户态重构一个“近似”的执行轨迹</strong>，在这个轨迹上做符号执行、路径约束处理，生成新的输入。这个过程就是论文称的 <strong>Nimble Symbolic Execution (NSE)</strong>。</li>
+<li>在重构过程中面临两大挑战：<br>  \1. <strong>缺失内部未知状态</strong>：hypervisor 内部可能有一些状态在控制流记录里不可见（例如超内核内部状态、缓存、内部指针），这些状态若被用到路径约束或决定 memory 地址，会影响符号执行。论文通过“占位赋值”（给未知内存&#x2F;寄存器赋一个任意合法具体值）在多数情况下规避问题；并指出在 CPU 虚拟化场景下约 98% 的路径判断不依赖这些未知内部状态。<br>  \2. <strong>隐藏硬件检查 (hidden hardware constraints)</strong>：硬件在做 VMEXIT 前会对 VM 状态做一些验证、检查（这些在 hypervisor 代码里不可见），这些检查不在控制流里也不会被符号执行捕获。若生成的新输入违反这些硬件检查，则硬件可能拒绝进入 hypervisor。论文为此做了两方面缓解：<br>  - 对符号变量做<strong>按位建模</strong>，防止在求解新输入时无意间破坏那些硬件已有的约束（比如某个 bit 一定要为 1）<br>  - 应用 “无关约束消除”（unrelated constraint elimination）技巧：在构造 path constraint 时，移除与欲翻流程分支无关的符号变量或约束，以减少可能引入与硬件检查冲突的改动。</li>
+</ul>
+<h3 id="混合机制：覆盖导向-符号指导结合"><a href="#混合机制：覆盖导向-符号指导结合" class="headerlink" title="混合机制：覆盖导向 + 符号指导结合"></a>混合机制：覆盖导向 + 符号指导结合</h3><ul>
+<li>HyperFuzzer 的 fuzzing 循环融合了灰盒变异 (coverage-guided mutation, 如 AFL) 和 白盒输入生成 (通过 NSE) 两部分。对于进入新 coverage 的样本，会交给 NSE 去生成新的输入；新输入再执行、判断是否扩展 coverage。</li>
+<li>为了效率，只有一部分样本（“interesting inputs”）才会被送去 NSE 符号处理，而非所有样本都做符号执行，从而节省资源。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Fuzz/" rel="tag"># Fuzz</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/04/27/note/%E4%B8%AD%E6%96%AD/" rel="prev" title="中断">
+                  <i class="fa fa-angle-left"></i> 中断
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/05/08/paper_reading/DMA/Securing%20DMA%20through%20Virtualization/" rel="next" title="Securing DMA through Virtualization">
+                  Securing DMA through Virtualization <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhuzhuzai</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/unsatisfying" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+  
+
+      
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/click/fireWorks.js></script>
+      
+
+      s
+        <script async src=https://cdn.jsdelivr.net/npm/hexo-next-mouse-effect@latest/move/fairyDustCursor.js></script>
+      
+    
+</body>
+</html>
